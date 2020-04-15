@@ -184,16 +184,27 @@
         formData.append('img', this.file, this.file.name);
         formData.append("userId", this.$store.state.userId)
         let config = {
-          headers: {'Content-Type': 'multipart/form-data'}
-        };  //添加请求头
-        this.$axios.post('http://localhost:8081/admin/uploadIcon', formData, config)
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'token': store.state.token
+          }
+        }  //添加请求头
+        this.$axios.post(store.state.url + '/user/uploadIcon', formData, config)
           .then(response => {
             console.log(response.data);
           })
       },
       getUername() {
         var _this = this;
-        this.$axios.get("http://localhost:8081/admin/getInfo", {
+        let config = {
+          headers: {
+            'token': store.state.token
+          }
+        }
+        this.$axios.get(store.state.url + "/user/getInfo", {
+          headers: {
+            'token': store.state.token
+          },
           params: {
             id: store.state.userId
           }
@@ -224,13 +235,18 @@
       enterEdit() {
         this.editdialogVisible = false;
         var _this = this;
-        this.$axios.post("http://localhost:8081/admin/editinfo", {
+        let config = {
+          headers: {
+            'token': store.state.token
+          }
+        }
+        this.$axios.post(store.state.url + +"/user/editinfo",{
           id: store.state.userId,
           userName: _this.username,
           email: _this.email,
           sex: _this.sex,
           note: _this.usernote
-        }).then(function (res) {
+        }, config).then(function (res) {
           if (res.data.code == 200) {
             _this.getUername();
           } else {
@@ -259,9 +275,12 @@
         formData.append('oldPassword', this.oldpassword);
         formData.append("newPassword", this.newpassword);
         let config = {
-          headers: {'Content-Type': 'application/x-www-form-urlencoded'}
-        };
-        this.$axios.post("http://localhost:8081/admin/updatepassword",formData,config
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'token': store.state.token
+          }
+        }
+        this.$axios.post(store.state.url + "/user/updatepassword",formData,config
         ).then(function (res) {
           if (res.data.code == 200) {
             _this.$message.success(res.data.msg);
