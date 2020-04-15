@@ -210,7 +210,7 @@
           }
         }).then(function (res) {
           if (res.data.code == 200) {
-            _this.phone = res.data.data.phone
+            _this.phone = res.data.data.account
             _this.username = res.data.data.userName
             _this.sex = res.data.data.sex.toString()
             if (res.data.data.sex == 1) {
@@ -240,7 +240,7 @@
             'token': store.state.token
           }
         }
-        this.$axios.post(store.state.url + +"/user/editinfo",{
+        this.$axios.post(store.state.url +'/user/editinfo',{
           id: store.state.userId,
           userName: _this.username,
           email: _this.email,
@@ -253,7 +253,7 @@
             _this.$message.error(res.data.msg);
           }
         }).catch(function (err) {
-          _this.$message.error(err.data)
+          _this.$message.error("错误")
         })
       },
       cancelEdit() {

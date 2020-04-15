@@ -177,9 +177,6 @@
       <el-row class="editUserItem" style="margin-top: 50px">
         <el-col :span="3" class="editUserItemLeft"><span>身份：</span></el-col>
         <el-col :span="12">
-          <!--          <el-radio v-model="identity" label="2">访客</el-radio>-->
-          <!--          <el-radio v-model="identity" label="1">管理员</el-radio>-->
-          <!--          <el-radio v-model="identity" label="0">超级管理员</el-radio>-->
         </el-col>
       </el-row>
       <el-row class="editUserItem">

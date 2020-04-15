@@ -142,7 +142,7 @@
         }).then(function (res) {
           if (res.data.code == 200) {
             store.commit('setUserName', res.data.data.userName)
-            _this.account = res.data.data.phone
+            _this.account = res.data.data.account
           } else {
             _this.$message.error(res.data.msg)
           }

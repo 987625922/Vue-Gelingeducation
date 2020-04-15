@@ -71,7 +71,7 @@
           store.commit('setUserId', "-1")
           this.$router.push('Login')
         } else if (command == 'userinfo') {
-          this.$router.push('People')
+          this.$router.push('UserInfo')
         }
       },
       // 侧边栏折叠

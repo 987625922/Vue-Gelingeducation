@@ -17,7 +17,7 @@ export default new Router({
       component: p2Login
     },
     {
-      path: 'login',
+      path: '/login',
       name: 'p2login',
       component: p2Login
     },
