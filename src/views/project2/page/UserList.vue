@@ -15,7 +15,7 @@
         <!--        </el-select>-->
         <el-input v-model="query.name" placeholder="用户名" class="handle-input mr10"></el-input>
         <el-button type="primary" icon="el-icon-search" @click="selectName">搜索</el-button>
-        <el-button type="primary" icon="el-icon-plus" @click="adddialogVisible = true" circle class="add"></el-button>
+        <el-button type="primary" icon="el-icon-plus" @click="showAddUser" circle class="add"></el-button>
         <el-button type="primary" icon="el-icon-refresh" @click="getUserList" circle class="refresh"></el-button>
       </div>
       <el-table
@@ -175,8 +175,15 @@
         </el-col>
       </el-row>
       <el-row class="editUserItem" style="margin-top: 50px">
-        <el-col :span="3" class="editUserItemLeft"><span>身份：</span></el-col>
-        <el-col :span="12">
+        <el-col :span="5" class="editUserItemLeft"><span>身份：</span></el-col>
+        <el-col :span="19" style="margin-top: 5px">
+          <el-radio-group v-model="roleIndex">
+            <el-radio
+              v-for="(item,i) in roleList"
+              :label="item.id"
+              :key="item.id">{{item.name}}
+            </el-radio>
+          </el-radio-group>
         </el-col>
       </el-row>
       <el-row class="editUserItem">
@@ -204,7 +211,7 @@
 
   export default {
     name: 'userlist',
-    data () {
+    data() {
       return {
         query: {
           address: '',
@@ -212,7 +219,7 @@
           pageIndex: 1,
           pageTotal: 0,
           tableData: [],
-          pageSize: 3
+          pageSize: 5
         },
         roleList: [],
         roleIndex: 1,
@@ -228,24 +235,29 @@
         idx: -1,
       }
     },
-    created () {
+    created() {
       this.getUserList()
     },
     methods: {
       //添加用户
-      adduser () {
+      adduser() {
         var _this = this
+        var _role;
+        for (let i = 0; i < this.roleList.length; i++) {
+          if (this.roleList[i].id = this.roleIndex){
+            _role = this.roleList[i]
+          }
+        }
         let config = {
           headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
             'token': store.state.token
           }
         }
-        this.$axios.post(store.state.url + '/user/adduser', {
+        this.$axios.post(store.state.url + '/user/add_user', {
           account: _this.account,
           password: _this.password,
-          // isAdaim: _this.identity,
-          note: _this.usernote
+          note: _this.usernote,
+          role:_role
         }, config).then(function (res) {
           if (res.data.code == 200) {
             _this.getUserList()
@@ -257,8 +269,12 @@
         })
         _this.adddialogVisible = false
       },
+      showAddUser() {
+        this.getAddUserRoles()
+        this.adddialogVisible = true
+      },
       //时间转换
-      timestampToTime (row, column) {
+      timestampToTime(row, column) {
         var date = new Date(row)
         var Y = date.getFullYear() + '-'
         var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-'
@@ -269,7 +285,7 @@
         return Y + M + D + h + m + s
       },
       //获取用户列表
-      getUserList () {
+      getUserList() {
         var _this = this
         let formData = new FormData()
         formData.append('currentPage', _this.query.pageIndex)
@@ -294,7 +310,7 @@
         })
       },
       //删除用户
-      delUser (index) {
+      delUser(index) {
         var _this = this
         let formData = new FormData()
         formData.append('id', this.query.tableData[index].id)
@@ -304,7 +320,7 @@
             'token': store.state.token
           }
         }
-        this.$axios.post(store.state.url + '/user/deluser', formData, config
+        this.$axios.post(store.state.url + '/user/del_user', formData, config
         ).then(function (res) {
           if (res.data.code == 200) {
             _this.$message.success('删除成功')
@@ -318,7 +334,7 @@
         })
       },
       // 删除操作
-      handleDelete (index, row) {
+      handleDelete(index, row) {
         // 二次确认删除
         this.$confirm('确定要删除吗？', '提示', {
           type: 'warning'
@@ -331,10 +347,10 @@
           })
       },
       // 多选操作
-      handleSelectionChange (val) {
+      handleSelectionChange(val) {
         this.multipleSelection = val
       },
-      delAllSelection () {
+      delAllSelection() {
         this.$confirm('确定要删除吗？', '提示', {
           type: 'warning'
         })
@@ -348,14 +364,14 @@
               select[i] = this.multipleSelection[i].id
             }
             this.delSelectUser(select)
-            this.$message.error(`删除了${str}`)
+            // this.$message.error(`删除了${str}`)
           })
           .catch(() => {
           })
 
       },
       //多选删除
-      delSelectUser (ids) {
+      delSelectUser(ids) {
         var _this = this
         let formData = new FormData()
         formData.append('ids', ids)
@@ -365,11 +381,10 @@
             'token': store.state.token
           }
         }
-        this.$axios.post(store.state.url + '/user/delsmoreuser', formData, config
+        this.$axios.post(store.state.url + '/user/batches_deletes', formData, config
         ).then(function (res) {
           if (res.data.code == 200) {
             _this.$message.success('删除成功')
-            this.query.pageIndex = 1
             _this.getUserList()
           } else {
             _this.$message.error(res.data.msg)
@@ -378,12 +393,12 @@
           _this.$message.error(err.data)
         })
       }
-      , selectName () {
+      , selectName() {
         this.query.pageIndex = 1
         this.selbyname()
       },
       //搜索名字
-      selbyname () {
+      selbyname() {
         var _this = this
         let formData = new FormData()
         formData.append('name', this.query.name)
@@ -395,7 +410,7 @@
             'token': store.state.token
           }
         }
-        this.$axios.post('http://localhost:8081/user/selbyname', formData, config
+        this.$axios.post('http://localhost:8081/user/sel_by_name', formData, config
         ).then(function (res) {
           if (res.data.code == 200) {
             _this.$message.success(res.data.msg)
@@ -409,7 +424,7 @@
         })
       },
       // 编辑操作
-      handleEdit (index, row) {
+      handleEdit(index, row) {
         this.getRoles(index)
         this.status = this.query.tableData[index].status.toString()
         this.idx = index
@@ -417,7 +432,7 @@
         this.editVisible = true
       },
       // 保存编辑
-      editUser () {
+      editUser() {
         this.editVisible = false
         // this.$set(this.query.tableData, this.idx, this.form)
         var _this = this
@@ -431,7 +446,7 @@
         formData.append('userId', _this.query.tableData[_this.idx].id)
         formData.append('roleId', _this.roleIndex)
 
-        this.$axios.post(store.state.url + '/user/addRoles', formData,
+        this.$axios.post(store.state.url + '/user/add_roles', formData,
           config).then(function (res) {
           if (res.data.code == 200) {
             _this.editStatus()
@@ -442,14 +457,14 @@
           _this.$message.error(err.data)
         })
 
-      },editStatus(){
+      }, editStatus() {
         var _this = this
         let config = {
           headers: {
             'token': store.state.token
           }
         }
-        this.$axios.post(store.state.url + '/user/editinfo', {
+        this.$axios.post(store.state.url + '/user/edit_info', {
           id: _this.query.tableData[_this.idx].id,
           status: parseInt(_this.status)
         }, config).then(function (res) {
@@ -463,7 +478,7 @@
         })
       },
       //获取身份列表
-      getRoles (index) {
+      getRoles(index) {
         var _this = this
         // _this.roleIndex = _this.query.tableData[index].roleid
         let config = {
@@ -482,9 +497,32 @@
         }).catch(function (err) {
           _this.$message.error(err.data)
         })
+      }, getAddUserRoles() {
+        var _this = this
+        // _this.roleIndex = _this.query.tableData[index].roleid
+        let config = {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'token': store.state.token
+          }
+        }
+        this.$axios.get(store.state.url + '/role/lists', config).then(function (res) {
+          if (res.data.code == 200) {
+            for (let i = 0; i < res.data.data.length; i++) {
+              if (res.data.data[i].isDefault == 1) {
+                _this.roleIndex = res.data.data[i].id
+              }
+            }
+            _this.roleList = res.data.data
+          } else {
+            _this.$message.error(res.data.msg)
+          }
+        }).catch(function (err) {
+          _this.$message.error(err.data)
+        })
       },
       // 分页导航
-      handlePageChange (val) {
+      handlePageChange(val) {
         this.$set(this.query, 'pageIndex', val)
         console.log('this.query.name')
         console.log(this.query.name)

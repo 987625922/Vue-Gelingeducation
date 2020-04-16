@@ -1,13 +1,15 @@
+import ElementUI from 'element-ui';
 import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
-import ElementUI from 'element-ui';
-import 'element-ui/lib/theme-chalk/index.css';
+// import 'element-ui/lib/theme-chalk/index.css';
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 import qs from 'qs'
 import './assets/icon/iconfont.css'
+import '../src/assets/theme/theme/index.css'
+
 // import './assets/css/theme-green/index.css'; // 浅绿色主题
 
 

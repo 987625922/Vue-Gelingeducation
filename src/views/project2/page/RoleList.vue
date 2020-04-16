@@ -7,15 +7,17 @@
             <el-input v-model="inputSelectName" placeholder="角色名称" class="searchInput">
               <el-button slot="append" icon="el-icon-search"></el-button>
             </el-input>
-            <el-button type="primary" icon="el-icon-refresh" @click="" circle class="refresh"></el-button>
+            <el-button type="primary" icon="el-icon-refresh" @click="refresh" circle class="refresh"></el-button>
           </div>
           <el-table
             :data="roleList"
             border
+            class="table"
             style="width: 100%">
             <el-table-column
               prop="id"
               label="ID"
+              align="center"
               width="180">
             </el-table-column>
             <el-table-column
@@ -23,10 +25,15 @@
               label="名称"
               width="180">
             </el-table-column>
-            <el-table-column
-              prop="date"
-              label="创建日期"
-              width="180">
+            <el-table-column label="创建日期" align="left">
+              <template slot-scope="scope">
+                <div v-if="scope.row.createDate !== null">
+                  {{ timestampToTime( parseInt(scope.row.createDate)) }}
+                </div>
+                <div v-else>
+                  空
+                </div>
+              </template>
             </el-table-column>
             <el-table-column
               prop="remark"
@@ -36,6 +43,7 @@
         </div>
       </el-col>
       <el-col :span="10" style="background: #ffffff">
+        <div class="top_add_role">新增角色</div>
         <div class="addRoleBox">
           <div class="addRoleName">
             角色名称：
@@ -49,17 +57,22 @@
           </div>
         </div>
         <div class="addRoleBox">
-          角色权限：
-          <el-checkbox-group v-model="permissionCheckList">
-            <el-checkbox
-            v-for="(item,i) in permissionList"
-            :label="item.id"
-            :key="item.id">{{item.name}}
-          </el-checkbox>
-          </el-checkbox-group>
+          <div class="addRoleName">
+            <label class="labelRoleName">角色权限：</label>
+            <div style="margin-left: 110px">
+              <el-checkbox-group v-model="permissionCheckList">
+                <el-checkbox
+                  style="display: block;margin-bottom: 10px;"
+                  v-for="(item,i) in permissionList"
+                  :label="item.id"
+                  :key="item.id">{{item.name}}
+                </el-checkbox>
+              </el-checkbox-group>
+            </div>
+          </div>
         </div>
-        <div>
-          <el-button type="primary">保存</el-button>
+        <div class="footer">
+          <el-button type="primary" class="saveRole">保存</el-button>
         </div>
       </el-col>
     </el-row>
@@ -79,7 +92,7 @@
         permissionCheckList: [],
         inputName: "",
         inputRoleName: "",
-        inputSelectName:""
+        inputSelectName: ""
       }
     }, methods: {
       getRoleList() {
@@ -99,10 +112,10 @@
             _this.$message.error(res.data.msg)
           }
         }).catch(function (err) {
-          console.log('==>'+err)
+          console.log('==>' + err)
           _this.$message.error("错误")
         })
-      },getPermissionList(){
+      }, getPermissionList() {
         var _this = this
         let config = {
           headers: {
@@ -121,6 +134,20 @@
         }).catch(function (err) {
           _this.$message.error("错误")
         })
+      }, //时间转换
+      timestampToTime(row) {
+        var date = new Date(row)
+        var Y = date.getFullYear() + '-'
+        var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-'
+        var D = date.getDate() + ' '
+        var h = date.getHours() + ':'
+        var m = date.getMinutes() + ':'
+        var s = date.getSeconds()
+        return Y + M + D + h + m + s
+      },
+      refresh(){
+        this.getRoleList()
+        this.getPermissionList()
       }
     },
     created() {
@@ -145,6 +172,7 @@
 
   .addRoleBox {
     border-radius: 5px;
+    margin-top: 10px;
   }
 
   .inputRoleName {
@@ -173,5 +201,38 @@
     line-height: 20px;
     text-align: right;
     margin-right: 5px;
+  }
+
+  .saveRole {
+    display: inline-block;
+    height: 38px;
+    line-height: 38px;
+    padding: 0 18px;
+    background-color: #00809d;
+    color: #fff;
+    white-space: nowrap;
+    text-align: center;
+    font-size: 14px;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    margin-right: 30px;
+  }
+
+  .footer {
+    padding: 10px;
+    line-height: 36px;
+    text-align: right;
+    background: #f9f9f9;
+  }
+  .top_add_role{
+    position: relative;
+    height: 42px;
+    line-height: 42px;
+    padding: 0 15px;
+    border-bottom: 1px solid #f6f6f6;
+    color: #333;
+    border-radius: 2px 2px 0 0;
+    font-size: 14px;
   }
 </style>

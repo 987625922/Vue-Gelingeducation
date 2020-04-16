@@ -189,7 +189,7 @@
             'token': store.state.token
           }
         }  //添加请求头
-        this.$axios.post(store.state.url + '/user/uploadIcon', formData, config)
+        this.$axios.post(store.state.url + '/user/upload_icon', formData, config)
           .then(response => {
             console.log(response.data);
           })
@@ -201,7 +201,7 @@
             'token': store.state.token
           }
         }
-        this.$axios.get(store.state.url + "/user/getInfo", {
+        this.$axios.get(store.state.url + "/user/get_info", {
           headers: {
             'token': store.state.token
           },
@@ -240,7 +240,7 @@
             'token': store.state.token
           }
         }
-        this.$axios.post(store.state.url +'/user/editinfo',{
+        this.$axios.post(store.state.url +'/user/edit_info',{
           id: store.state.userId,
           userName: _this.username,
           email: _this.email,
@@ -280,7 +280,7 @@
             'token': store.state.token
           }
         }
-        this.$axios.post(store.state.url + "/user/updatepassword",formData,config
+        this.$axios.post(store.state.url + "/user/update_password",formData,config
         ).then(function (res) {
           if (res.data.code == 200) {
             _this.$message.success(res.data.msg);
