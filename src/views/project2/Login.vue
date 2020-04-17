@@ -1,5 +1,5 @@
 <template>
-  <div id="login_main">
+  <div id="bg">
     <div style="margin-top: 50px">
       <h2 class="logoText">
         <img src="../../assets/logo.png" alt="logo">
@@ -12,7 +12,7 @@
         <el-input type="text" placeholder="请输入账号" v-model="form.username"/>
       </el-form-item>
       <el-form-item label="密码" prop="password" style="margin-right: 20px">
-        <el-input  type="password" placeholder="请输入密码" v-model="form.password"/>
+        <el-input type="password" placeholder="请输入密码" v-model="form.password"/>
       </el-form-item>
       <el-button class="register-btn" type="primary" v-on:click="login()">登录</el-button>
     </el-form>
@@ -45,37 +45,27 @@
     methods: {
       login() {
         var _this = this;
-        this.$axios.post(store.state.url+"/login", {
+        this.$axios.post(store.state.url + "/login", {
           account: this.form.username,
           password: this.form.password
         }).then(function (res) {
           if (res.data.code == 200) {
             _this.$message.success("登录成功")
             store.commit('setUserId', res.data.data.id)
-            store.commit('setToken',res.data.data.token)
+            store.commit('setToken', res.data.data.token)
             _this.$router.push('Main')
           } else {
             _this.$message.error(res.data.msg);
           }
         }).catch(function (err) {
-            _this.$message.error(err.data)
-          })
+          _this.$message.error(err.data)
+        })
       }
     }
   }
 </script>
 
 <style scoped>
-  #login_main {
-    /*background-image: url(../../assets/img/bg_gihub_windows.jpg);*/
-    background-image: -webkit-radial-gradient(rgba(107, 191, 242, 0.8), #2fa5ed);
-    background-image: radial-gradient(rgba(107, 191, 242, 0.8), #2fa5ed);
-    background: rgba(107, 191, 242, 0.9);
-    background-size: 100% 100%;
-    height: 100%;
-    position: fixed;
-    width: 100%;
-  }
 
   .login-box {
     border: 1px solid #DCDFE6;
@@ -111,5 +101,15 @@
 
   .logoText span {
     margin-left: 30px;
+  }
+
+  #bg {
+    width: 100%;
+    height: 100vh;	/* 重点一 */
+    margin: 0 auto;
+    background-image: url(../../assets/img/bg_main.jpg);
+    background-repeat: no-repeat;
+    background-size: cover; /* 重点二 */
+    overflow: auto;
   }
 </style>

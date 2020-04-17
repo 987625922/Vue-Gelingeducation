@@ -5,13 +5,14 @@
         <div class="">
           <div>
             <el-input v-model="inputSelectName" placeholder="角色名称" class="searchInput">
-              <el-button slot="append" icon="el-icon-search"></el-button>
+              <el-button slot="append" icon="el-icon-search" @click="selRoleByName"></el-button>
             </el-input>
             <el-button type="primary" icon="el-icon-refresh" @click="refresh" circle class="refresh"></el-button>
           </div>
           <el-table
             :data="roleList"
             border
+            height="550px"
             class="table"
             style="width: 100%">
             <el-table-column
@@ -72,7 +73,7 @@
           </div>
         </div>
         <div class="footer">
-          <el-button type="primary" class="saveRole">保存</el-button>
+          <el-button type="primary" class="saveRole" @click="addRole">保存</el-button>
         </div>
       </el-col>
     </el-row>
@@ -115,6 +116,29 @@
           console.log('==>' + err)
           _this.$message.error("错误")
         })
+      }, selRoleByName() {
+        var _this = this
+        let formData = new FormData()
+        formData.append('name', this.inputSelectName)
+        let config = {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'token': store.state.token
+          }
+        }
+        this.$axios.post(store.state.url + '/role/sel_by_name', formData, config
+        ).then(function (res) {
+          if (res.data.code == 200) {
+            _this.$message.success(res.data.msg)
+            _this.roleList = res.data.data
+            _this.inputSelectName = ""
+          } else {
+            _this.$message.error(res.data.msg)
+          }
+        }).catch(function (err) {
+          console.log('==>' + err)
+          _this.$message.error("错误")
+        })
       }, getPermissionList() {
         var _this = this
         let config = {
@@ -145,9 +169,36 @@
         var s = date.getSeconds()
         return Y + M + D + h + m + s
       },
-      refresh(){
+      refresh() {
         this.getRoleList()
         this.getPermissionList()
+      }, addRole() {
+        var _this = this
+        let formData = new FormData()
+        formData.append('name', this.inputName)
+        formData.append('remark', this.inputRoleName)
+        formData.append('permissionIds', _this.permissionCheckList)
+        let config = {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'token': store.state.token
+          }
+        }
+        this.$axios.post(store.state.url + '/role/add_role_and_permissionids', formData, config
+        ).then(function (res) {
+          if (res.data.code == 200) {
+            _this.$message.success(res.data.msg)
+            _this.inputName = ''
+            _this.inputRoleName = ''
+            _this.permissionCheckList = []
+            _this.getRoleList()
+          } else {
+            _this.$message.error(res.data.msg)
+          }
+        }).catch(function (err) {
+          console.log('==>' + err)
+          _this.$message.error("错误")
+        })
       }
     },
     created() {
@@ -176,13 +227,13 @@
   }
 
   .inputRoleName {
-    width: 370px;
+    width: 70%;
     margin-top: 5px;
     margin-bottom: 5px;
   }
 
   .inputRoleNote {
-    width: 370px;
+    width: 70%;
     margin-top: 5px;
     margin-bottom: 5px;
 
@@ -225,7 +276,8 @@
     text-align: right;
     background: #f9f9f9;
   }
-  .top_add_role{
+
+  .top_add_role {
     position: relative;
     height: 42px;
     line-height: 42px;
