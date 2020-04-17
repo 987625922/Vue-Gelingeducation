@@ -4,6 +4,13 @@
       <el-col :span="13" style="margin-right: 20px">
         <div class="">
           <div>
+            <el-button
+              type="primary"
+              icon="el-icon-delete"
+              class="handle-del mr10"
+              @click="delAllSelection"
+            >批量删除
+            </el-button>
             <el-input v-model="inputSelectName" placeholder="角色名称" class="searchInput">
               <el-button slot="append" icon="el-icon-search" @click="selRoleByName"></el-button>
             </el-input>
@@ -14,17 +21,24 @@
             border
             height="550px"
             class="table"
-            style="width: 100%">
+            style="width: 100%"
+            @selection-change="handleSelectionChange"
+          >
+            <el-table-column
+              align="center"
+              type="selection"
+              width="55">
+            </el-table-column>
             <el-table-column
               prop="id"
               label="ID"
               align="center"
-              width="180">
+              width="80">
             </el-table-column>
             <el-table-column
               prop="name"
               label="名称"
-              width="180">
+              width="120">
             </el-table-column>
             <el-table-column label="创建日期" align="left">
               <template slot-scope="scope">
@@ -40,21 +54,39 @@
               prop="remark"
               label="备注">
             </el-table-column>
+            <el-table-column label="操作" width="130" align="center" fixed="right">
+              <template slot-scope="scope">
+                <el-button
+                  type="text"
+                  icon="el-icon-edit"
+                  class="edit"
+                  @click="handleEdit(scope.$index, scope.row)"
+                >编辑
+                </el-button>
+                <el-button
+                  type="text"
+                  icon="el-icon-delete"
+                  class="red"
+                  @click="handleDelete(scope.$index, scope.row)"
+                >删除
+                </el-button>
+              </template>
+            </el-table-column>
           </el-table>
         </div>
       </el-col>
       <el-col :span="10" style="background: #ffffff">
-        <div class="top_add_role">新增角色</div>
+        <div class="top_add_role">{{editBoxTitle}}</div>
         <div class="addRoleBox">
           <div class="addRoleName">
             角色名称：
-            <el-input v-model="inputName" class="inputRoleName"></el-input>
+            <el-input v-model="inputName" class="inputRoleNote"></el-input>
           </div>
         </div>
         <div class="addRoleBox">
           <div class="addRoleName">
             <label class="labelRoleName">角色备注：</label>
-            <el-input v-model="inputRoleName" class="inputRoleNote" type="textarea" :rows="5"></el-input>
+            <el-input v-model="inputRoleNote" class="inputRoleNote" type="textarea" :rows="5"></el-input>
           </div>
         </div>
         <div class="addRoleBox">
@@ -92,11 +124,16 @@
         permissionList: [],
         permissionCheckList: [],
         inputName: "",
-        inputRoleName: "",
-        inputSelectName: ""
+        inputRoleNote: "",
+        inputSelectName: "",
+        multipleSelection: [],
+        editRoleId: -1,
+        editBoxTitle: "新增角色"
       }
     }, methods: {
       getRoleList() {
+        this.editRoleId = -1
+        this.editBoxTitle = '新增角色'
         var _this = this
         let config = {
           headers: {
@@ -168,29 +205,165 @@
         var m = date.getMinutes() + ':'
         var s = date.getSeconds()
         return Y + M + D + h + m + s
+      },// 多选操作
+      handleSelectionChange(val) {
+        this.multipleSelection = val
+      },
+      delAllSelection() {
+        this.$confirm('确定要删除吗？', '提示', {
+          type: 'warning'
+        })
+          .then(() => {
+            const length = this.multipleSelection.length
+            let str = ''
+            var select = new Array()
+            for (let i = 0; i < length; i++) {
+              str += this.multipleSelection[i].userName + ' '
+              select[i] = this.multipleSelection[i].id
+            }
+            this.delSelectRole(select)
+            // this.$message.error(`删除了${str}`)
+          })
+          .catch(() => {
+          })
+
       },
       refresh() {
         this.getRoleList()
         this.getPermissionList()
       }, addRole() {
         var _this = this
+        if (_this.editRoleId == -1) {
+          let formData = new FormData()
+          formData.append('name', this.inputName)
+          formData.append('remark', this.inputRoleNote)
+          formData.append('permissionIds', _this.permissionCheckList)
+          let config = {
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'token': store.state.token
+            }
+          }
+          this.$axios.post(store.state.url + '/role/add_role_and_permissionids', formData, config
+          ).then(function (res) {
+            if (res.data.code == 200) {
+              _this.$message.success(res.data.msg)
+              _this.inputName = ''
+              _this.inputRoleNote = ''
+              _this.permissionCheckList = []
+              _this.getRoleList()
+            } else {
+              _this.$message.error(res.data.msg)
+            }
+          }).catch(function (err) {
+            console.log('==>' + err)
+            _this.$message.error("错误")
+          })
+        } else {
+          let formData = new FormData()
+          formData.append('id', _this.editRoleId)
+          formData.append('name', this.inputName)
+          formData.append('remark', this.inputRoleNote)
+          formData.append('permissionIds', _this.permissionCheckList)
+          let config = {
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'token': store.state.token
+            }
+          }
+          this.$axios.post(store.state.url + '/role/update_role_and_permission', formData, config
+          ).then(function (res) {
+            if (res.data.code == 200) {
+              _this.$message.success(res.data.msg)
+              _this.inputName = ''
+              _this.inputRoleNote = ''
+              _this.permissionCheckList = []
+              _this.getRoleList()
+            } else {
+              _this.$message.error(res.data.msg)
+            }
+          }).catch(function (err) {
+            console.log('==>' + err)
+            _this.$message.error("错误")
+          })
+        }
+      }, handleDelete(index, row) {
+        // 二次确认删除
+        this.$confirm('确定要删除吗？', '提示', {
+          type: 'warning'
+        })
+          .then(() => {
+            //删除操作
+            this.delRole(index)
+          })
+          .catch(() => {
+          })
+      }, handleEdit(index, row) {
+
+        var _this = this
         let formData = new FormData()
-        formData.append('name', this.inputName)
-        formData.append('remark', this.inputRoleName)
-        formData.append('permissionIds', _this.permissionCheckList)
+        formData.append('id', this.roleList[index].id)
         let config = {
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
             'token': store.state.token
           }
         }
-        this.$axios.post(store.state.url + '/role/add_role_and_permissionids', formData, config
+        this.$axios.post(store.state.url + '/role/get_role_by_id_for_permission', formData, config
+        ).then(function (res) {
+          if (res.data.code == 200) {
+            var permissionIds = new Array()
+            for (let i = 0; i < res.data.data.length; i++) {
+              permissionIds[i] = res.data.data[i].id
+            }
+            _this.permissionCheckList = permissionIds
+            _this.editBoxTitle = '编辑角色'
+            _this.editRoleId = _this.roleList[index].id
+            _this.inputName = _this.roleList[index].name
+            _this.inputRoleNote = _this.roleList[index].remark
+          } else {
+            _this.$message.error(res.data.msg)
+          }
+        }).catch(function (err) {
+          _this.$message.error(err.data)
+        })
+
+
+      }, delRole(index) {
+        var _this = this
+        let formData = new FormData()
+        formData.append('id', this.roleList[index].id)
+        let config = {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'token': store.state.token
+          }
+        }
+        this.$axios.post(store.state.url + '/role/del_role', formData, config
+        ).then(function (res) {
+          if (res.data.code == 200) {
+            _this.$message.success('删除成功')
+            _this.getRoleList()
+          } else {
+            _this.$message.error(res.data.msg)
+          }
+        }).catch(function (err) {
+          _this.$message.error(err.data)
+        })
+      }, delSelectRole(selectIds) {
+        var _this = this
+        let formData = new FormData()
+        formData.append('roleIds', selectIds)
+        let config = {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'token': store.state.token
+          }
+        }
+        this.$axios.post(store.state.url + '/role/batches_deletes', formData, config
         ).then(function (res) {
           if (res.data.code == 200) {
             _this.$message.success(res.data.msg)
-            _this.inputName = ''
-            _this.inputRoleName = ''
-            _this.permissionCheckList = []
             _this.getRoleList()
           } else {
             _this.$message.error(res.data.msg)
@@ -226,7 +399,7 @@
     margin-top: 10px;
   }
 
-  .inputRoleName {
+  .inputRoleNote {
     width: 70%;
     margin-top: 5px;
     margin-bottom: 5px;
@@ -274,7 +447,7 @@
     padding: 10px;
     line-height: 36px;
     text-align: right;
-    background: #f9f9f9;
+    background: #ffffff;
   }
 
   .top_add_role {
@@ -286,5 +459,17 @@
     color: #333;
     border-radius: 2px 2px 0 0;
     font-size: 14px;
+  }
+
+  .red {
+    color: #ff0000;
+  }
+
+  .edit {
+    color: #1e93ff;
+  }
+
+  .mr10 {
+    margin-right: 10px;
   }
 </style>
