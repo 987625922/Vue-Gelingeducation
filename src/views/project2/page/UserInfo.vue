@@ -14,7 +14,7 @@
         </el-col>
         <el-col :span="12">
           <div class="userInfo">
-            <div><i class="el-icon-user userFont"> 账号：{{phone}}</i>
+            <div><i class="el-icon-user userFont"> 账号：{{account}}</i>
             </div>
             <div><i class="el-icon-s-custom userFont"> 用户名：{{username}}</i>
             </div>
@@ -134,7 +134,7 @@
         editdialogVisible: false,
         changPasswordDialog: false,
         file: '',
-        phone: '',
+        account: '',
         username: '',
         sex: '',
         sexText: '',
@@ -210,7 +210,7 @@
           }
         }).then(function (res) {
           if (res.data.code == 200) {
-            _this.phone = res.data.data.account
+            _this.account = res.data.data.account
             _this.username = res.data.data.userName
             _this.sex = res.data.data.sex.toString()
             if (res.data.data.sex == 1) {

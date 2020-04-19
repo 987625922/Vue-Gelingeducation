@@ -45,7 +45,7 @@
     methods: {
       login() {
         var _this = this;
-        this.$axios.post(store.state.url + "/login", {
+        this.$axios.post(store.state.url + "/web/login", {
           account: this.form.username,
           password: this.form.password
         }).then(function (res) {
@@ -70,7 +70,7 @@
   .login-box {
     border: 1px solid #DCDFE6;
     width: 390px;
-    margin: 110px auto;
+    margin: 200px auto;
     padding: 35px 35px 15px 35px;
     border-radius: 5px;
     -webkit-border-radius: 5px;

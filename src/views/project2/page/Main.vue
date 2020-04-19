@@ -14,6 +14,12 @@
             账号：
             <span>{{account}}</span>
           </div>
+          <div class="user-info-list">
+            上次登录时间：<span v-if="lastLoginTime !== null">{{ timestampToTime( parseInt(lastLoginTime)) }}</span>
+            <span v-else>
+              空
+            </span>
+          </div>
         </el-card>
       </el-col>
       <el-col :span="16">
@@ -103,9 +109,10 @@
 
   export default {
     name: 'main',
-    data () {
+    data() {
       return {
         account: '',
+        lastLoginTime: '',
         role: '',
         options2: {
           type: 'line',
@@ -125,14 +132,15 @@
     components: {
       Schart
     },
-    mounted () {
+    mounted() {
       //vue的生命周期，每次打开都调用
-      this.getUername()
+      this.getUername(),
+      this.getIndex()
     },
     methods: {
-      getUername () {
+      getUername() {
         var _this = this
-        this.$axios.get(store.state.url+'/user/getInfo', {
+        this.$axios.get(store.state.url + '/user/get_info', {
           headers: {
             'token': store.state.token
           },
@@ -149,6 +157,35 @@
         }).catch(function (err) {
           _this.$message.error(err.data)
         })
+      }, getIndex() {
+        var _this = this
+        this.$axios.get(store.state.url + '/web/index', {
+          headers: {
+            'token': store.state.token
+          },
+          params: {
+            id: store.state.userId
+          }
+        }).then(function (res) {
+          if (res.data.code == 200) {
+            _this.lastLoginTime = res.data.data.lastLoginTime
+          } else {
+            _this.$message.error(res.data.msg)
+          }
+        }).catch(function (err) {
+          _this.$message.error(err.data)
+        })
+      },
+      //时间转换
+      timestampToTime(timeStr) {
+        var date = new Date(timeStr)
+        var Y = date.getFullYear() + '-'
+        var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-'
+        var D = date.getDate() + ' '
+        var h = date.getHours() + ':'
+        var m = date.getMinutes() + ':'
+        var s = date.getSeconds()
+        return Y + M + D + h + m + s
       }
     }
   }
@@ -239,7 +276,7 @@
   }
 
   .user-info-list {
-    font-size: 14px;
+    font-size: 15px;
     color: #999;
     line-height: 25px;
   }
