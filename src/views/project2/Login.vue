@@ -70,7 +70,7 @@
   .login-box {
     border: 1px solid #DCDFE6;
     width: 390px;
-    margin: 200px auto;
+    margin: 150px auto;
     padding: 35px 35px 15px 35px;
     border-radius: 5px;
     -webkit-border-radius: 5px;

@@ -27,10 +27,10 @@
           <el-col :span="8">
             <el-card shadow="hover" :body-style="{padding: '0px'}">
               <div class="grid-content grid-con-1">
-                <i class="el-icon-lx-people grid-con-icon"></i>
+                <i class="el-icon-user-solid grid-con-icon"></i>
                 <div class="grid-cont-right">
-                  <div class="grid-num">1234</div>
-                  <div>用户访问量</div>
+                  <div class="grid-num">{{allLoginMun}}</div>
+                  <div>用户总访问量</div>
                 </div>
               </div>
             </el-card>
@@ -38,10 +38,10 @@
           <el-col :span="8">
             <el-card shadow="hover" :body-style="{padding: '0px'}">
               <div class="grid-content grid-con-2">
-                <i class="el-icon-lx-notice grid-con-icon"></i>
+                <i class="icon web wifangwen grid-con-icon"></i>
                 <div class="grid-cont-right">
-                  <div class="grid-num">321</div>
-                  <div>系统消息</div>
+                  <div class="grid-num">{{todayLoginMun}}</div>
+                  <div>今日访问</div>
                 </div>
               </div>
             </el-card>
@@ -49,10 +49,10 @@
           <el-col :span="8">
             <el-card shadow="hover" :body-style="{padding: '0px'}">
               <div class="grid-content grid-con-3">
-                <i class="el-icon-lx-goods grid-con-icon"></i>
+                <i class="icon web wiip grid-con-icon"></i>
                 <div class="grid-cont-right">
-                  <div class="grid-num">5000</div>
-                  <div>视频数量</div>
+                  <div class="grid-num">{{todayLoginIpMun}}</div>
+                  <div>今日ip</div>
                 </div>
               </div>
             </el-card>
@@ -114,6 +114,9 @@
         account: '',
         lastLoginTime: '',
         role: '',
+        allLoginMun: '',
+        todayLoginMun: '',
+        todayLoginIpMun: '',
         options2: {
           type: 'line',
           title: {
@@ -135,7 +138,7 @@
     mounted() {
       //vue的生命周期，每次打开都调用
       this.getUername(),
-      this.getIndex()
+        this.getIndex()
     },
     methods: {
       getUername() {
@@ -169,6 +172,9 @@
         }).then(function (res) {
           if (res.data.code == 200) {
             _this.lastLoginTime = res.data.data.lastLoginTime
+            _this.allLoginMun = res.data.data.allLoginMun
+            _this.todayLoginMun = res.data.data.todayLoginMun
+            _this.todayLoginIpMun = res.data.data.todayLoginIpMun
           } else {
             _this.$message.error(res.data.msg)
           }
