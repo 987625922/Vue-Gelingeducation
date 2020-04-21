@@ -59,12 +59,31 @@
         collapse: false,
         items: [
           {
-            icon: 'el-icon-lx-home',
+            icon: 'icon web widilanxianxingiconyihuifu_huabanfuben',
             index: 'main',
             title: '系统首页'
+          }, {
+            icon: 'icon web wiyonghuguanli',
+            index: '2',
+            title: '资源管理',
+            subs: [
+              {
+                index: 'course',
+                title: '课程'
+              },
+              {
+                index: 'video',
+                title: '视频'
+              }, {
+                index: 'teacher',
+                title: '教师'
+              }, {
+                index: 'specialTopic',
+                title: '专题'
+              }]
           }
           , {
-            icon: 'el-icon-setting',
+            icon: 'icon web wiyonghuguanli',
             index: '1',
             title: '系统管理',
             subs: [
@@ -78,7 +97,7 @@
               }]
           }
           , {
-            icon: 'el-icon-lx-people',
+            icon: 'icon web wiwebicon08',
             index: 'userinfo',
             title: '个人中心'
           }

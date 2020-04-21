@@ -50,6 +50,31 @@ export default new Router({
           path: '/rolelist',
           component: () => import( '../views/project2/page/RoleList.vue'),
           meta: { title: '身份管理' }
+        },
+        {
+          path: '/resource',
+          component: () => import( '../views/project2/page/Resources.vue'),
+          meta: { title: '资源管理' }
+        },
+        {
+          path: '/course',
+          component: () => import( '../views/project2/page/Course.vue'),
+          meta: { title: '课程' }
+        },
+        {
+          path: '/video',
+          component: () => import( '../views/project2/page/Video.vue'),
+          meta: { title: '视频' }
+        },
+        {
+          path: '/teacher',
+          component: () => import( '../views/project2/page/Teacher.vue'),
+          meta: { title: '教师' }
+        },
+        {
+          path: '/specialTopic',
+          component: () => import( '../views/project2/page/SpecialTopic.vue'),
+          meta: { title: '专题' }
         }
       ]
     }

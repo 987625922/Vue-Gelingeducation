@@ -68,27 +68,26 @@
 <style scoped>
 
   .login-box {
-    border: 1px solid #DCDFE6;
     width: 390px;
     margin: 150px auto;
     padding: 35px 35px 15px 35px;
     border-radius: 5px;
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
-    box-shadow: 0 0 25px #909399;
-    background-color: #ecf9ff;
+    background: rgba(0, 0, 0, 0.3);
   }
 
   .login-title {
     text-align: center;
     margin: 0 auto 40px auto;
-    color: #303133;
+    color: #fff;
   }
 
   .register-btn {
-    width: 70%;
+    width: 80%;
     margin-left: 15%;
     margin-top: 20px;
+    background-color: #2061f6;
   }
 
   .logoText {

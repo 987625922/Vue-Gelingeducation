@@ -9,10 +9,6 @@
           @click="delAllSelection"
         >批量删除
         </el-button>
-        <!--        <el-select v-model="query.address" placeholder="地址" class="handle-select mr10">-->
-        <!--          <el-option key="1" label="广东省" value="广东省"></el-option>-->
-        <!--          <el-option key="2" label="湖南省" value="湖南省"></el-option>-->
-        <!--        </el-select>-->
         <el-input v-model="query.name" placeholder="用户名" class="handle-input mr10"></el-input>
         <el-button type="primary" icon="el-icon-search" @click="selectName">搜索</el-button>
         <el-button type="primary" icon="el-icon-plus" @click="showAddUser" circle class="add"></el-button>
