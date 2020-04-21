@@ -47,9 +47,37 @@
     name: "course",
     data() {
       return {
-        tableCourse:[]
+        tableCourse: []
       }
-    }, methods: {}
+    }, methods: {
+      //获取用户列表
+      getCourseList() {
+        var _this = this
+        let formData = new FormData()
+        formData.append('currentPage', _this.query.pageIndex)
+        formData.append('pageSize', _this.query.pageSize)
+        let config = {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'token': store.state.token
+          }
+        }
+        this.$axios.post(store.state.url + '/course/lists', formData, config
+        ).then(function (res) {
+          if (res.data.code == 200) {
+            _this.$message.success(res.data.msg)
+            
+          } else {
+            _this.$message.error(res.data.msg)
+          }
+        }).catch(function (err) {
+          _this.$message.error(err.data)
+        })
+      }
+    },
+    mounted() {
+      this.getCourseList()
+    }
   }
 </script>
 
