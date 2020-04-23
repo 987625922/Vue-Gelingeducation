@@ -1,8 +1,48 @@
 <template>
   <div>
-    <el-row>
-      <el-col :span="12" push="5">
-        <el-button type="primary" icon="el-icon-refresh" @click="getUserList" circle class="refresh"></el-button>
+    <el-row class="radiusbg">
+      <el-col :span="5">
+        <div class="inputText">
+          课程名：
+          <el-input
+            style="width: 70%"
+            placeholder="请输入内容"
+            prefix-icon="el-icon-search"
+            v-model="input2"
+            clearable>
+          </el-input>
+        </div>
+      </el-col>
+      <el-col :span="5">
+        <div class="inputText">
+          状态：
+          <el-select style="width: 70%" clearable v-model="value" placeholder="请选择">
+            <el-option
+              v-for="item in options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
+        </div>
+      </el-col>
+      <el-col :span="5">
+        <div class="inputText">
+          价格：
+          <el-input v-model="input" style="width: 20%" clearable placeholder="请输入内容"></el-input>
+          -
+          <el-input v-model="input" style="width: 20%" clearable placeholder="请输入内容"></el-input>
+        </div>
+      </el-col>
+      <el-col :span="8">
+        <el-button class="rightview" type="primary" icon="el-icon-search" @click="selectName">搜索</el-button>
+      </el-col>
+      <el-col :span="1">
+        <el-button  type="primary" icon="el-icon-refresh" @click="getCourseList" circle
+                   class="refresh rightview"></el-button>
+      </el-col>
+      <el-col :span="24" style="margin-top: 10px">
+        <div>11</div>
       </el-col>
     </el-row>
     <el-table
@@ -98,7 +138,14 @@
         pageIndex: 1,
         pageSize: 5,
         pageTotal: 0,
-        selName: ''
+        selName: '',
+        options: [{
+          value: '选项1',
+          label: '黄金糕'
+        }, {
+          value: '选项2',
+          label: '双皮奶'
+        }]
       }
     }, methods: {
       //获取用户列表
@@ -151,4 +198,17 @@
     color: #ff0000;
   }
 
+  .inputText {
+    position: relative;
+  }
+
+  .radiusbg {
+    margin-bottom: 10px;
+    border-radius: 2px;
+    background-color: #ffffff;
+    padding: 10px 10px 10px 10px;
+  }
+  .rightview{
+    float:right;
+  }
 </style>
