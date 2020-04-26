@@ -8,10 +8,10 @@
     </div>
     <el-form ref="loginForm" :model="form" :rules="rules" label-width="60px" class="login-box">
       <h3 class="login-title">欢迎登录</h3>
-      <el-form-item label="账号" prop="username" style="margin-right: 20px">
+      <el-form-item label="账号" prop="username" class="loginLeftText">
         <el-input type="text" placeholder="请输入账号" v-model="form.username"/>
       </el-form-item>
-      <el-form-item label="密码" prop="password" style="margin-right: 20px">
+      <el-form-item label="密码" prop="password" class="loginLeftText">
         <el-input type="password" placeholder="请输入密码" v-model="form.password"/>
       </el-form-item>
       <el-button class="register-btn" type="primary" v-on:click="login()">登录</el-button>
@@ -110,5 +110,9 @@
     background-repeat: no-repeat;
     background-size: cover; /* 重点二 */
     overflow: auto;
+  }
+  .loginLeftText{
+    margin-right: 20px;
+    color: #ffffff;
   }
 </style>
