@@ -8,12 +8,25 @@
     </div>
     <el-form ref="loginForm" :model="form" :rules="rules" label-width="60px" class="login-box">
       <h3 class="login-title">欢迎登录</h3>
-      <el-form-item label="账号" prop="username" class="loginLeftText">
+      <el-row>
+        <el-col :span="5" style="color: #ffffff;height: 40px;line-height: 40px;">
+        账号：
+        </el-col>
+        <el-col :span="19">
         <el-input type="text" placeholder="请输入账号" v-model="form.username"/>
-      </el-form-item>
-      <el-form-item label="密码" prop="password" class="loginLeftText">
-        <el-input type="password" placeholder="请输入密码" v-model="form.password"/>
-      </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row style="margin-top: 20px;">
+        <el-col :span="5"  style="color: #ffffff;height: 40px;line-height: 40px;">
+         密码：
+        </el-col>
+        <el-col :span="19">
+          <el-input type="password" placeholder="请输入密码" v-model="form.password"/>
+        </el-col>
+      </el-row>
+      <el-row style="height: 40px;margin-top: 10px">
+        <el-radio v-model="radio" label="1" style="color: #ffffff;">记住我</el-radio>
+      </el-row>
       <el-button class="register-btn" type="primary" v-on:click="login()">登录</el-button>
     </el-form>
   </div>
@@ -68,7 +81,7 @@
 <style scoped>
 
   .login-box {
-    width: 390px;
+    width: 300px;
     margin: 150px auto;
     padding: 35px 35px 15px 35px;
     border-radius: 5px;
@@ -84,9 +97,7 @@
   }
 
   .register-btn {
-    width: 80%;
-    margin-left: 15%;
-    margin-top: 20px;
+    width: 100%;
     background-color: #2061f6;
   }
 
@@ -104,15 +115,12 @@
 
   #bg {
     width: 100%;
-    height: 100vh;	/* 重点一 */
+    height: 100vh; /* 重点一 */
     margin: 0 auto;
     background-image: url(../../assets/img/bg_main.jpg);
     background-repeat: no-repeat;
     background-size: cover; /* 重点二 */
     overflow: auto;
   }
-  .loginLeftText{
-    margin-right: 20px;
-    color: #ffffff;
-  }
+
 </style>

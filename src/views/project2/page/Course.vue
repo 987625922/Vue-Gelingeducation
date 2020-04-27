@@ -3,7 +3,7 @@
     <el-row class="radiusbg">
       <el-col :span="5">
         <div class="inputText">
-          课程名：
+          <span>课程名：</span>
           <el-input
             style="width: 70%"
             placeholder="请输入内容"
@@ -42,7 +42,19 @@
                    class="refresh rightview"></el-button>
       </el-col>
       <el-col :span="24" style="margin-top: 10px">
-        <div>11</div>
+        <el-col :span="5">
+          <div class="inputText">
+              <span stype="float:right;">老师：</span>
+            <el-select style="width: 70%" clearable v-model="value" placeholder="请选择">
+              <el-option
+                v-for="item in options"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+              </el-option>
+            </el-select>
+          </div>
+        </el-col>
       </el-col>
     </el-row>
     <el-table
