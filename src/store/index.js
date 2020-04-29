@@ -10,7 +10,8 @@ export default new Vuex.Store({
     lists: [],
     username: '用户名',
     token: '',
-    url:'http://localhost:8081'
+    // url:'http://localhost:8081'
+    url:'http://localhost:6789'
   },
   mutations: {
     increate1 () {
