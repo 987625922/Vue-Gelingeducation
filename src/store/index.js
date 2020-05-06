@@ -11,7 +11,7 @@ export default new Vuex.Store({
     username: '用户名',
     token: '',
     // url:'http://localhost:8081'
-    url:'http://localhost:6789'
+    url:'http://122.51.177.223:8889'
   },
   mutations: {
     increate1 () {

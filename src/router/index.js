@@ -4,7 +4,9 @@ import p2Login from '../views/project2/Login'
 import p2Register from '../views/project2/Register'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
+import net from "../constants/constants"
 
+Vue.prototype.NET = net
 Vue.use(VueAxios,axios);
 Vue.use(Router)
 

@@ -141,7 +141,7 @@
             'token': store.state.token
           }
         }
-        this.$axios.get(store.state.url + '/role/lists', config
+        this.$axios.get(this.NET.BASE_URL + '/role/lists', config
         ).then(function (res) {
           if (res.data.code == 200) {
             _this.$message.success(res.data.msg)
@@ -163,7 +163,7 @@
             'token': store.state.token
           }
         }
-        this.$axios.post(store.state.url + '/role/sel_by_name', formData, config
+        this.$axios.post(this.NET.BASE_URL + '/role/sel_by_name', formData, config
         ).then(function (res) {
           if (res.data.code == 200) {
             _this.$message.success(res.data.msg)
@@ -184,7 +184,7 @@
             'token': store.state.token
           }
         }
-        this.$axios.get(store.state.url + '/permission/lists', config
+        this.$axios.get(this.NET.BASE_URL + '/permission/lists', config
         ).then(function (res) {
           if (res.data.code == 200) {
             _this.$message.success(res.data.msg)
@@ -244,7 +244,7 @@
               'token': store.state.token
             }
           }
-          this.$axios.post(store.state.url + '/role/add_role_and_permissionids', formData, config
+          this.$axios.post(this.NET.BASE_URL + '/role/add_role_and_permissionids', formData, config
           ).then(function (res) {
             if (res.data.code == 200) {
               _this.$message.success(res.data.msg)
@@ -271,7 +271,7 @@
               'token': store.state.token
             }
           }
-          this.$axios.post(store.state.url + '/role/update_role_and_permission', formData, config
+          this.$axios.post(this.NET.BASE_URL + '/role/update_role_and_permission', formData, config
           ).then(function (res) {
             if (res.data.code == 200) {
               _this.$message.success(res.data.msg)
@@ -309,7 +309,7 @@
             'token': store.state.token
           }
         }
-        this.$axios.post(store.state.url + '/role/get_role_by_id_for_permission', formData, config
+        this.$axios.post(this.NET.BASE_URL + '/role/get_role_by_id_for_permission', formData, config
         ).then(function (res) {
           if (res.data.code == 200) {
             var permissionIds = new Array()
@@ -339,7 +339,7 @@
             'token': store.state.token
           }
         }
-        this.$axios.post(store.state.url + '/role/del_role', formData, config
+        this.$axios.post(this.NET.BASE_URL + '/role/del_role', formData, config
         ).then(function (res) {
           if (res.data.code == 200) {
             _this.$message.success('删除成功')
@@ -360,7 +360,7 @@
             'token': store.state.token
           }
         }
-        this.$axios.post(store.state.url + '/role/batches_deletes', formData, config
+        this.$axios.post(this.NET.BASE_URL + '/role/batches_deletes', formData, config
         ).then(function (res) {
           if (res.data.code == 200) {
             _this.$message.success(res.data.msg)

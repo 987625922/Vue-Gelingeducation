@@ -172,7 +172,7 @@
             'token': store.state.token
           }
         }
-        this.$axios.post(store.state.url + '/course/lists', formData, config
+        this.$axios.post(this.NET.BASE_URL + '/course/lists', formData, config
         ).then(function (res) {
           if (res.data.code == 200) {
             _this.$message.success(res.data.msg)

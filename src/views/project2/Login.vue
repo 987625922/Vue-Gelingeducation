@@ -58,7 +58,7 @@
     methods: {
       login() {
         var _this = this;
-        this.$axios.post(store.state.url + "/web/login", {
+        this.$axios.post(this.NET.BASE_URL + "/web/login", {
           account: this.form.username,
           password: this.form.password
         }).then(function (res) {
