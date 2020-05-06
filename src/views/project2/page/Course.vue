@@ -29,22 +29,32 @@
       <el-col :span="5">
         <div class="inputText">
           价格：
-          <el-input v-model="input" style="width: 20%" clearable placeholder="请输入内容"></el-input>
+          <el-input v-model="input" style="width: 20%" clearable placeholder=""></el-input>
           -
-          <el-input v-model="input" style="width: 20%" clearable placeholder="请输入内容"></el-input>
+          <el-input v-model="input" style="width: 20%" clearable placeholder=""></el-input>
         </div>
       </el-col>
-      <el-col :span="8">
+
+      <el-col :span="6">
+        <el-button
+          type="primary"
+          icon="el-icon-delete"
+          class="rightview"
+          @click="delAllSelection"
+        >批量删除
+        </el-button>
+      </el-col>
+      <el-col :span="2">
         <el-button class="rightview" type="primary" icon="el-icon-search" @click="selectName">搜索</el-button>
       </el-col>
       <el-col :span="1">
-        <el-button  type="primary" icon="el-icon-refresh" @click="getCourseList" circle
+        <el-button type="primary" icon="el-icon-refresh" @click="getCourseList" circle
                    class="refresh rightview"></el-button>
       </el-col>
       <el-col :span="24" style="margin-top: 10px">
         <el-col :span="5">
           <div class="inputText">
-              <span stype="float:right;">老师：</span>
+            <span stype="float:right;">老师：</span>
             <el-select style="width: 70%" clearable v-model="value" placeholder="请选择">
               <el-option
                 v-for="item in options"
@@ -147,16 +157,17 @@
     data() {
       return {
         tableCourse: [],
+        delList: [],
         pageIndex: 1,
         pageSize: 5,
         pageTotal: 0,
         selName: '',
         options: [{
           value: '选项1',
-          label: '黄金糕'
+          label: '正常'
         }, {
           value: '选项2',
-          label: '双皮奶'
+          label: '禁止'
         }]
       }
     }, methods: {
@@ -178,6 +189,47 @@
             _this.$message.success(res.data.msg)
             _this.tableCourse = res.data.data.lists
             _this.pageTotal = res.data.data.totalRows
+          } else {
+            _this.$message.error(res.data.msg)
+          }
+        }).catch(function (err) {
+          _this.$message.error(err.data)
+        })
+      },
+      delAllSelection() {
+        this.$confirm('确定要删除吗？', '提示', {
+          type: 'warning'
+        })
+          .then(() => {
+            const length = this.tableCourse.length
+            let str = ''
+            this.delList = this.delList.concat(this.tableCourse)
+            var select = new Array()
+            for (let i = 0; i < length; i++) {
+              str += this.tableCourse[i].name + ' '
+              select[i] = this.tableCourse[i].id
+            }
+            this.delSelectCourse(select)
+            // this.$message.error(`删除了${str}`)
+          })
+          .catch(() => {
+          })
+
+      }, delSelectCourse(ids) {
+        var _this = this
+        let formData = new FormData()
+        formData.append('ids', ids)
+        let config = {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'token': store.state.token
+          }
+        }
+        this.$axios.post(this.NET.BASE_URL + '/course/batches_deletes', formData, config
+        ).then(function (res) {
+          if (res.data.code == 200) {
+            _this.$message.success('删除成功')
+            _this.getUserList()
           } else {
             _this.$message.error(res.data.msg)
           }
@@ -212,6 +264,7 @@
 
   .inputText {
     position: relative;
+    text-align: right;
   }
 
   .radiusbg {
@@ -220,7 +273,8 @@
     background-color: #ffffff;
     padding: 10px 10px 10px 10px;
   }
-  .rightview{
-    float:right;
+
+  .rightview {
+    float: right;
   }
 </style>
