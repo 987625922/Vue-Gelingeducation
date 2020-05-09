@@ -1,4 +1,4 @@
-<template>
+<template xmlns:>
   <div>
     <el-row class="radiusbg">
       <el-col :span="5">
@@ -8,7 +8,7 @@
             style="width: 70%"
             placeholder="请输入内容"
             prefix-icon="el-icon-search"
-            v-model="input2"
+            v-model="selName"
             clearable>
           </el-input>
         </div>
@@ -16,12 +16,13 @@
       <el-col :span="5">
         <div class="inputText">
           状态：
-          <el-select style="width: 70%" clearable v-model="value" placeholder="请选择">
+          <el-select style="width: 70%" @change="selectStatus"
+                     clearable v-model="statusSelName" placeholder="请选择">
             <el-option
-              v-for="item in options"
+              v-for="item in status"
               :key="item.value"
-              :label="item.label"
-              :value="item.value">
+              :label="item.name"
+              :value="item">
             </el-option>
           </el-select>
         </div>
@@ -29,9 +30,9 @@
       <el-col :span="5">
         <div class="inputText">
           价格：
-          <el-input v-model="input" style="width: 20%" clearable placeholder=""></el-input>
+          <el-input v-model="selStartPrice" style="width: 20%" placeholder=""></el-input>
           -
-          <el-input v-model="input" style="width: 20%" clearable placeholder=""></el-input>
+          <el-input v-model="selEndPrice" style="width: 20%" placeholder=""></el-input>
         </div>
       </el-col>
 
@@ -45,7 +46,7 @@
         </el-button>
       </el-col>
       <el-col :span="2">
-        <el-button class="rightview" type="primary" icon="el-icon-search" @click="selectName">搜索</el-button>
+        <el-button class="rightview" type="primary" icon="el-icon-search" @click="selectCourseList">搜索</el-button>
       </el-col>
       <el-col :span="1">
         <el-button type="primary" icon="el-icon-refresh" @click="getCourseList" circle
@@ -55,15 +56,23 @@
         <el-col :span="5">
           <div class="inputText">
             <span stype="float:right;">老师：</span>
-            <el-select style="width: 70%" clearable v-model="value" placeholder="请选择">
+            <el-select
+              @change="selectTeacher"
+              style="width: 70%" clearable
+              　　　　　　v-model="teacherSelValue"
+              　　　　　　placeholder="请选择"
+              　　　　　　v-loadmore="loadMore">
               <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value">
+                v-for="item in teachers"
+                :key="item.id"
+                :label="item.name"
+                :value="item">
               </el-option>
+              　　　　
             </el-select>
           </div>
+        </el-col>
+        <el-col :span="5">
         </el-col>
       </el-col>
     </el-row>
@@ -152,25 +161,121 @@
 <script>
   import store from '@/store'
 
+  import Vue from 'vue';
+
+  Vue.directive('loadmore', {
+    bind(el, binding) {
+      const SELECTWRAP_DOM = el.querySelector('.el-select-dropdown .el-select-dropdown__wrap');
+      SELECTWRAP_DOM.addEventListener('scroll', function () {
+        const CONDITION = this.scrollHeight - this.scrollTop <= this.clientHeight;
+        if (CONDITION) {
+          binding.value();
+        }
+      });
+    }
+  })
+
   export default {
     name: "course",
     data() {
       return {
         tableCourse: [],
         delList: [],
+        selName: '',
         pageIndex: 1,
         pageSize: 5,
+        teacherPageIndex: 1,
         pageTotal: 0,
         selName: '',
-        options: [{
-          value: '选项1',
-          label: '正常'
-        }, {
-          value: '选项2',
-          label: '禁止'
-        }]
+        teachers: [],
+        selStartPrice: '',
+        selEndPrice: '',
+        teacherSelValue: '',
+        teacherSelId: -1,
+        statusSelName: '',
+        statusSelId: -1,
+        status: [
+          {
+            value: 1,
+            name: '正常'
+          }, {
+            value: 0,
+            name: '禁止'
+          }
+        ]
       }
     }, methods: {
+      selectTeacher(selVal) {
+        this.teacherSelId = selVal.id
+        this.teacherSelValue = selVal.name
+      }, selectStatus(selVal) {
+        this.statusSelId = selVal.value
+      }
+      , getTeacherList() {
+        var _this = this
+        let formData = new FormData()
+        formData.append('currentPage', _this.teacherPageIndex)
+        formData.append('pageSize', 10)
+        let config = {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'token': store.state.token
+          }
+        }
+        this.$axios.post(this.NET.BASE_URL + '/teacher/pagelists', formData, config
+        ).then(function (res) {
+          if (res.data.code == 200) {
+            _this.$message.success(res.data.msg)
+            if (res.data.data.pageNum == 1) {
+              _this.teachers = res.data.data.lists
+            } else {
+              if (res.data.data.lists.length != 0) {
+                _this.teachers.push(res.data.data.lists)
+              }
+            }
+          } else {
+            _this.$message.error(res.data.msg)
+          }
+        }).catch(function (err) {
+          _this.$message.error(err.data)
+        })
+      }, selectCourseList() {
+        var _this = this
+        let formData = new FormData()
+        _this.pageIndex = 1
+        _this.pageSize = 10
+        if (_this.teacherSelId == null){
+          formData.append('teacherId', _this.teacherSelId)
+        }
+        formData.append('currentPage', _this.pageIndex)
+        formData.append('pageSize', _this.pageSize)
+        if (_this.selName == null) {
+          formData.append('name', _this.selName)
+        }
+        if (_this.selStartPrice == null) {
+          formData.append('startPrice', _this.selStartPrice)
+        }
+        formData.append('endPrice', _this.selEndPrice)
+        formData.append('status', _this.statusSelId)
+        let config = {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'token': store.state.token
+          }
+        }
+        this.$axios.post(this.NET.BASE_URL + '/course/sel_by_name_or_status_price_teacher', formData, config
+        ).then(function (res) {
+          if (res.data.code == 200) {
+            _this.$message.success(res.data.msg)
+            _this.tableCourse = res.data.data.lists
+            _this.pageTotal = res.data.data.totalRows
+          } else {
+            _this.$message.error(res.data.msg)
+          }
+        }).catch(function (err) {
+          _this.$message.error(err.data)
+        })
+      },
       //获取用户列表
       getCourseList() {
         var _this = this
@@ -252,7 +357,8 @@
       }
     },
     created() {
-      this.getCourseList()
+      this.getCourseList(),
+        this.getTeacherList()
     }
   }
 </script>
