@@ -36,7 +36,7 @@
         </div>
       </el-col>
 
-      <el-col :span="6">
+      <el-col :span="4">
         <el-button
           type="primary"
           icon="el-icon-delete"
@@ -44,6 +44,9 @@
           @click="delAllSelection"
         >批量删除
         </el-button>
+      </el-col>
+      <el-col :span="2">
+        <el-button type="primary" icon="el-icon-plus" @click="showAddUser" circle class="add"></el-button>
       </el-col>
       <el-col :span="2">
         <el-button class="rightview" type="primary" icon="el-icon-search" @click="selectCourseList">搜索</el-button>
@@ -86,9 +89,9 @@
     >
       <el-table-column type="selection" width="55" align="center"></el-table-column>
       <el-table-column prop="id" label="编号" width="85" align="center"></el-table-column>
-      <el-table-column prop="name" label="课程名" align="center" width="270"></el-table-column>
-      <el-table-column label="绑定老师" prop="userName" align="center" width="150"></el-table-column>
-      <el-table-column label="缩略图" align="center" width="200">
+      <el-table-column prop="name" label="课程名" align="center"></el-table-column>
+      <el-table-column label="绑定老师" prop="userName" align="center" width="250"></el-table-column>
+      <el-table-column label="缩略图" align="center" width="250">
         <template slot-scope="scope">
           <el-image
             class="table-td-thumb"
@@ -97,7 +100,7 @@
           ></el-image>
         </template>
       </el-table-column>
-      <el-table-column label="状态" align="center" width="120">
+      <el-table-column label="状态" align="center" width="150">
         <template slot-scope="scope">
           <el-tag
             :type="scope.row.status=='1'?'success':'danger'"
@@ -111,7 +114,7 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="是否免费" align="center" width="120">
+      <el-table-column label="是否免费" align="center" width="150">
         <template slot-scope="scope">
           <el-tag
             :type="scope.row.isFree=='0'?'success':'warning'"
@@ -125,7 +128,7 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" fixed="right">
+      <el-table-column label="操作" align="center" fixed="right" width="220">
         <template slot-scope="scope">
           <el-button
             type="text"
@@ -155,7 +158,64 @@
         @current-change="handlePageChange"
       ></el-pagination>
     </div>
+    <!--   添加课程  -->
+    <el-dialog
+      title="添加课程"
+      :visible.sync="adddialogVisible"
+      width="50%">
+      <div style="width: 70%">
+        <span>课程名：</span>
+        <el-input
+          style="width: 70%"
+          placeholder="请输入内容"
+          v-model="selName"
+        >
+        </el-input>
+      </div>
+      <div style="with:70%">
+        <span stype="float:right;">老师：</span>
+        <el-select
+          @change="selectTeacher"
+          style="width: 70%" clearable
+          　　　　　　v-model="teacherSelValue"
+          　　　　　　placeholder="请选择"
+          　　　　　　v-loadmore="loadMore">
+          <el-option
+            v-for="item in teachers"
+            :key="item.id"
+            :label="item.name"
+            :value="item">
+          </el-option>
+          　　　
+        </el-select>
+      </div>
+      　
+      <div style="width: 70%">
+        <span>封面：</span>
+        <el-input
+          style="width: 70%"
+          placeholder="请输入内容"
+          v-model="selName"
+        >
+        </el-input>
+      </div>
+      <div>
+        <span>价格：</span>
+        <el-input
+          style="width: 70%"
+          placeholder="0为免费"
+          v-model="selName"
+        >
+        </el-input>
+      </div>
+      <span slot="footer" class="dialog-footer">
+    <el-button @click="adddialogVisible = false">取 消</el-button>
+    <el-button type="primary" @click="addCourse">确 定</el-button>
+  </span>
+    </el-dialog>
   </div>
+
+
 </template>
 
 <script>
@@ -194,6 +254,7 @@
         teacherSelId: -1,
         statusSelName: '',
         statusSelId: -1,
+        adddialogVisible: false,
         status: [
           {
             value: 1,
@@ -202,7 +263,8 @@
             value: 0,
             name: '禁止'
           }
-        ]
+        ],
+
       }
     }, methods: {
       selectTeacher(selVal) {
@@ -244,7 +306,7 @@
         let formData = new FormData()
         _this.pageIndex = 1
         _this.pageSize = 10
-        if (_this.teacherSelId == null){
+        if (_this.teacherSelId == null) {
           formData.append('teacherId', _this.teacherSelId)
         }
         formData.append('currentPage', _this.pageIndex)
@@ -341,6 +403,8 @@
         }).catch(function (err) {
           _this.$message.error(err.data)
         })
+      }, showAddUser() {
+        this.adddialogVisible = true
       },
       // 分页导航
       handlePageChange(val) {
@@ -348,12 +412,38 @@
         if (this.selName == '') {
           this.getCourseList()
         } else {
-          this.selbyname()
+          this.selectCourseList()
         }
       },
       handleSizeChange(val) {
         this.pageSize = val
-        this.getCourseList()
+        if (this.selName == '') {
+          this.getCourseList()
+        } else {
+          this.selectCourseList()
+        }
+      }, addCourse() {
+        var _this = this
+        let config = {
+          headers: {
+            'token': store.state.token
+          }
+        }
+        this.$axios.post(this.NET.BASE_URL + '/course/add', {
+          name: _this.add_name,
+          bigImg: _this.add_bigImg,
+          remark: _this.add_remark,
+          price:_this.add_price
+        }, config).then(function (res) {
+          if (res.data.code == 200) {
+            _this.getCourseList()
+          } else {
+            _this.$message.error(res.data.msg)
+          }
+        }).catch(function (err) {
+          _this.$message.error(err.data)
+        })
+        _this.adddialogVisible = false
       }
     },
     created() {
