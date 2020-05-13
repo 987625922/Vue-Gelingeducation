@@ -143,6 +143,43 @@
         @current-change="handlePageChange"
       ></el-pagination>
     </div>
+    <!-- 编辑弹出框 -->
+    <el-dialog title="编辑" :visible.sync="editVisible" width="30%">
+      <div style="width: 70%">
+        <span>课程名：</span>
+        <el-input style="width: 70%" placeholder="请输入内容" v-model="addName"></el-input>
+      </div>
+      <div style="with:70%">
+        <span stype="float:right;">老师：</span>
+        <el-select
+          @change="selectAddTeacher"
+          style="width: 70%"
+          clearable
+          　　　　　　v-model="addteacherValue"
+          　　　　　　placeholder="请选择"
+          　　　　　　v-loadmore="loadMore"
+        >
+          <el-option v-for="item in teachers" :key="item.id" :label="item.name" :value="item"></el-option>
+        </el-select>
+      </div>
+      <div style="width: 70%">
+        <span>封面：</span>
+        <el-input style="width: 70%" placeholder="请输入内容" v-model="addBigUrl"></el-input>
+      </div>
+      <div>
+        <span>价格：</span>
+        <el-input style="width: 70%" placeholder="0为免费" v-model="addPrice"></el-input>
+      </div>
+      <div>
+        <span>备注：</span>
+        <el-input style="width: 70%" placeholder="0为免费" v-model="addRemark"></el-input>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="editVisible = false">取 消</el-button>
+        <el-button type="primary" @click="editCourse">确 定</el-button>
+      </span>
+    </el-dialog>
+
     <!--   添加课程  -->
     <el-dialog title="添加课程" :visible.sync="adddialogVisible" width="50%">
       <div style="width: 70%">
@@ -152,7 +189,7 @@
       <div style="with:70%">
         <span stype="float:right;">老师：</span>
         <el-select
-        @change="selectAddTeacher"
+          @change="selectAddTeacher"
           style="width: 70%"
           clearable
           　　　　　　v-model="addteacherValue"
@@ -229,7 +266,9 @@ export default {
       addBigUrl: "",
       addPrice: "",
       addRemark: "",
-      selectItemIds:[],
+      selectItemIds: [],
+      //编辑
+      editVisible: false,
       status: [
         {
           value: 1,
@@ -246,16 +285,17 @@ export default {
     selectTeacher(selVal) {
       this.teacherSelId = selVal.id;
       this.teacherSelValue = selVal.name;
-    },selectAddTeacher(selVal){
-      this.addteacherValue = selVal.name
-      this.addteacherId = selVal.id
+    },
+    selectAddTeacher(selVal) {
+      this.addteacherValue = selVal.name;
+      this.addteacherId = selVal.id;
     },
     selectStatus(selVal) {
       this.statusSelId = selVal.value;
-    },// 多选操作
-      handleSelectionChange(val) {
-        this.selectItemIds = val
-      },
+    }, // 多选操作
+    handleSelectionChange(val) {
+      this.selectItemIds = val;
+    },
     getTeacherList() {
       var _this = this;
       let formData = new FormData();
@@ -286,6 +326,32 @@ export default {
         .catch(function(err) {
           _this.$message.error(err.data);
         });
+    },
+    editCourse() {
+      this.editVisible = false
+        // this.$set(this.query.tableData, this.idx, this.form)
+        var _this = this
+        let config = {
+          headers: {
+            'token': store.state.token
+          }
+        }
+
+        let formData = new FormData()
+        formData.append('userId', _this.query.tableData[_this.idx].id)
+        formData.append('roleId', _this.roleIndex)
+
+        this.$axios.post(this.NET.BASE_URL + '/user/add_roles', formData,
+          config).then(function (res) {
+          if (res.data.code == 200) {
+            _this.editStatus()
+          } else {
+            _this.$message.error(res.data.msg)
+          }
+        }).catch(function (err) {
+          _this.$message.error(err.data)
+        })
+
     },
     selectCourseList() {
       var _this = this;
@@ -330,43 +396,47 @@ export default {
           _this.$message.error(err.data);
         });
     },
-      // 删除操作
-      handleDelete(index, row) {
-        // 二次确认删除
-        this.$confirm('确定要删除吗？', '提示', {
-          type: 'warning'
+    // 删除操作
+    handleDelete(index, row) {
+      // 二次确认删除
+      this.$confirm("确定要删除吗？", "提示", {
+        type: "warning"
+      })
+        .then(() => {
+          //删除操作
+          this.delCourse(index);
         })
-          .then(() => {
-            //删除操作
-            this.delCourse(index)
-          })
-          .catch(() => {
-          })
-      },
-      //删除用户
-      delCourse(index) {
-        var _this = this
-        let formData = new FormData()
-        formData.append('id', this.query.tableData[index].id)
-        let config = {
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'token': store.state.token
-          }
+        .catch(() => {});
+    },
+    //删除用户
+    delCourse(index) {
+      var _this = this;
+      let formData = new FormData();
+      formData.append("id", this.query.tableData[index].id);
+      let config = {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          token: store.state.token
         }
-        this.$axios.post(this.NET.BASE_URL + '/course/delect', formData, config
-        ).then(function (res) {
+      };
+      this.$axios
+        .post(this.NET.BASE_URL + "/course/delect", formData, config)
+        .then(function(res) {
           if (res.data.code == 200) {
-            _this.$message.success('删除成功')
-            this.query.pageIndex = 1
-            _this.getUserList()
+            _this.$message.success("删除成功");
+            this.query.pageIndex = 1;
+            _this.getUserList();
           } else {
-            _this.$message.error(res.data.msg)
+            _this.$message.error(res.data.msg);
           }
-        }).catch(function (err) {
-          _this.$message.error(err.data)
         })
-      },
+        .catch(function(err) {
+          _this.$message.error(err.data);
+        });
+    },
+    handleEdit(index, row) {
+      this.editVisible = true;
+    },
     //获取用户列表
     getCourseList() {
       var _this = this;
