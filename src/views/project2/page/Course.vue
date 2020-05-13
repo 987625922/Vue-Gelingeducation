@@ -330,6 +330,43 @@ export default {
           _this.$message.error(err.data);
         });
     },
+      // 删除操作
+      handleDelete(index, row) {
+        // 二次确认删除
+        this.$confirm('确定要删除吗？', '提示', {
+          type: 'warning'
+        })
+          .then(() => {
+            //删除操作
+            this.delCourse(index)
+          })
+          .catch(() => {
+          })
+      },
+      //删除用户
+      delCourse(index) {
+        var _this = this
+        let formData = new FormData()
+        formData.append('id', this.query.tableData[index].id)
+        let config = {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'token': store.state.token
+          }
+        }
+        this.$axios.post(this.NET.BASE_URL + '/course/delect', formData, config
+        ).then(function (res) {
+          if (res.data.code == 200) {
+            _this.$message.success('删除成功')
+            this.query.pageIndex = 1
+            _this.getUserList()
+          } else {
+            _this.$message.error(res.data.msg)
+          }
+        }).catch(function (err) {
+          _this.$message.error(err.data)
+        })
+      },
     //获取用户列表
     getCourseList() {
       var _this = this;
@@ -390,7 +427,7 @@ export default {
         .then(function(res) {
           if (res.data.code == 200) {
             _this.$message.success("删除成功");
-            _this.getUserList();
+            _this.getCourseList();
           } else {
             _this.$message.error(res.data.msg);
           }
