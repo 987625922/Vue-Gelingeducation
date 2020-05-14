@@ -60,7 +60,7 @@ export default new Router({
         },
         {
           path: '/course',
-          component: () => import( '../views/project2/page/Course.vue'),
+          component: () => import( '../views/project2/page/CourseList.vue'),
           meta: { title: '课程' }
         },
         {

@@ -113,8 +113,8 @@
       </el-table-column>
       <el-table-column label="是否免费" align="center" width="150">
         <template slot-scope="scope">
-          <el-tag :type="scope.row.isFree=='0'?'success':'warning'">
-            <div v-if="scope.row.isFree=='1'">付费</div>
+          <el-tag :type="scope.row.price=='0'?'success':'warning'">
+            <div v-if="scope.row.price > 0">付费</div>
             <div v-else>免费</div>
           </el-tag>
         </template>
@@ -154,6 +154,8 @@
         <el-select
           @change="selectAddTeacher"
           style="width: 70%"
+          multiple
+          collapse-tags
           clearable
           　　　　　　v-model="addteacherValue"
           　　　　　　placeholder="请选择"
@@ -189,14 +191,14 @@
       <div style="with:70%">
         <span stype="float:right;">老师：</span>
         <el-select
-          @change="selectAddTeacher"
           style="width: 70%"
-          clearable
-          　　　　　　v-model="addteacherValue"
-          　　　　　　placeholder="请选择"
-          　　　　　　v-loadmore="loadMore"
+          multiple
+          collapse-tags
+          v-model="addteacherValue"
+          placeholder="请选择"
+          v-loadmore="loadMore"
         >
-          <el-option v-for="item in teachers" :key="item.id" :label="item.name" :value="item"></el-option>
+          <el-option v-for="item in teachers" :key="item.id" :label="item.name" :value="item.id"></el-option>
         </el-select>
       </div>
 
@@ -206,11 +208,11 @@
       </div>
       <div>
         <span>价格：</span>
-        <el-input style="width: 70%" placeholder="0为免费" v-model="addPrice"></el-input>
+        <el-input style="width: 70%" placeholder="0和不填为免费" v-model="addPrice"></el-input>
       </div>
       <div>
         <span>备注：</span>
-        <el-input style="width: 70%" placeholder="0为免费" v-model="addRemark"></el-input>
+        <el-input style="width: 70%" placeholder="备注" v-model="addRemark"></el-input>
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="adddialogVisible = false">取 消</el-button>
@@ -261,7 +263,7 @@ export default {
       adddialogVisible: false,
       // 添加课程
       addName: "",
-      addteacherValue: "",
+      addteacherValue: [],
       addteacherId: "",
       addBigUrl: "",
       addPrice: "",
@@ -286,10 +288,10 @@ export default {
       this.teacherSelId = selVal.id;
       this.teacherSelValue = selVal.name;
     },
-    selectAddTeacher(selVal) {
-      this.addteacherValue = selVal.name;
-      this.addteacherId = selVal.id;
-    },
+    // selectAddTeacher(selVal) {
+    //   this.addteacherValue = selVal.name;
+    //   this.addteacherId = selVal.id;
+    // },
     selectStatus(selVal) {
       this.statusSelId = selVal.value;
     }, // 多选操作
@@ -328,30 +330,31 @@ export default {
         });
     },
     editCourse() {
-      this.editVisible = false
-        // this.$set(this.query.tableData, this.idx, this.form)
-        var _this = this
-        let config = {
-          headers: {
-            'token': store.state.token
-          }
+      this.editVisible = false;
+      // this.$set(this.query.tableData, this.idx, this.form)
+      var _this = this;
+      let config = {
+        headers: {
+          token: store.state.token
         }
+      };
 
-        let formData = new FormData()
-        formData.append('userId', _this.query.tableData[_this.idx].id)
-        formData.append('roleId', _this.roleIndex)
+      let formData = new FormData();
+      formData.append("userId", _this.query.tableData[_this.idx].id);
+      formData.append("roleId", _this.roleIndex);
 
-        this.$axios.post(this.NET.BASE_URL + '/user/add_roles', formData,
-          config).then(function (res) {
+      this.$axios
+        .post(this.NET.BASE_URL + "/user/add_roles", formData, config)
+        .then(function(res) {
           if (res.data.code == 200) {
-            _this.editStatus()
+            _this.editStatus();
           } else {
-            _this.$message.error(res.data.msg)
+            _this.$message.error(res.data.msg);
           }
-        }).catch(function (err) {
-          _this.$message.error(err.data)
         })
-
+        .catch(function(err) {
+          _this.$message.error(err.data);
+        });
     },
     selectCourseList() {
       var _this = this;
@@ -401,18 +404,17 @@ export default {
       // 二次确认删除
       this.$confirm("确定要删除吗？", "提示", {
         type: "warning"
-      })
-        .then(() => {
+      }).then(() => {
           //删除操作
           this.delCourse(index);
         })
-        .catch(() => {});
+      
     },
-    //删除用户
+    //删除课程
     delCourse(index) {
       var _this = this;
       let formData = new FormData();
-      formData.append("id", this.query.tableData[index].id);
+      formData.append("id", this.tableCourse[index].id);
       let config = {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -424,8 +426,7 @@ export default {
         .then(function(res) {
           if (res.data.code == 200) {
             _this.$message.success("删除成功");
-            this.query.pageIndex = 1;
-            _this.getUserList();
+            _this.getCourseList();
           } else {
             _this.$message.error(res.data.msg);
           }
@@ -533,6 +534,14 @@ export default {
           token: store.state.token
         }
       };
+      let teacherLists = [];
+      for (let i = 0; i < this.teachers.length; i++) {
+        for (let j = 0; j < this.addteacherValue.length; j++) {
+          if ((this.teachers[i].id == this.addteacherValue[j])) {
+            teacherLists.push(this.teachers[i]);
+          }
+        }
+      }
       this.$axios
         .post(
           this.NET.BASE_URL + "/course/add",
@@ -540,7 +549,8 @@ export default {
             name: _this.addName,
             bigImg: _this.addBigUrl,
             remark: _this.addRemark,
-            price: _this.addPrice
+            price: _this.addPrice,
+            teachers: teacherLists
           },
           config
         )
@@ -555,6 +565,10 @@ export default {
           _this.$message.error(err.data);
         });
       _this.adddialogVisible = false;
+      _this.addName = ""
+      _this.addBigUrl = ""
+      _this.addPrice = ""
+      _this.addteacherValue = []
     }
   },
   created() {
