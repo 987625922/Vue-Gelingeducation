@@ -93,7 +93,14 @@
       <el-table-column type="selection" width="55" align="center"></el-table-column>
       <el-table-column prop="id" label="编号" width="85" align="center"></el-table-column>
       <el-table-column prop="name" label="课程名" align="center"></el-table-column>
-      <el-table-column label="绑定老师" prop="userName" align="center" width="250"></el-table-column>
+      <el-table-column label="绑定老师" align="center" width="250">
+        <template slot-scope="scope">
+          <div v-for="item in scope.row.teachers">
+            <span v-if="scope.row.teachers.length > 1">{{item.name}}</span>
+            <span v-else>{{item.name}}</span>
+          </div>
+        </template>
+      </el-table-column>
       <el-table-column label="缩略图" align="center" width="250">
         <template slot-scope="scope">
           <el-image
@@ -147,34 +154,41 @@
     <el-dialog title="编辑" :visible.sync="editVisible" width="30%">
       <div style="width: 70%">
         <span>课程名：</span>
-        <el-input style="width: 70%" placeholder="请输入内容" v-model="addName"></el-input>
+        <el-input style="width: 70%" placeholder="请输入内容" v-model="edName"></el-input>
       </div>
       <div style="with:70%">
         <span stype="float:right;">老师：</span>
         <el-select
-          @change="selectAddTeacher"
           style="width: 70%"
           multiple
           collapse-tags
           clearable
-          　　　　　　v-model="addteacherValue"
+          　　　　　　v-model="edteacherValue"
           　　　　　　placeholder="请选择"
           　　　　　　v-loadmore="loadMore"
         >
-          <el-option v-for="item in teachers" :key="item.id" :label="item.name" :value="item"></el-option>
+          <el-option v-for="item in teachers" :key="item.id" :label="item.name" :value="item.id"></el-option>
         </el-select>
       </div>
       <div style="width: 70%">
-        <span>封面：</span>
-        <el-input style="width: 70%" placeholder="请输入内容" v-model="addBigUrl"></el-input>
+        状态：
+        <el-select
+          style="width: 70%"
+          @change="edChagestatus"
+          clearable
+          v-model="statusSelName"
+          placeholder="请选择"
+        >
+          <el-option v-for="item in status" :key="item.value" :label="item.name" :value="item"></el-option>
+        </el-select>
       </div>
       <div>
         <span>价格：</span>
-        <el-input style="width: 70%" placeholder="0为免费" v-model="addPrice"></el-input>
+        <el-input style="width: 70%" placeholder="0为免费" v-model="edPrice"></el-input>
       </div>
       <div>
         <span>备注：</span>
-        <el-input style="width: 70%" placeholder="0为免费" v-model="addRemark"></el-input>
+        <el-input style="width: 70%" placeholder="备注" v-model="edRemark"></el-input>
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="editVisible = false">取 消</el-button>
@@ -201,7 +215,10 @@
           <el-option v-for="item in teachers" :key="item.id" :label="item.name" :value="item.id"></el-option>
         </el-select>
       </div>
-
+      <!-- <div style="width: 70%">
+        <span>封面：</span>
+        <el-input style="width: 70%" placeholder="请输入内容" v-model="addBigUrl"></el-input>
+      </div>-->
       <div style="width: 70%">
         <span>封面：</span>
         <el-input style="width: 70%" placeholder="请输入内容" v-model="addBigUrl"></el-input>
@@ -270,7 +287,17 @@ export default {
       addRemark: "",
       selectItemIds: [],
       //编辑
+      edCourseId: -1,
       editVisible: false,
+      edName: "",
+      edteacherValue: [],
+      edteacherId: "",
+      edBigUrl: "",
+      edPrice: "",
+      edRemark: "",
+      edselectItemIds: [],
+      edChangeStatusValue: "",
+      edStatusSelId: "",
       status: [
         {
           value: 1,
@@ -288,13 +315,19 @@ export default {
       this.teacherSelId = selVal.id;
       this.teacherSelValue = selVal.name;
     },
-    // selectAddTeacher(selVal) {
-    //   this.addteacherValue = selVal.name;
-    //   this.addteacherId = selVal.id;
-    // },
+    selectEdTeacher(selVal) {
+      this.addteacherValue = selVal.name;
+      this.addteacherId = selVal.id;
+    },
+    edChagestatus(selVal) {
+      this.edChangeStatusValue = selVal.value;
+    },
     selectStatus(selVal) {
       this.statusSelId = selVal.value;
     }, // 多选操作
+    edSelectStatus(selVal) {
+      this.edStatusSelId = selVal.value;
+    },
     handleSelectionChange(val) {
       this.selectItemIds = val;
     },
@@ -339,15 +372,41 @@ export default {
         }
       };
 
+      let teacherLists = [];
+      for (let i = 0; i < this.teachers.length; i++) {
+        for (let j = 0; j < this.edteacherValue.length; j++) {
+          if (this.teachers[i].id == this.edteacherValue[j]) {
+            teacherLists.push(this.teachers[i]);
+          }
+        }
+      }
+
       let formData = new FormData();
-      formData.append("userId", _this.query.tableData[_this.idx].id);
-      formData.append("roleId", _this.roleIndex);
+      formData.append("id", _this.edCourseId);
+      formData.append("name", _this.edName);
+      // formData.append("bigImg", _this.edBigUrl);
+      // formData.append("remark", _this.edRemark);
+      // formData.append("price", _this.edPrice);
+      // formData.append("teachers", _this.teacherLists);
 
       this.$axios
-        .post(this.NET.BASE_URL + "/user/add_roles", formData, config)
+        .post(
+          this.NET.BASE_URL + "/course/update",
+          formData,
+          //  {
+          //     id: _this.edCourseId,
+          //     name: _this.edName,
+          //     bingImg: _this.edBigUrl,
+          //     remark: _this.edRemark,
+          //     price: _this.edPrice,
+          //     status:_this.edChangeStatusValue,
+          //     teachers: teacherLists
+          //   }
+          config
+        )
         .then(function(res) {
           if (res.data.code == 200) {
-            _this.editStatus();
+            _this.getCourseList();
           } else {
             _this.$message.error(res.data.msg);
           }
@@ -359,21 +418,27 @@ export default {
     selectCourseList() {
       var _this = this;
       let formData = new FormData();
-      _this.pageIndex = 1;
-      _this.pageSize = 10;
-      if (_this.teacherSelId == null) {
+      // if (_this.teacherSelId != "" || _this.teacherSelId != undefined) {
+      if (
+        typeof _this.teacherSelId != "undefined" &&
+        _this.teacherSelId != ""
+      ) {
         formData.append("teacherId", _this.teacherSelId);
       }
       formData.append("currentPage", _this.pageIndex);
       formData.append("pageSize", _this.pageSize);
-      if (_this.selName == null) {
+      if (_this.selName != "") {
         formData.append("name", _this.selName);
       }
-      if (_this.selStartPrice == null) {
+      if (_this.selStartPrice != "") {
         formData.append("startPrice", _this.selStartPrice);
       }
-      formData.append("endPrice", _this.selEndPrice);
-      formData.append("status", _this.statusSelId);
+      if (_this.selEndPrice != "") {
+        formData.append("endPrice", _this.selEndPrice);
+      }
+      if (_this.statusSelId != -1) {
+        formData.append("status", _this.statusSelId);
+      }
       let config = {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -405,10 +470,9 @@ export default {
       this.$confirm("确定要删除吗？", "提示", {
         type: "warning"
       }).then(() => {
-          //删除操作
-          this.delCourse(index);
-        })
-      
+        //删除操作
+        this.delCourse(index);
+      });
     },
     //删除课程
     delCourse(index) {
@@ -437,6 +501,7 @@ export default {
     },
     handleEdit(index, row) {
       this.editVisible = true;
+      this.edCourseId = this.tableCourse[index].id;
     },
     //获取用户列表
     getCourseList() {
@@ -513,7 +578,14 @@ export default {
     // 分页导航
     handlePageChange(val) {
       this.$set(this, "pageIndex", val);
-      if (this.selName == "") {
+      if (
+        this.selName == "" &&
+        this.teacherSelId == -1 &&
+        this.selName == "" &&
+        this.selStartPrice == "" &&
+        this.selEndPrice == "" &&
+        this.statusSelId == -1
+      ) {
         this.getCourseList();
       } else {
         this.selectCourseList();
@@ -521,7 +593,14 @@ export default {
     },
     handleSizeChange(val) {
       this.pageSize = val;
-      if (this.selName == "") {
+      if (
+        this.selName == "" &&
+        this.teacherSelId == -1 &&
+        this.selName == "" &&
+        this.selStartPrice == "" &&
+        this.selEndPrice == "" &&
+        this.statusSelId == -1
+      ) {
         this.getCourseList();
       } else {
         this.selectCourseList();
@@ -537,7 +616,7 @@ export default {
       let teacherLists = [];
       for (let i = 0; i < this.teachers.length; i++) {
         for (let j = 0; j < this.addteacherValue.length; j++) {
-          if ((this.teachers[i].id == this.addteacherValue[j])) {
+          if (this.teachers[i].id == this.addteacherValue[j]) {
             teacherLists.push(this.teachers[i]);
           }
         }
@@ -565,10 +644,10 @@ export default {
           _this.$message.error(err.data);
         });
       _this.adddialogVisible = false;
-      _this.addName = ""
-      _this.addBigUrl = ""
-      _this.addPrice = ""
-      _this.addteacherValue = []
+      _this.addName = "";
+      _this.addBigUrl = "";
+      _this.addPrice = "";
+      _this.addteacherValue = [];
     }
   },
   created() {
