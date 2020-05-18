@@ -372,36 +372,45 @@ export default {
         }
       };
 
-      let teacherLists = [];
+      var _teacherLists = [];
       for (let i = 0; i < this.teachers.length; i++) {
         for (let j = 0; j < this.edteacherValue.length; j++) {
           if (this.teachers[i].id == this.edteacherValue[j]) {
-            teacherLists.push(this.teachers[i]);
+            _teacherLists.push(this.teachers[i]);
           }
         }
       }
 
-      let formData = new FormData();
-      formData.append("id", _this.edCourseId);
-      formData.append("name", _this.edName);
-      // formData.append("bigImg", _this.edBigUrl);
-      // formData.append("remark", _this.edRemark);
-      // formData.append("price", _this.edPrice);
-      // formData.append("teachers", _this.teacherLists);
-
+      // let formData = new FormData();
+      // formData.append("id", _this.edCourseId);
+      // if (_this.edName.length > 0) {
+      //   formData.append("name", _this.edName);
+      // }
+      // if (_this.edBigUrl.length > 0) {
+      //   formData.append("bigImg", _this.edBigUrl);
+      // }
+      // if (_this.edRemark.length > 0) {
+      //   formData.append("remark", _this.edRemark);
+      // }
+      // if (_this.edPrice.length > 0) {
+      //   formData.append("price", _this.edPrice);
+      // }
+      // if (_this.teachers.length > 0) {
+      //   formData.append("teachers",_this.teachers);
+      // }
       this.$axios
         .post(
           this.NET.BASE_URL + "/course/update",
-          formData,
-          //  {
-          //     id: _this.edCourseId,
-          //     name: _this.edName,
-          //     bingImg: _this.edBigUrl,
-          //     remark: _this.edRemark,
-          //     price: _this.edPrice,
-          //     status:_this.edChangeStatusValue,
-          //     teachers: teacherLists
-          //   }
+          // formData,
+           {
+              "id": _this.edCourseId,
+              name: _this.edName,
+              bingImg: _this.edBigUrl,
+              remark: _this.edRemark,
+              price: _this.edPrice,
+              status:_this.edChangeStatusValue,
+              teachers: _teacherLists
+            },
           config
         )
         .then(function(res) {
