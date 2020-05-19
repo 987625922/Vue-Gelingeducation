@@ -14,7 +14,7 @@
           <el-submenu :index="item.index" :key="item.index">
             <template slot="title">
               <i :class="item.icon"></i>
-              <span slot="title">{{ item.title }}</span>
+              <span slot="title">{{item.title }}</span>
             </template>
             <template v-for="subItem in item.subs">
               <el-submenu
@@ -61,11 +61,11 @@
           {
             icon: 'icon web widilanxianxingiconyihuifu_huabanfuben',
             index: 'main',
-            title: '系统首页'
+            title: '  系统首页'
           }, {
-            icon: 'icon web wiyonghuguanli',
+            icon: 'icon web wiziyuanguanli',
             index: '2',
-            title: '资源管理',
+            title: '  资源管理',
             subs: [
               {
                 index: 'course',
@@ -85,7 +85,7 @@
           , {
             icon: 'icon web wiyonghuguanli',
             index: '1',
-            title: '系统管理',
+            title: '  系统管理',
             subs: [
               {
                 index: 'userlist',
@@ -99,7 +99,7 @@
           , {
             icon: 'icon web wiwebicon08',
             index: 'userinfo',
-            title: '个人中心'
+            title: '  个人中心'
           }
 
         ]

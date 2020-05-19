@@ -174,12 +174,11 @@
         状态：
         <el-select
           style="width: 70%"
-          @change="edChagestatus"
           clearable
-          v-model="statusSelName"
+          v-model="edStatusSelId"
           placeholder="请选择"
         >
-          <el-option v-for="item in status" :key="item.value" :label="item.name" :value="item"></el-option>
+          <el-option v-for="item in status" :key="item.value" :label="item.name" :value="item.value"></el-option>
         </el-select>
       </div>
       <div>
@@ -398,21 +397,38 @@ export default {
       // if (_this.teachers.length > 0) {
       //   formData.append("teachers",_this.teachers);
       // }
+      let formData = {
+        id: _this.edCourseId,
+        name: null,
+        bingImg: null,
+        remark: null,
+        price: null,
+        status: null,
+        teachers: null,
+        status:null
+      };
+
+      if (_this.edName.length > 0) {
+        formData.name = _this.edName;
+      }
+      if (_this.edBigUrl.length > 0) {
+        formData.bigImg = _this.edBigUrl;
+      }
+      if (_this.edRemark.length > 0) {
+        formData.remark = _this.edRemark;
+      }
+      if (_this.edPrice.length > 0) {
+        formData.price = _this.edPrice;
+      }
+      if (_teacherLists.length > 0) {
+        formData.teachers = _teacherLists;
+      }
+      if(_this.edStatusSelId >= 0){
+        formData.status = _this.edStatusSelId
+      }
+
       this.$axios
-        .post(
-          this.NET.BASE_URL + "/course/update",
-          // formData,
-           {
-              "id": _this.edCourseId,
-              name: _this.edName,
-              bingImg: _this.edBigUrl,
-              remark: _this.edRemark,
-              price: _this.edPrice,
-              status:_this.edChangeStatusValue,
-              teachers: _teacherLists
-            },
-          config
-        )
+        .post(this.NET.BASE_URL + "/course/update", formData, config)
         .then(function(res) {
           if (res.data.code == 200) {
             _this.getCourseList();
