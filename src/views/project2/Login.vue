@@ -2,125 +2,150 @@
   <div id="bg">
     <div style="margin-top: 50px">
       <h2 class="logoText">
-        <img src="../../assets/logo.png" alt="logo">
+        <img src="../../assets/logo.png" alt="logo" />
         <span>管理后台</span>
       </h2>
     </div>
     <el-form ref="loginForm" :model="form" :rules="rules" label-width="60px" class="login-box">
       <h3 class="login-title">欢迎登录</h3>
       <el-row>
-        <el-col :span="5" style="color: #ffffff;height: 40px;line-height: 40px;">
-        账号：
-        </el-col>
+        <el-col :span="5" style="color: #ffffff;height: 40px;line-height: 40px;">账号：</el-col>
         <el-col :span="19">
-        <el-input type="text" placeholder="请输入账号" v-model="form.username"/>
+          <el-input type="text" placeholder="请输入账号" v-model="form.username" />
         </el-col>
       </el-row>
       <el-row style="margin-top: 20px;">
-        <el-col :span="5"  style="color: #ffffff;height: 40px;line-height: 40px;">
-         密码：
-        </el-col>
+        <el-col :span="5" style="color: #ffffff;height: 40px;line-height: 40px;">密码：</el-col>
         <el-col :span="19">
-          <el-input type="password" placeholder="请输入密码" v-model="form.password"/>
+          <el-input type="password" placeholder="请输入密码" v-model="form.password" />
         </el-col>
       </el-row>
-      <el-row style="height: 40px;margin-top: 10px">
-        <el-radio v-model="radio" label="1" style="color: #ffffff;">记住我</el-radio>
+      <el-row style="height: 20px;margin-top: 20px">
+        <!-- <el-radio v-model="radio" label="1" style="color: #ffffff;">记住我</el-radio> -->
+        <el-col :span="5" style="color: #ffffff;height: 40px;line-height: 40px;"></el-col>
+        <el-col :span="19">
+          <el-button class="register-btn" type="primary" v-on:click="login()">登录</el-button>
+        </el-col>
       </el-row>
-      <el-button class="register-btn" type="primary" v-on:click="login()">登录</el-button>
     </el-form>
   </div>
 </template>
 
 <script>
-  import store from '@/store'
+import store from "@/store";
 
-  export default {
-    name: 'Login',
-    data() {
-      return {
-        form: {
-          username: '',
-          password: '',
-          againPassword: ''
-        },
-        // 表单验证，需要在 el-form-item 元素中增加 prop 属性
-        rules: {
-          username: [
-            {required: true, message: '账号不可为空', trigger: 'blur'}
-          ],
-          password: [
-            {required: true, message: '密码不可为空', trigger: 'blur'}
-          ]
-        }
+export default {
+  name: "Login",
+  data() {
+    return {
+      form: {
+        username: "",
+        password: "",
+        againPassword: ""
+      },
+      // 表单验证，需要在 el-form-item 元素中增加 prop 属性
+      rules: {
+        username: [
+          { required: true, message: "账号不可为空", trigger: "blur" }
+        ],
+        password: [{ required: true, message: "密码不可为空", trigger: "blur" }]
       }
-    },
-    methods: {
-      login() {
-        var _this = this;
-        this.$axios.post(this.NET.BASE_URL + "/web/login", {
+    };
+  },
+  methods: {
+    login() {
+      var _this = this;
+      this.$axios.interceptors.response
+        .use(
+          data => {
+            if (
+              data.status &&
+              data.status == 200 &&
+              data.data.status == "error"
+            ) {
+              Message.error({ message: data.data.msg });
+              return;
+            }
+            return data;
+          },
+          err => {
+            if (err.response.status == 504 || err.response.status == 404) {
+              Message.error({ message: "服务器被吃了⊙﹏⊙∥" });
+            } else if (err.response.status == 403) {
+              Message.error({ message: "权限不足,请联系管理员!" });
+            } else {
+              Message.error({ message: "未知错误!" });
+            }
+            return Promise.resolve(err);
+          }
+        )
+        .post(this.NET.BASE_URL + "/web/login", {
           account: this.form.username,
           password: this.form.password
-        }).then(function (res) {
+        })
+        .then(function(res) {
           if (res.data.code == 200) {
-            _this.$message.success("登录成功")
-            store.commit('setUserId', res.data.data.id)
-            store.commit('setToken', res.data.data.token)
-            _this.$router.push('Main')
+            _this.$message.success("登录成功");
+            store.commit("setUserId", res.data.data.id);
+            store.commit("setToken", res.data.data.token);
+            _this.$router.push("Main");
           } else {
             _this.$message.error(res.data.msg);
           }
-        }).catch(function (err) {
-          _this.$message.error(err.data)
         })
-      }
+        .catch(function(err) {
+          _this.$message.error(err.data);
+        });
     }
   }
+};
 </script>
 
 <style scoped>
+.login-box {
+  width: 300px;
+  height: 220px;
+  margin: 150px auto;
+  padding: 35px 55px 35px 35px;
+  border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.3);
+}
 
-  .login-box {
-    width: 300px;
-    margin: 150px auto;
-    padding: 35px 35px 15px 35px;
-    border-radius: 5px;
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    background: rgba(0, 0, 0, 0.3);
-  }
+.login-title {
+  text-align: center;
+  margin: 0 auto 30px auto;
+  color: #fff;
+  font-size: 25px;
+}
 
-  .login-title {
-    text-align: center;
-    margin: 0 auto 40px auto;
-    color: #fff;
-  }
+.register-btn {
+  width: 100%;
+  margin: 0 auto;
+  background-color: #2061f6;
+}
 
-  .register-btn {
-    width: 100%;
-    background-color: #2061f6;
-  }
+.logoText {
+  color: #fff;
+  font-size: 36px;
+  line-height: 40px;
+  display: flex;
+  justify-content: center;
+}
 
-  .logoText {
-    color: #fff;
-    font-size: 36px;
-    line-height: 40px;
-    display: flex;
-    justify-content: center;
-  }
+.logoText span {
+  margin-left: 30px;
+}
 
-  .logoText span {
-    margin-left: 30px;
-  }
-
-  #bg {
-    width: 100%;
-    height: 100vh; /* 重点一 */
-    margin: 0 auto;
-    background-image: url(../../assets/img/bg_main.jpg);
-    background-repeat: no-repeat;
-    background-size: cover; /* 重点二 */
-    overflow: auto;
-  }
-
+#bg {
+  width: 100%;
+  height: 100vh; /* 重点一 */
+  margin: 0 auto;
+  background-image: url(../../assets/img/bg_main.jpg);
+  background-repeat: no-repeat;
+  background-size: cover; /* 重点二 */
+  overflow: auto;
+}
 </style>
