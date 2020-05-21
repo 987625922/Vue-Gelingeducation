@@ -249,7 +249,7 @@
             'token': store.state.token
           }
         }
-        this.$axios.post(this.NET.BASE_URL + '/user/add_user', {
+        this.$axios.post(this.NET.BASE_URL + '/api/user/add_user', {
           account: _this.account,
           password: _this.password,
           note: _this.usernote,
@@ -292,7 +292,7 @@
             'token': store.state.token
           }
         }
-        this.$axios.post(this.NET.BASE_URL + '/user/lists', formData, config
+        this.$axios.post(this.NET.BASE_URL + '/api/user/lists', formData, config
         ).then(function (res) {
           if (res.data.code == 200) {
             _this.$message.success(res.data.msg)
@@ -316,7 +316,7 @@
             'token': store.state.token
           }
         }
-        this.$axios.post(this.NET.BASE_URL + '/user/del_user', formData, config
+        this.$axios.post(this.NET.BASE_URL + '/api/user/del_user', formData, config
         ).then(function (res) {
           if (res.data.code == 200) {
             _this.$message.success('删除成功')
@@ -377,7 +377,7 @@
             'token': store.state.token
           }
         }
-        this.$axios.post(this.NET.BASE_URL + '/user/batches_deletes', formData, config
+        this.$axios.post(this.NET.BASE_URL + '/api/user/batches_deletes', formData, config
         ).then(function (res) {
           if (res.data.code == 200) {
             _this.$message.success('删除成功')
@@ -406,7 +406,7 @@
             'token': store.state.token
           }
         }
-        this.$axios.post('http://localhost:8081/user/sel_by_name', formData, config
+        this.$axios.post(this.NET.BASE_URL + '/api/user/sel_by_name', formData, config
         ).then(function (res) {
           if (res.data.code == 200) {
             _this.$message.success(res.data.msg)
@@ -442,7 +442,7 @@
         formData.append('userId', _this.query.tableData[_this.idx].id)
         formData.append('roleId', _this.roleIndex)
 
-        this.$axios.post(this.NET.BASE_URL + '/user/add_roles', formData,
+        this.$axios.post(this.NET.BASE_URL + '/api/user/add_roles', formData,
           config).then(function (res) {
           if (res.data.code == 200) {
             _this.editStatus()
@@ -460,7 +460,7 @@
             'token': store.state.token
           }
         }
-        this.$axios.post(this.NET.BASE_URL + '/user/edit_info', {
+        this.$axios.post(this.NET.BASE_URL + '/api/user/edit_info', {
           id: _this.query.tableData[_this.idx].id,
           status: parseInt(_this.status)
         }, config).then(function (res) {
@@ -483,7 +483,7 @@
             'token': store.state.token
           }
         }
-        this.$axios.get(this.NET.BASE_URL + '/role/lists', config).then(function (res) {
+        this.$axios.get(this.NET.BASE_URL + '/api/role/lists', config).then(function (res) {
           if (res.data.code == 200) {
             _this.roleIndex = _this.query.tableData[index].role.id
             _this.roleList = res.data.data
@@ -502,7 +502,7 @@
             'token': store.state.token
           }
         }
-        this.$axios.get(this.NET.BASE_URL + '/role/lists', config).then(function (res) {
+        this.$axios.get(this.NET.BASE_URL + '/api/role/lists', config).then(function (res) {
           if (res.data.code == 200) {
             for (let i = 0; i < res.data.data.length; i++) {
               if (res.data.data[i].isDefault == 1) {
