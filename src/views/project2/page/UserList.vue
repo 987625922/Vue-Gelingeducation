@@ -256,6 +256,10 @@
           role:_role
         }, config).then(function (res) {
           if (res.data.code == 200) {
+            _this.account = ""
+            _this.password = ""
+            _this.usernote = ""
+            _this.roleList=[]
             _this.getUserList()
           } else {
             _this.$message.error(res.data.msg)
