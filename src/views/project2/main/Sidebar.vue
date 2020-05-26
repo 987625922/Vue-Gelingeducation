@@ -85,7 +85,7 @@
           , {
             icon: 'icon web wiyonghuguanli',
             index: '1',
-            title: '  系统管理',
+            title: '  用户管理',
             subs: [
               {
                 index: 'userlist',
@@ -94,6 +94,15 @@
               {
                 index: 'rolelist',
                 title: '身份管理'
+              }]
+          }, {
+            icon: 'icon web wiyonghuguanli',
+            index: '3',
+            title: '  系统管理',
+            subs: [
+              {
+                index: 'log',
+                title: '系统日志'
               }]
           }
           , {

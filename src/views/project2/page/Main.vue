@@ -143,7 +143,7 @@
     methods: {
       getUername() {
         var _this = this
-        this.$axios.get(this.NET.BASE_URL + '/user/get_info', {
+        this.$axios.get(this.NET.BASE_URL + '/api/user/get_info', {
           headers: {
             'token': store.state.token
           },

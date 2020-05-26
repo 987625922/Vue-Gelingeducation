@@ -342,7 +342,7 @@ export default {
         }
       };
       this.$axios
-        .post(this.NET.BASE_URL + "/teacher/pagelists", formData, config)
+        .post(this.NET.BASE_URL + "/api/teacher/pagelists", formData, config)
         .then(function(res) {
           if (res.data.code == 200) {
             _this.$message.success(res.data.msg);
@@ -428,7 +428,7 @@ export default {
       }
 
       this.$axios
-        .post(this.NET.BASE_URL + "/course/update", formData, config)
+        .post(this.NET.BASE_URL + "/api/course/update", formData, config)
         .then(function(res) {
           if (res.data.code == 200) {
             _this.getCourseList();
@@ -472,7 +472,7 @@ export default {
       };
       this.$axios
         .post(
-          this.NET.BASE_URL + "/course/sel_by_name_or_status_price_teacher",
+          this.NET.BASE_URL + "/api/course/sel_by_name_or_status_price_teacher",
           formData,
           config
         )
@@ -511,7 +511,7 @@ export default {
         }
       };
       this.$axios
-        .post(this.NET.BASE_URL + "/course/delect", formData, config)
+        .post(this.NET.BASE_URL + "/api/course/delect", formData, config)
         .then(function(res) {
           if (res.data.code == 200) {
             _this.$message.success("删除成功");
@@ -541,7 +541,7 @@ export default {
         }
       };
       this.$axios
-        .post(this.NET.BASE_URL + "/course/lists", formData, config)
+        .post(this.NET.BASE_URL + "/api/course/lists", formData, config)
         .then(function(res) {
           if (res.data.code == 200) {
             _this.$message.success(res.data.msg);
@@ -584,7 +584,7 @@ export default {
         }
       };
       this.$axios
-        .post(this.NET.BASE_URL + "/course/batches_deletes", formData, config)
+        .post(this.NET.BASE_URL + "/api/course/batches_deletes", formData, config)
         .then(function(res) {
           if (res.data.code == 200) {
             _this.$message.success("删除成功");
@@ -648,7 +648,7 @@ export default {
       }
       this.$axios
         .post(
-          this.NET.BASE_URL + "/course/add",
+          this.NET.BASE_URL + "/api/course/add",
           {
             name: _this.addName,
             bigImg: _this.addBigUrl,

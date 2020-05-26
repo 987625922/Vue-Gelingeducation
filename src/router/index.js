@@ -77,6 +77,11 @@ export default new Router({
           path: '/specialTopic',
           component: () => import( '../views/project2/page/SpecialTopic.vue'),
           meta: { title: '专题' }
+        },
+        {
+          path: '/log',
+          component: () => import( '../views/project2/page/Log.vue'),
+          meta: { title: '日志' }
         }
       ]
     }
