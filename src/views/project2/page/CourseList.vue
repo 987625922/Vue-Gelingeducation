@@ -343,7 +343,7 @@ export default {
         }
       };
       this.$axios
-        .post(this.NET.BASE_URL + "/api/teacher/pagelists", formData, config)
+        .post(this.NET.BASE_URL + "/api/teacher/lists", formData, config)
         .then(function(res) {
           if (res.data.code == 200) {
             _this.$message.success(res.data.msg);
