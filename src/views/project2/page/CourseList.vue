@@ -27,7 +27,7 @@
           </el-select>
         </div>
       </el-col>
-      <el-col :span="5">
+      <el-col :span="6">
         <div class="inputText">
           价格：
           <el-input v-model="selStartPrice" style="width: 20%" placeholder></el-input>-
@@ -44,15 +44,16 @@
         >批量删除</el-button>
       </el-col>
       <el-col :span="2">
-        <el-button type="primary" icon="el-icon-plus" @click="showAddUser" circle class="add"></el-button>
-      </el-col>
-      <el-col :span="2">
         <el-button
           class="rightview"
           type="primary"
           icon="el-icon-search"
           @click="selectCourseList"
         >搜索</el-button>
+      </el-col>
+      <el-col :span="1" style="text-align:center">
+        <el-button type="primary" 
+        icon="el-icon-plus" style="margin:0 auto;" @click="showAddUser" circle class="add"></el-button>
       </el-col>
       <el-col :span="1">
         <el-button
