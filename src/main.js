@@ -7,10 +7,17 @@ import store from './store'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 import qs from 'qs'
+
 import './assets/icon/iconfont.css'
 import '../src/assets/theme/theme/index.css'
 
-// import './assets/css/theme-green/index.css'; // 浅绿色主题
+//axios封装
+import {post,fetch,patch,put} from './utils/http'
+//定义全局变量
+Vue.prototype.$post=post;
+Vue.prototype.$fetch=fetch;
+Vue.prototype.$patch=patch;
+Vue.prototype.$put=put;
 
 
 Vue.prototype.$axios = axios;    //全局注册，使用方法为:this.$axios

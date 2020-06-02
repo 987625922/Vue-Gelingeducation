@@ -8,7 +8,7 @@
             style="width: 70%"
             placeholder="请输入内容"
             prefix-icon="el-icon-search"
-            v-model="selName"
+            v-model="select.name"
             clearable
           ></el-input>
         </div>
@@ -20,7 +20,7 @@
             style="width: 70%"
             @change="selectStatus"
             clearable
-            v-model="statusSelName"
+            v-model="statusselect.name"
             placeholder="请选择"
           >
             <el-option v-for="item in status" :key="item.value" :label="item.name" :value="item"></el-option>
@@ -52,8 +52,14 @@
         >搜索</el-button>
       </el-col>
       <el-col :span="1" style="text-align:center">
-        <el-button type="primary" 
-        icon="el-icon-plus" style="margin:0 auto;" @click="showAddUser" circle class="add"></el-button>
+        <el-button
+          type="primary"
+          icon="el-icon-plus"
+          style="margin:0 auto;"
+          @click="showAddUser"
+          circle
+          class="add"
+        ></el-button>
       </el-col>
       <el-col :span="1">
         <el-button
@@ -84,7 +90,7 @@
       </el-col>
     </el-row>
     <el-table
-      :data="tableCourse"
+      :data="courseTable.data"
       border
       class="table"
       ref="multipleSelection"
@@ -145,8 +151,8 @@
         layout="sizes, prev, pager, next"
         :page-sizes="[5, 10, 20, 30]"
         :page-size="5"
-        :current-page="pageIndex"
-        :total="pageTotal"
+        :current-page="courseTable.pageIndex"
+        :total="courseTable.pageTotal"
         @size-change="handleSizeChange"
         @current-change="handlePageChange"
       ></el-pagination>
@@ -173,13 +179,13 @@
       </div>
       <div style="width: 70%">
         状态：
-        <el-select
-          style="width: 70%"
-          clearable
-          v-model="edStatusSelId"
-          placeholder="请选择"
-        >
-          <el-option v-for="item in status" :key="item.value" :label="item.name" :value="item.value"></el-option>
+        <el-select style="width: 70%" clearable v-model="edStatusSelId" placeholder="请选择">
+          <el-option
+            v-for="item in status"
+            :key="item.value"
+            :label="item.name"
+            :value="item.value"
+          ></el-option>
         </el-select>
       </div>
       <div>
@@ -262,20 +268,21 @@ export default {
   name: "course",
   data() {
     return {
-      tableCourse: [],
-      delList: [],
-      selName: "",
-      pageIndex: 1,
-      pageSize: 5,
-      teacherPageIndex: 1,
-      pageTotal: 0,
-      selName: "",
+      courseTable: {
+        pageIndex: 1,
+        pageSize: 5,
+        pageTotal: 0,
+        data: []
+      },
+      select: {
+        name: ""
+      },
       teachers: [],
       selStartPrice: "",
       selEndPrice: "",
       teacherSelValue: "",
       teacherSelId: -1,
-      statusSelName: "",
+      statusselect: "",
       statusSelId: -1,
       adddialogVisible: false,
       // 添加课程
@@ -334,8 +341,8 @@ export default {
     getTeacherList() {
       var _this = this;
       let formData = new FormData();
-      formData.append("currentPage", _this.teacherPageIndex);
-      formData.append("pageSize", 10);
+      formData.append("currentPage", _this.courseTable.pageIndex);
+      formData.append("pageSize", _this.courseTable.pageSize);
       let config = {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -406,7 +413,7 @@ export default {
         price: null,
         status: null,
         teachers: null,
-        status:null
+        status: null
       };
 
       if (_this.edName.length > 0) {
@@ -424,8 +431,8 @@ export default {
       if (_teacherLists.length > 0) {
         formData.teachers = _teacherLists;
       }
-      if(_this.edStatusSelId >= 0){
-        formData.status = _this.edStatusSelId
+      if (_this.edStatusSelId >= 0) {
+        formData.status = _this.edStatusSelId;
       }
 
       this.$axios
@@ -451,10 +458,10 @@ export default {
       ) {
         formData.append("teacherId", _this.teacherSelId);
       }
-      formData.append("currentPage", _this.pageIndex);
-      formData.append("pageSize", _this.pageSize);
-      if (_this.selName != "") {
-        formData.append("name", _this.selName);
+      formData.append("currentPage", _this.courseTable.pageIndex);
+      formData.append("pageSize", _this.courseTable.pageSize);
+      if (_this.select.name != "") {
+        formData.append("name", _this.select.name);
       }
       if (_this.selStartPrice != "") {
         formData.append("startPrice", _this.selStartPrice);
@@ -480,8 +487,8 @@ export default {
         .then(function(res) {
           if (res.data.code == 200) {
             _this.$message.success(res.data.msg);
-            _this.tableCourse = res.data.data.lists;
-            _this.pageTotal = res.data.data.totalRows;
+            _this.courseTable.data = res.data.data.lists;
+            _this.courseTable.pageTotal = res.data.data.totalRows;
           } else {
             _this.$message.error(res.data.msg);
           }
@@ -504,7 +511,7 @@ export default {
     delCourse(index) {
       var _this = this;
       let formData = new FormData();
-      formData.append("id", this.tableCourse[index].id);
+      formData.append("id", this.courseTable.data[index].id);
       let config = {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -527,14 +534,14 @@ export default {
     },
     handleEdit(index, row) {
       this.editVisible = true;
-      this.edCourseId = this.tableCourse[index].id;
+      this.edCourseId = this.courseTable.data[index].id;
     },
     //获取用户列表
     getCourseList() {
       var _this = this;
       let formData = new FormData();
-      formData.append("currentPage", _this.pageIndex);
-      formData.append("pageSize", _this.pageSize);
+      formData.append("currentPage", _this.courseTable.pageIndex);
+      formData.append("pageSize", _this.courseTable.pageSize);
       let config = {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -546,8 +553,8 @@ export default {
         .then(function(res) {
           if (res.data.code == 200) {
             _this.$message.success(res.data.msg);
-            _this.tableCourse = res.data.data.lists;
-            _this.pageTotal = res.data.data.totalRows;
+            _this.courseTable.data = res.data.data.lists;
+            _this.courseTable.pageTotal = res.data.data.totalRows;
           } else {
             _this.$message.error(res.data.msg);
           }
@@ -563,7 +570,6 @@ export default {
         .then(() => {
           const length = this.selectItemIds.length;
           let str = "";
-          this.delList = this.delList.concat(this.selectItemIds);
           var select = new Array();
           for (let i = 0; i < length; i++) {
             str += this.selectItemIds[i].name + " ";
@@ -585,7 +591,11 @@ export default {
         }
       };
       this.$axios
-        .post(this.NET.BASE_URL + "/api/course/batches_deletes", formData, config)
+        .post(
+          this.NET.BASE_URL + "/api/course/batches_deletes",
+          formData,
+          config
+        )
         .then(function(res) {
           if (res.data.code == 200) {
             _this.$message.success("删除成功");
@@ -603,11 +613,11 @@ export default {
     },
     // 分页导航
     handlePageChange(val) {
-      this.$set(this, "pageIndex", val);
+      this.$set(this, "courseTable.pageIndex", val);
       if (
-        this.selName == "" &&
+        this.select.name == "" &&
         this.teacherSelId == -1 &&
-        this.selName == "" &&
+        this.select.name == "" &&
         this.selStartPrice == "" &&
         this.selEndPrice == "" &&
         this.statusSelId == -1
@@ -618,11 +628,11 @@ export default {
       }
     },
     handleSizeChange(val) {
-      this.pageSize = val;
+      this.courseTable.pageSize = val;
       if (
-        this.selName == "" &&
+        this.select.name == "" &&
         this.teacherSelId == -1 &&
-        this.selName == "" &&
+        this.select.name == "" &&
         this.selStartPrice == "" &&
         this.selEndPrice == "" &&
         this.statusSelId == -1
