@@ -183,7 +183,7 @@
 <script>
 import store from "@/store";
 
-import { timestampToTime } from "@/utils/TimeUtils";
+import { timestampToTime } from "@/utils/timeUtils";
 
 export default {
   name: "userlist",

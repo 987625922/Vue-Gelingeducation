@@ -14,13 +14,13 @@ const service = axios.create({
 //http request 拦截器
 service.interceptors.request.use(
   config => {
-    if (store.state.token) {
-      config.headers['token'] = getToken()
-    }
-    // 设置参数格式
-    if (!config.headers['Content-Type'] && config.method === 'post') {
+    if (config.method === 'get') {
+      config.headers.token = getToken()
+    }else if (config.method === 'post') {
       config.headers = {
+        'Accept':'application/json',
         'Content-Type': 'application/json',
+        'token': getToken()
       };
     }
     return config;

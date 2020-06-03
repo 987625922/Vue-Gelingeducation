@@ -17,3 +17,12 @@ export function getTeacherList(query){
         }
     )
 }
+
+export function courseUpdate(data){
+    return request({
+        url:'/api/course/update',
+        method:'post',
+        data
+        }
+    )
+}
