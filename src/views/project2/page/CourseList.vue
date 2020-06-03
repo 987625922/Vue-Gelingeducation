@@ -1,7 +1,7 @@
 <template xmlns:>
   <div>
-    <el-row class="radiusbg">
-      <el-col :span="5">
+    <el-row style="background-color:#ffffff;padding:10px;">
+      <el-col :span="18">
         <div class="inputText">
           <span>课程名：</span>
           <el-input
@@ -12,8 +12,6 @@
             clearable
           ></el-input>
         </div>
-      </el-col>
-      <el-col :span="5">
         <div class="inputText">
           状态：
           <el-select
@@ -26,24 +24,28 @@
             <el-option v-for="item in status" :key="item.value" :label="item.name" :value="item"></el-option>
           </el-select>
         </div>
-      </el-col>
-      <el-col :span="6">
-        <div class="inputText">
+        <div class="inputText" style="width: 30%;">
           价格：
-          <el-input v-model="selStartPrice" style="width: 20%" placeholder></el-input>-
-          <el-input v-model="selEndPrice" style="width: 20%" placeholder></el-input>
+          <el-input v-model="selStartPrice" style="width: 20%;display:inline-block;" placeholder></el-input>
+          <span>-</span>
+          <el-input v-model="selEndPrice" style="width: 20%;display:inline-block" placeholder></el-input>
         </div>
       </el-col>
-
-      <el-col :span="4">
+      <el-col :span="6">
+        <el-button type="primary" icon="el-icon-plus" @click="showAddUser" circle class="rightview"></el-button>
+        <el-button
+          type="primary"
+          icon="el-icon-refresh"
+          @click="getCourseList"
+          circle
+          class="rightview"
+        ></el-button>
         <el-button
           type="primary"
           icon="el-icon-delete"
           class="rightview"
           @click="delAllSelection"
         >批量删除</el-button>
-      </el-col>
-      <el-col :span="2">
         <el-button
           class="rightview"
           type="primary"
@@ -51,52 +53,29 @@
           @click="selectCourseList"
         >搜索</el-button>
       </el-col>
-      <el-col :span="1" style="text-align:center">
-        <el-button
-          type="primary"
-          icon="el-icon-plus"
-          style="margin:0 auto;"
-          @click="showAddUser"
-          circle
-          class="add"
-        ></el-button>
-      </el-col>
-      <el-col :span="1">
-        <el-button
-          type="primary"
-          icon="el-icon-refresh"
-          @click="getCourseList"
-          circle
-          class="refresh rightview"
-        ></el-button>
-      </el-col>
-      <el-col :span="24" style="margin-top: 10px">
-        <el-col :span="5">
-          <div class="inputText">
-            <span stype="float:right;">老师：</span>
-            <el-select
-              @change="selectTeacher"
-              style="width: 70%"
-              clearable
-              　　　　　　v-model="teacherSelValue"
-              　　　　　　placeholder="请选择"
-              　　　　　　v-loadmore="loadMore"
-            >
-              <el-option v-for="item in teachers" :key="item.id" :label="item.name" :value="item"></el-option>
-            </el-select>
-          </div>
-        </el-col>
-        <el-col :span="5"></el-col>
+    </el-row>
+    <el-row class="radiusbg">
+      <el-col :span="5">
+        <div class="inputText">
+          <span stype="float:right;">老师：</span>
+          <el-select
+            @change="selectTeacher"
+            style="width: 70%"
+            clearable
+            　　　　　　v-model="teacherSelValue"
+            　　　　　　placeholder="请选择"
+            　　　　　　v-loadmore="loadMoreData"
+          >
+            <el-option v-for="item in teachers" :key="item.id" :label="item.name" :value="item"></el-option>
+          </el-select>
+        </div>
       </el-col>
     </el-row>
     <el-table
       :data="courseTable.data"
       border
       class="table"
-      ref="multipleSelection"
-      header-cell-class-name="table-header"
-      @selection-change="handleSelectionChange"
-    >
+      ref="multipleSelection">
       <el-table-column type="selection" width="55" align="center"></el-table-column>
       <el-table-column prop="id" label="编号" width="85" align="center"></el-table-column>
       <el-table-column prop="name" label="课程名" align="center"></el-table-column>
@@ -157,6 +136,7 @@
         @current-change="handlePageChange"
       ></el-pagination>
     </div>
+
     <!-- 编辑弹出框 -->
     <el-dialog title="编辑" :visible.sync="editVisible" width="30%">
       <div style="width: 70%">
@@ -172,7 +152,7 @@
           clearable
           　　　　　　v-model="edteacherValue"
           　　　　　　placeholder="请选择"
-          　　　　　　v-loadmore="loadMore"
+          　　　　　　v-loadmore="loadMoreData"
         >
           <el-option v-for="item in teachers" :key="item.id" :label="item.name" :value="item.id"></el-option>
         </el-select>
@@ -216,7 +196,7 @@
           collapse-tags
           v-model="addteacherValue"
           placeholder="请选择"
-          v-loadmore="loadMore"
+          v-loadmore="loadMoreData"
         >
           <el-option v-for="item in teachers" :key="item.id" :label="item.name" :value="item.id"></el-option>
         </el-select>
@@ -247,22 +227,7 @@
 
 <script>
 import store from "@/store";
-
-import Vue from "vue";
-
-Vue.directive("loadmore", {
-  bind(el, binding) {
-    const SELECTWRAP_DOM = el.querySelector(
-      ".el-select-dropdown .el-select-dropdown__wrap"
-    );
-    SELECTWRAP_DOM.addEventListener("scroll", function() {
-      const CONDITION = this.scrollHeight - this.scrollTop <= this.clientHeight;
-      if (CONDITION) {
-        binding.value();
-      }
-    });
-  }
-});
+import { warningDialog } from "@/utils/dialog";
 
 export default {
   name: "course",
@@ -270,7 +235,7 @@ export default {
     return {
       courseTable: {
         pageIndex: 1,
-        pageSize: 5,
+        pageSize: 10,
         pageTotal: 0,
         data: []
       },
@@ -322,6 +287,9 @@ export default {
       this.teacherSelId = selVal.id;
       this.teacherSelValue = selVal.name;
     },
+    loadMoreData() {
+
+    },
     selectEdTeacher(selVal) {
       this.addteacherValue = selVal.name;
       this.addteacherId = selVal.id;
@@ -334,9 +302,6 @@ export default {
     }, // 多选操作
     edSelectStatus(selVal) {
       this.edStatusSelId = selVal.value;
-    },
-    handleSelectionChange(val) {
-      this.selectItemIds = val;
     },
     getTeacherList() {
       var _this = this;
@@ -388,23 +353,6 @@ export default {
         }
       }
 
-      // let formData = new FormData();
-      // formData.append("id", _this.edCourseId);
-      // if (_this.edName.length > 0) {
-      //   formData.append("name", _this.edName);
-      // }
-      // if (_this.edBigUrl.length > 0) {
-      //   formData.append("bigImg", _this.edBigUrl);
-      // }
-      // if (_this.edRemark.length > 0) {
-      //   formData.append("remark", _this.edRemark);
-      // }
-      // if (_this.edPrice.length > 0) {
-      //   formData.append("price", _this.edPrice);
-      // }
-      // if (_this.teachers.length > 0) {
-      //   formData.append("teachers",_this.teachers);
-      // }
       let formData = {
         id: _this.edCourseId,
         name: null,
@@ -451,7 +399,6 @@ export default {
     selectCourseList() {
       var _this = this;
       let formData = new FormData();
-      // if (_this.teacherSelId != "" || _this.teacherSelId != undefined) {
       if (
         typeof _this.teacherSelId != "undefined" &&
         _this.teacherSelId != ""
@@ -500,9 +447,7 @@ export default {
     // 删除操作
     handleDelete(index, row) {
       // 二次确认删除
-      this.$confirm("确定要删除吗？", "提示", {
-        type: "warning"
-      }).then(() => {
+      warningDialog("11").then(() => {
         //删除操作
         this.delCourse(index);
       });
@@ -564,9 +509,7 @@ export default {
         });
     },
     delAllSelection() {
-      this.$confirm("确定要删除吗？", "提示", {
-        type: "warning"
-      })
+      warningDialog("确定要删1除吗？")
         .then(() => {
           const length = this.selectItemIds.length;
           let str = "";
@@ -699,17 +642,20 @@ export default {
 
 .inputText {
   position: relative;
-  text-align: right;
+  display: inline-block;
 }
 
 .radiusbg {
-  margin-bottom: 10px;
   border-radius: 2px;
   background-color: #ffffff;
-  padding: 10px 10px 10px 10px;
+  padding: 0px 10px 10px 10px;
 }
 
 .rightview {
-  float: right;
+  display: inline-block;
+}
+.table{
+  margin-top: 10px;
+  background: #ffffff;
 }
 </style>

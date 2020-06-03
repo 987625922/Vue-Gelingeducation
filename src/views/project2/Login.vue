@@ -24,7 +24,7 @@
         <!-- <el-radio v-model="radio" label="1" style="color: #ffffff;">记住我</el-radio> -->
         <el-col :span="5" style="color: #ffffff;height: 40px;line-height: 40px;"></el-col>
         <el-col :span="19">
-          <el-button class="register-btn" type="primary" v-on:click="login()">登录</el-button>
+          <el-button class="register-btn" type="primary" v-on:click="handleLogin()">登录</el-button>
         </el-col>
       </el-row>
     </el-form>
@@ -33,7 +33,8 @@
 
 <script>
 import store from "@/store";
-import { getToken, setToken, removeToken } from '@/utils/auth'
+import { getToken, setToken, removeToken } from "@/utils/auth";
+import { login } from "@/api/api";
 
 export default {
   name: "Login",
@@ -54,26 +55,18 @@ export default {
     };
   },
   methods: {
-    login() {
-      var _this = this;
-      this.$axios.post(this.NET.BASE_URL + "/web/login", {
-          account: this.form.username,
-          password: this.form.password
-        })
-        .then(function(res) {
-          if (res.data.code == 200) {
-            _this.$message.success("登录成功");
-            store.commit("setUserId", res.data.data.id);
-            setToken(res.data.data.token)
-            store.commit("setToken", res.data.data.token);
-            _this.$router.push("Main");
-          } else {
-            _this.$message.error(res.data.msg);
-          }
-        })
-        .catch(function(err) {
-          _this.$message.error(err.data);
-        });
+    handleLogin() {
+      var params = {
+        account: this.form.username,
+        password: this.form.password
+      };
+      login(params).then(res => {
+        this.$message.success("登录成功");
+        store.commit("setUserId", res.data.id);
+        setToken(res.data.token);
+        store.commit("setToken", res.data.token);
+        this.$router.push("Main");
+      });
     }
   }
 };

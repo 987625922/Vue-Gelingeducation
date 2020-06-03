@@ -16,6 +16,10 @@ Vue.prototype.qs = qs           //全局注册，使用方法为:this.qs
 Vue.config.productionTip = false
 var that = this
 
+import { loadMore } from './utils/loadmore';
+ 
+Vue.directive('loadmore', { bind: loadMore });
+
 Vue.use(VueAxios, axios)
 Vue.use(ElementUI);
 

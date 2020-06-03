@@ -2,7 +2,7 @@
   <div id="login_main">
     <div style="margin-top: 10px">
       <h2 class="logoText">
-        <span>格灵课堂管理后台</span>
+        <span>视频管理后台</span>
       </h2>
     </div>
     <el-form ref="loginForm" :model="form" :rules="rules" label-width="60px" class="login-box">
