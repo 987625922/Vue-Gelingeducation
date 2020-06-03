@@ -13,7 +13,7 @@
           <el-button
             type="primary"
             icon="el-icon-refresh"
-            @click="getTeacherList"
+            @click="getListData"
             circle
             class="refresh"
           ></el-button>
@@ -64,7 +64,7 @@
         @current-change="handlePageChange"
       ></el-pagination>
     </div>
-    <el-dialog title="提示" :visible.sync="addDialog.visible" width="30%" :before-close="handleClose">
+    <el-dialog title="提示" :visible.sync="addDialog.visible" width="30%">
       <div>
         <el-row>
           <el-col :span="3">
@@ -105,8 +105,8 @@
 
 <script>
 import store from "@/store";
-
 import Vue from "vue";
+import { getTeacherList } from "@/api/api";
 
 export default {
   name: "Teacher",
@@ -127,35 +127,16 @@ export default {
     };
   },
   methods: {
-    getTeacherList() {
-      var _this = this;
-      let config = {
-        headers: {
-          token: store.state.token
-        }
+    getListData() {
+      var params = {
+        currentPage: this.teacherList.currentPage,
+        pageSize: this.teacherList.pageSize
       };
-      let url =
-        "/api/teacher/lists?currentPage=" +
-        this.teacherList.currentPage +
-        "&pageSize=" +
-        this.teacherList.pageSize;
-
-      this.$axios
-        .get(this.NET.BASE_URL + url, config)
-        .then(function(res) {
-          console.log(res);
-          if (res.data.code == 200) {
-            _this.$message.success("获取成功");
-            _this.teacherList.data = res.data.data.lists;
-            _this.teacherList.pageTotal = res.data.data.totalRows;
-            _this.teacherList.currentPage = res.data.data.pageNum;
-          } else {
-            _this.$message(res.data.cdoe);
-          }
-        })
-        .catch(function(err) {
-          _this.$message.error(err.data);
-        });
+      getTeacherList(params).then(res => {
+        this.teacherList.data = res.data.lists;
+        this.teacherList.pageTotal = res.data.totalRows;
+        this.teacherList.currentPage = res.data.pageNum;
+      });
     }, //时间转换
     timestampToTime(row, column) {
       var date = new Date(row);
@@ -173,7 +154,7 @@ export default {
     // 分页导航
     handlePageChange(val) {
       this.$set(this.teacherList, "currentPage", val);
-      this.getTeacherList();
+      this.getListData();
     },
     // 删除操作
     handleDelete(index, row) {
@@ -200,7 +181,7 @@ export default {
         .then(function(res) {
           console.log(res);
           if (res.data.code == 200) {
-            _this.getTeacherList();
+            _this.getListData();
           } else {
             _this.$message(res.data.cdoe);
           }
@@ -211,7 +192,7 @@ export default {
     },
     addTeacherDialogEnter() {
       this.addDialog.visible = false;
-      this.addTeacher()
+      this.addTeacher();
     },
     addTeacher() {
       var _this = this;
@@ -222,16 +203,16 @@ export default {
       };
       let url = "/api/teacher/add";
       var body = {
-        name:_this.addDialog.name,
-        bigImg:_this.addDialog.img,
-        remark:_this.addDialog.note
+        name: _this.addDialog.name,
+        bigImg: _this.addDialog.img,
+        remark: _this.addDialog.note
       };
       this.$axios
         .post(this.NET.BASE_URL + url, body, config)
         .then(function(res) {
           console.log(res);
           if (res.data.code == 200) {
-            _this.getTeacherList();
+            _this.getListData();
           } else {
             _this.$message(res.data.cdoe);
           }
@@ -239,13 +220,13 @@ export default {
         .catch(function(err) {
           _this.$message.error(err.data);
         });
-        _this.addDialog.name = ""
-        _this.addDialog.img = ""
-        _this.addDialog.note = ""
+      _this.addDialog.name = "";
+      _this.addDialog.img = "";
+      _this.addDialog.note = "";
     }
   },
   created() {
-    this.getTeacherList();
+    this.getListData();
   }
 };
 </script>

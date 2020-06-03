@@ -33,6 +33,7 @@
 
 <script>
 import store from "@/store";
+import { getToken, setToken, removeToken } from '@/utils/auth'
 
 export default {
   name: "Login",
@@ -63,6 +64,7 @@ export default {
           if (res.data.code == 200) {
             _this.$message.success("登录成功");
             store.commit("setUserId", res.data.data.id);
+            setToken(res.data.data.token)
             store.commit("setToken", res.data.data.token);
             _this.$router.push("Main");
           } else {
