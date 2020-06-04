@@ -26,3 +26,39 @@ export function courseUpdate(data){
         }
     )
 }
+
+export function selectCourse(data){
+    return request({
+        url:'/api/course/sel_by_name_or_status_price_teacher',
+        method:'get',
+        params: data
+        }
+    )
+}
+
+export function delCourse(id){
+    return request({
+        url:'/api/course/delect',
+        method:'get',
+        params: {id}
+        }
+    )
+}
+
+export function getCourseList(query){
+    return request({
+        url:'/api/course/lists',
+        method:'get',
+        params: query
+        }
+    )
+}
+
+export function delMoreCourse(data){
+    return request({
+        url:'/api/course/batches_deletes',
+        method:'get',
+        params: data
+        }
+    )
+}

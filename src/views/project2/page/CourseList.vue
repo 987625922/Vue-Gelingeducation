@@ -14,29 +14,42 @@
         </div>
         <div class="inputText">
           状态：
-          <el-select
-            style="width: 70%"
-            @change="selectStatus"
-            clearable
-            v-model="select.statusselect"
-            placeholder="请选择"
-          >
-            <el-option v-for="item in select.status" :key="item.value" :label="item.name" :value="item"></el-option>
+          <el-select style="width: 70%" clearable v-model="select.statusSelId" placeholder="请选择">
+            <el-option
+              v-for="item in select.status"
+              :key="item.value"
+              :label="item.name"
+              :value="item.value"
+            ></el-option>
           </el-select>
         </div>
         <div class="inputText" style="width: 30%;">
           价格：
-          <el-input v-model="select.selStartPrice" style="width: 20%;display:inline-block;" placeholder></el-input>
+          <el-input
+            v-model="select.selStartPrice"
+            style="width: 20%;display:inline-block;"
+            placeholder
+          ></el-input>
           <span>-</span>
-          <el-input v-model="select.selEndPrice" style="width: 20%;display:inline-block" placeholder></el-input>
+          <el-input
+            v-model="select.selEndPrice"
+            style="width: 20%;display:inline-block"
+            placeholder
+          ></el-input>
         </div>
       </el-col>
       <el-col :span="6" style="text-align: right;">
-        <el-button type="primary" icon="el-icon-plus" @click="showAddUser" circle class="rightview"></el-button>
+        <el-button
+          type="primary"
+          icon="el-icon-plus"
+          @click="this.addDialog.adddialogVisible = true"
+          circle
+          class="rightview"
+        ></el-button>
         <el-button
           type="primary"
           icon="el-icon-refresh"
-          @click="getCourseList"
+          @click="getCourseData"
           circle
           class="rightview"
         ></el-button>
@@ -59,14 +72,18 @@
         <div class="inputText">
           <span stype="float:right;">老师：</span>
           <el-select
-            @change="selectTeacher"
             style="width: 70%"
             clearable
-            　　　　　　v-model="select.teacherSelValue"
+            　　　　　　v-model="select.teacherSelId"
             　　　　　　placeholder="请选择"
-            　　　　　　v-loadmore="loadMoreData"
+            　　　　　　v-loadmore="loadMoreTeacherListData"
           >
-            <el-option v-for="item in teachers.list" :key="item.id" :label="item.name" :value="item"></el-option>
+            <el-option
+              v-for="item in teachers.list"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            ></el-option>
           </el-select>
         </div>
       </el-col>
@@ -75,13 +92,15 @@
       :data="courseTable.data"
       border
       class="table"
-      ref="multipleSelection">
+      ref="multipleSelection"
+      @selection-change="handleSelectionChange"
+    >
       <el-table-column type="selection" width="55" align="center"></el-table-column>
       <el-table-column prop="id" label="编号" width="85" align="center"></el-table-column>
       <el-table-column prop="name" label="课程名" align="center"></el-table-column>
       <el-table-column label="绑定老师" align="center" width="250">
         <template slot-scope="scope">
-          <div v-for="item in scope.row.teachers"  v-bind:key="item">
+          <div v-for="item in scope.row.teachers" v-bind:key="item">
             <span v-if="scope.row.teachers.length > 1">{{item.name}}</span>
             <span v-else>{{item.name}}</span>
           </div>
@@ -114,8 +133,11 @@
       </el-table-column>
       <el-table-column label="操作" align="center" fixed="right" width="220">
         <template slot-scope="scope">
-          <el-button type="text" icon="el-icon-edit" 
-          @click="handleItemEdit(scope.$index, scope.row)">编辑</el-button>
+          <el-button
+            type="text"
+            icon="el-icon-edit"
+            @click="handleItemEdit(scope.$index, scope.row)"
+          >编辑</el-button>
           <el-button
             type="text"
             icon="el-icon-delete"
@@ -139,10 +161,10 @@
     </div>
 
     <!-- 编辑弹出框 -->
-    <el-dialog title="编辑" :visible.sync="editVisible" width="30%">
+    <el-dialog title="编辑" :visible.sync="eddDialog.editVisible" width="30%">
       <div style="width: 70%">
         <span>课程名：</span>
-        <el-input style="width: 70%" placeholder="请输入内容" v-model="edName"></el-input>
+        <el-input style="width: 70%" placeholder="请输入内容" v-model="eddDialog.edName"></el-input>
       </div>
       <div style="with:70%">
         <span stype="float:right;">老师：</span>
@@ -151,16 +173,21 @@
           multiple
           collapse-tags
           clearable
-          　　　　　　v-model="edteacherValue"
-          　　　　　　placeholder="请选择"
-          　　　　　　v-loadmore="loadMoreData"
+          v-model="eddDialog.edteacherValue"
+          placeholder="请选择"
+          v-loadmore="loadMoreTeacherListData"
         >
-          <el-option v-for="item in teachers" :key="item.id" :label="item.name" :value="item.id"></el-option>
+          <el-option
+            v-for="item in teachers.list"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"
+          ></el-option>
         </el-select>
       </div>
       <div style="width: 70%">
         状态：
-        <el-select style="width: 70%" clearable v-model="edStatusSelId" placeholder="请选择">
+        <el-select style="width: 70%" clearable v-model="eddDialog.edStatusSelId" placeholder="请选择">
           <el-option
             v-for="item in select.status"
             :key="item.value"
@@ -171,23 +198,23 @@
       </div>
       <div>
         <span>价格：</span>
-        <el-input style="width: 70%" placeholder="0为免费" v-model="edPrice"></el-input>
+        <el-input style="width: 70%" placeholder="0为免费" v-model="eddDialog.edPrice"></el-input>
       </div>
       <div>
         <span>备注：</span>
-        <el-input style="width: 70%" placeholder="备注" v-model="edRemark"></el-input>
+        <el-input style="width: 70%" placeholder="备注" v-model="eddDialog.edRemark"></el-input>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="editVisible = false">取 消</el-button>
+        <el-button @click="eddDialog.editVisible = false">取 消</el-button>
         <el-button type="primary" @click="editCourse">确 定</el-button>
       </span>
     </el-dialog>
 
     <!--   添加课程  -->
-    <el-dialog title="添加课程" :visible.sync="adddialogVisible" width="50%">
+    <el-dialog title="添加课程" :visible.sync="addDialog.adddialogVisible" width="50%">
       <div style="width: 70%">
         <span>课程名：</span>
-        <el-input style="width: 70%" placeholder="请输入内容" v-model="addName"></el-input>
+        <el-input style="width: 70%" placeholder="请输入内容" v-model="addDialog.addName"></el-input>
       </div>
       <div style="with:70%">
         <span stype="float:right;">老师：</span>
@@ -195,9 +222,9 @@
           style="width: 70%"
           multiple
           collapse-tags
-          v-model="addteacherValue"
+          v-model="addDialog.addteacherValue"
           placeholder="请选择"
-          v-loadmore="loadMoreData"
+          v-loadmore="loadMoreTeacherListData"
         >
           <el-option v-for="item in teachers" :key="item.id" :label="item.name" :value="item.id"></el-option>
         </el-select>
@@ -208,18 +235,18 @@
       </div>-->
       <div style="width: 70%">
         <span>封面：</span>
-        <el-input style="width: 70%" placeholder="请输入内容" v-model="addBigUrl"></el-input>
+        <el-input style="width: 70%" placeholder="请输入内容" v-model="addDialog.addBigUrl"></el-input>
       </div>
       <div>
         <span>价格：</span>
-        <el-input style="width: 70%" placeholder="0和不填为免费" v-model="addPrice"></el-input>
+        <el-input style="width: 70%" placeholder="0和不填为免费" v-model="addDialog.addPrice"></el-input>
       </div>
       <div>
         <span>备注：</span>
-        <el-input style="width: 70%" placeholder="备注" v-model="addRemark"></el-input>
+        <el-input style="width: 70%" placeholder="备注" v-model="addDialog.addRemark"></el-input>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="adddialogVisible = false">取 消</el-button>
+        <el-button @click="addDialog.adddialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="addCourse">确 定</el-button>
       </span>
     </el-dialog>
@@ -229,7 +256,14 @@
 <script>
 import store from "@/store";
 import { warningDialog } from "@/utils/dialog";
-import { getTeacherList, courseUpdate } from "@/api/api";
+import {
+  getTeacherList,
+  courseUpdate,
+  selectCourse,
+  delCourse,
+  getCourseList,
+  delMoreCourse
+} from "@/api/api";
 
 export default {
   name: "course",
@@ -243,264 +277,163 @@ export default {
       },
       select: {
         name: "",
-      selStartPrice: "",
-      selEndPrice: "",
-      teacherSelValue: "",
-      teacherSelId: -1,
-      statusselect: "",
-      statusSelId: -1,
+        selStartPrice: "",
+        selEndPrice: "",
+        teacherSelId: "",
+        statusSelId: "",
         status: [
-        {
-          value: 1,
-          name: "正常"
-        },
-        {
-          value: 0,
-          name: "禁止"
-        }
-      ]
+          {
+            value: 1,
+            name: "正常"
+          },
+          {
+            value: 0,
+            name: "禁止"
+          }
+        ]
       },
-      teachers:{
-        list:[]
+      teachers: {
+        list: [],
+        currentPage: 1,
+        pageSize: 10
       },
-      adddialogVisible: false,
-      // 添加课程
-      addName: "",
-      addteacherValue: [],
-      addteacherId: "",
-      addBigUrl: "",
-      addPrice: "",
-      addRemark: "",
-      selectItemIds: [],
+      addDialog: {
+        adddialogVisible: false,
+        // 添加课程
+        addName: "",
+        addteacherValue: [],
+        addteacherId: "",
+        addBigUrl: "",
+        addPrice: "",
+        addRemark: "",
+        selectItemIds: []
+      },
       //编辑
-      edCourseId: -1,
-      editVisible: false,
-      edName: "",
-      edteacherValue: [],
-      edteacherId: "",
-      edBigUrl: "",
-      edPrice: "",
-      edRemark: "",
-      edselectItemIds: [],
-      edChangeStatusValue: "",
-      edStatusSelId: "",
-      
+      eddDialog: {
+        edCourseId: -1,
+        editVisible: false,
+        edName: "",
+        edteacherValue: [],
+        edPrice: "",
+        edRemark: "",
+        edStatusSelId: ""
+      }
     };
   },
   methods: {
-    selectTeacher(selVal) {
-      this.select.teacherSelId = selVal.id;
-      this.select.teacherSelValue = selVal.name;
+    loadMoreTeacherListData() {
+      this.teachers.currentPage++;
+      this.handleGetTeacherList();
     },
-    loadMoreData() {
 
-    },
-    selectEdTeacher(selVal) {
-      this.addteacherValue = selVal.name;
-      this.addteacherId = selVal.id;
-    },
-    edChagestatus(selVal) {
-      this.edChangeStatusValue = selVal.value;
-    },
-    selectStatus(selVal) {
-      this.select.statusSelId = selVal.value;
-    }, // 多选操作
-    edSelectStatus(selVal) {
-      this.edStatusSelId = selVal.value;
-    },
     handleGetTeacherList() {
       var params = {
-        currentPage: this.courseTable.pageIndex,
-        pageSize: this.courseTable.pageSize
+        currentPage: this.teachers.currentPage,
+        pageSize: this.teachers.pageSize
       };
       getTeacherList(params).then(res => {
-        this.teachers.list = res.data.lists;
+        if (res.data.currentPage == 1) {
+          this.teachers.list = res.data.lists;
+        } else {
+          this.teachers.list = this.teachers.list.concat(res.data.lists);
+          // console.log(this.teachers.list);
+        }
       });
     },
+
     editCourse() {
-      this.editVisible = false;      
-      var _teacherLists = [];
+      this.eddDialog.editVisible = false;
+      var teacherLists = [];
       for (let i = 0; i < this.teachers.list.length; i++) {
-        for (let j = 0; j < this.edteacherValue.length; j++) {
-          if (this.teachers.list[i].id == this.edteacherValue[j]) {
-            _teacherLists.push(this.teachers.list[i]);
+        for (let j = 0; j < this.eddDialog.edteacherValue.length; j++) {
+          if (this.teachers.list[i].id == this.eddDialog.edteacherValue[j]) {
+            teacherLists.push(this.teachers.list[i]);
           }
         }
       }
-
       var params = {
-        id: this.edCourseId,
-        name: this.edName,
-        bingImg: this.edBigUrl,
-        remark: this.edRemark,
-        price: this.edPrice,
-        status: this.edStatusSelId,
+        id: this.eddDialog.edCourseId,
+        name: this.eddDialog.edName,
+        remark: this.eddDialog.edRemark,
+        price: this.eddDialog.edPrice,
+        status: this.eddDialog.edStatusSelId,
         teachers: _teacherLists
       };
-      
       courseUpdate(params).then(res => {
-         this.getCourseList();
+        this.getCourseData();
       });
+    },
 
-     
-    },
     selectCourseList() {
-      var _this = this;
-      let formData = new FormData();
-      if (
-        typeof _this.select.teacherSelId != "undefined" &&
-        _this.select.teacherSelId != ""
-      ) {
-        formData.append("teacherId", _this.select.teacherSelId);
-      }
-      formData.append("currentPage", _this.courseTable.pageIndex);
-      formData.append("pageSize", _this.courseTable.pageSize);
-      if (_this.select.name != "") {
-        formData.append("name", _this.select.name);
-      }
-      if (_this.selStartPrice != "") {
-        formData.append("startPrice", _this.select.selStartPrice);
-      }
-      if (_this.selEndPrice != "") {
-        formData.append("endPrice", _this.select.selEndPrice);
-      }
-      if (_this.select.statusSelId != -1) {
-        formData.append("status", _this.select.statusSelId);
-      }
-      let config = {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          token: store.state.token
-        }
+      var data = {
+        teacherId: this.select.teacherSelId,
+        currentPage: this.courseTable.pageIndex,
+        pageSize: this.courseTable.pageSize,
+        name: this.select.name,
+        startPrice: this.select.selStartPrice,
+        endPrice: this.select.selEndPrice,
+        status: this.select.statusSelId
       };
-      this.$axios
-        .post(
-          this.NET.BASE_URL + "/api/course/sel_by_name_or_status_price_teacher",
-          formData,
-          config
-        )
-        .then(function(res) {
-          if (res.data.code == 200) {
-            _this.$message.success(res.data.msg);
-            _this.courseTable.data = res.data.data.lists;
-            _this.courseTable.pageTotal = res.data.data.totalRows;
-          } else {
-            _this.$message.error(res.data.msg);
-          }
-        })
-        .catch(function(err) {
-          _this.$message.error(err.data);
-        });
+      selectCourse(data).then(res => {
+        this.courseTable.data = res.data.lists;
+        this.courseTable.pageTotal = res.data.totalRows;
+      });
     },
-    // 删除操作
+
     handleItemDelete(index, row) {
-      // 二次确认删除
-      warningDialog("11").then(() => {
+      warningDialog("确定要删除吗？").then(() => {
         //删除操作
         this.delCourse(index);
       });
     },
+
     //删除课程
     delCourse(index) {
-      var _this = this;
-      let formData = new FormData();
-      formData.append("id", this.courseTable.data[index].id);
-      let config = {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          token: store.state.token
-        }
-      };
-      this.$axios
-        .post(this.NET.BASE_URL + "/api/course/delect", formData, config)
-        .then(function(res) {
-          if (res.data.code == 200) {
-            _this.$message.success("删除成功");
-            _this.getCourseList();
-          } else {
-            _this.$message.error(res.data.msg);
-          }
-        })
-        .catch(function(err) {
-          _this.$message.error(err.data);
-        });
+      delCourse(this.courseTable.data[index].id).then(res => {
+        this.getCourseData();
+      });
     },
+
     handleItemEdit(index, row) {
-      this.editVisible = true;
-      this.edCourseId = this.courseTable.data[index].id;
+      this.eddDialog.editVisible = true;
+      this.eddDialog.edCourseId = this.courseTable.data[index].id;
     },
+
     //获取用户列表
-    getCourseList() {
-      var _this = this;
-      let formData = new FormData();
-      formData.append("currentPage", _this.courseTable.pageIndex);
-      formData.append("pageSize", _this.courseTable.pageSize);
-      let config = {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          token: store.state.token
-        }
+    getCourseData() {
+      var params = {
+        currentPage: this.courseTable.pageIndex,
+        pageSize: this.courseTable.pageSize
       };
-      this.$axios
-        .post(this.NET.BASE_URL + "/api/course/lists", formData, config)
-        .then(function(res) {
-          if (res.data.code == 200) {
-            _this.$message.success(res.data.msg);
-            _this.courseTable.data = res.data.data.lists;
-            _this.courseTable.pageTotal = res.data.data.totalRows;
-          } else {
-            _this.$message.error(res.data.msg);
-          }
-        })
-        .catch(function(err) {
-          _this.$message.error(err.data);
-        });
+      getCourseList(params).then(res => {
+        this.courseTable.data = res.data.lists;
+        this.courseTable.pageTotal = res.data.totalRows;
+      });
     },
+
     delAllSelection() {
-      warningDialog("确定要删1除吗？")
-        .then(() => {
-          const length = this.selectItemIds.length;
-          let str = "";
-          var select = new Array();
-          for (let i = 0; i < length; i++) {
-            str += this.selectItemIds[i].name + " ";
-            select[i] = this.selectItemIds[i].id;
-          }
-          this.delSelectCourse(select);
-          // this.$message.error(`删除了${str}`)
-        })
-        .catch(() => {});
-    },
-    delSelectCourse(ids) {
       var _this = this;
-      let formData = new FormData();
-      formData.append("ids", ids);
-      let config = {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          token: store.state.token
-        }
-      };
-      this.$axios
-        .post(
-          this.NET.BASE_URL + "/api/course/batches_deletes",
-          formData,
-          config
-        )
-        .then(function(res) {
-          if (res.data.code == 200) {
-            _this.$message.success("删除成功");
-            _this.getCourseList();
-          } else {
-            _this.$message.error(res.data.msg);
-          }
-        })
-        .catch(function(err) {
-          _this.$message.error(err.data);
-        });
+      warningDialog("确定要删除吗？").then(() => {
+        _this.delSelectCourse();
+      });
     },
-    showAddUser() {
-      this.adddialogVisible = true;
+
+    delSelectCourse() {
+      var ids = "";
+      for (let i = 0; i < this.addDialog.selectItemIds.length; i++) {
+        if(i == 1){
+        ids = this.addDialog.selectItemIds[i].id;
+
+        }        
+      }
+      
+      delMoreCourse(ids).then(res => {
+        this.getCourseData();
+      });
+    },
+
+    handleSelectionChange(val) {
+      this.addDialog.selectItemIds = val;
     },
     // 分页导航
     handlePageCurrpageChange(val) {
@@ -513,11 +446,12 @@ export default {
         this.select.selEndPrice == "" &&
         this.selec.statusSelId == -1
       ) {
-        this.getCourseList();
+        this.getCourseData();
       } else {
         this.selectCourseList();
       }
     },
+
     handlePageSizeChange(val) {
       this.courseTable.pageSize = val;
       if (
@@ -528,11 +462,12 @@ export default {
         this.select.selEndPrice == "" &&
         this.select.statusSelId == -1
       ) {
-        this.getCourseList();
+        this.getCourseData();
       } else {
         this.selectCourseList();
       }
     },
+
     addCourse() {
       var _this = this;
       let config = {
@@ -542,8 +477,8 @@ export default {
       };
       let teacherLists = [];
       for (let i = 0; i < this.teachers.list.length; i++) {
-        for (let j = 0; j < this.addteacherValue.length; j++) {
-          if (this.teachers.list[i].id == this.addteacherValue[j]) {
+        for (let j = 0; j < this.addDialog.addteacherValue.length; j++) {
+          if (this.teachers.list[i].id == this.addDialog.addteacherValue[j]) {
             teacherLists.push(this.teachers.list[i]);
           }
         }
@@ -552,17 +487,17 @@ export default {
         .post(
           this.NET.BASE_URL + "/api/course/add",
           {
-            name: _this.addName,
-            bigImg: _this.addBigUrl,
-            remark: _this.addRemark,
-            price: _this.addPrice,
+            name: _this.addDialog.addName,
+            bigImg: _this.addDialog.addBigUrl,
+            remark: _this.addDialog.addRemark,
+            price: _this.addDialog.addPrice,
             teachers: teacherLists
           },
           config
         )
         .then(function(res) {
           if (res.data.code == 200) {
-            _this.getCourseList();
+            _this.getCourseData();
           } else {
             _this.$message.error(res.data.msg);
           }
@@ -570,15 +505,16 @@ export default {
         .catch(function(err) {
           _this.$message.error(err.data);
         });
-      _this.adddialogVisible = false;
-      _this.addName = "";
-      _this.addBigUrl = "";
-      _this.addPrice = "";
-      _this.addteacherValue = [];
+      _this.addDialog.adddialogVisible = false;
+      _this.addDialog.addName = "";
+      _this.addDialog.addBigUrl = "";
+      _this.addDialog.addPrice = "";
+      _this.addDialog.addteacherValue = [];
     }
   },
-  created() {
-    this.getCourseList(), this.handleGetTeacherList();
+
+  mounted() {
+    this.getCourseData(), this.handleGetTeacherList();
   }
 };
 </script>
@@ -602,7 +538,7 @@ export default {
 .rightview {
   display: inline-block;
 }
-.table{
+.table {
   margin-top: 10px;
   background: #ffffff;
 }
