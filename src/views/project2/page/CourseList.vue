@@ -42,7 +42,7 @@
         <el-button
           type="primary"
           icon="el-icon-plus"
-          @click="this.addDialog.adddialogVisible = true"
+          @click="addDialog.adddialogVisible = true"
           circle
           class="rightview"
         ></el-button>
@@ -152,7 +152,7 @@
         background
         layout="sizes, prev, pager, next"
         :page-sizes="[5, 10, 20, 30]"
-        :page-size="5"
+        :page-size="courseTable.pageSize"
         :current-page="courseTable.pageIndex"
         :total="courseTable.pageTotal"
         @size-change="handlePageSizeChange"
@@ -247,7 +247,7 @@
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="addDialog.adddialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="addCourse">确 定</el-button>
+        <el-button type="primary" @click="handleAddCourse">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -262,9 +262,9 @@ import {
   selectCourse,
   delCourse,
   getCourseList,
-  delMoreCourse
+  delMoreCourse,
+  addCourse
 } from "@/api/api";
-
 export default {
   name: "course",
   data() {
@@ -325,7 +325,6 @@ export default {
       this.teachers.currentPage++;
       this.handleGetTeacherList();
     },
-
     handleGetTeacherList() {
       var params = {
         currentPage: this.teachers.currentPage,
@@ -336,11 +335,9 @@ export default {
           this.teachers.list = res.data.lists;
         } else {
           this.teachers.list = this.teachers.list.concat(res.data.lists);
-          // console.log(this.teachers.list);
         }
       });
     },
-
     editCourse() {
       this.eddDialog.editVisible = false;
       var teacherLists = [];
@@ -363,7 +360,6 @@ export default {
         this.getCourseData();
       });
     },
-
     selectCourseList() {
       var data = {
         teacherId: this.select.teacherSelId,
@@ -379,26 +375,22 @@ export default {
         this.courseTable.pageTotal = res.data.totalRows;
       });
     },
-
     handleItemDelete(index, row) {
       warningDialog("确定要删除吗？").then(() => {
         //删除操作
         this.delCourse(index);
       });
     },
-
     //删除课程
     delCourse(index) {
       delCourse(this.courseTable.data[index].id).then(res => {
         this.getCourseData();
       });
     },
-
     handleItemEdit(index, row) {
       this.eddDialog.editVisible = true;
       this.eddDialog.edCourseId = this.courseTable.data[index].id;
     },
-
     //获取用户列表
     getCourseData() {
       var params = {
@@ -410,24 +402,29 @@ export default {
         this.courseTable.pageTotal = res.data.totalRows;
       });
     },
-
     delAllSelection() {
       var _this = this;
       warningDialog("确定要删除吗？").then(() => {
         _this.delSelectCourse();
       });
     },
-
     delSelectCourse() {
-      var ids = "";
+      var idsStr = "";
       for (let i = 0; i < this.addDialog.selectItemIds.length; i++) {
-        if(i == 1){
-        ids = this.addDialog.selectItemIds[i].id;
+        if(i == 0){
+        idsStr = this.addDialog.selectItemIds[i].id+""
+        }else{
+          idsStr += ","+this.addDialog.selectItemIds[i].id
+        }
+      }
 
-        }        
+      var data = {
+        ids:idsStr
       }
       
-      delMoreCourse(ids).then(res => {
+      console.log(data);
+      
+      delMoreCourse(data).then(res => {
         this.getCourseData();
       });
     },
@@ -435,20 +432,25 @@ export default {
     handleSelectionChange(val) {
       this.addDialog.selectItemIds = val;
     },
-    // 分页导航
+
     handlePageCurrpageChange(val) {
-      this.$set(this, "courseTable.pageIndex", val);
+      this.courseTable.pageIndex = val
+      console.log(this.select.name);
+      console.log(this.select.teacherSelId);
+      console.log(this.select.selStartPrice);
+      console.log(this.select.selEndPrice);
+      console.log(this.select.statusSelId);
+      console.log(this.select.teacherSelId);
+      
       if (
-        this.select.name == "" &&
-        this.select.teacherSelId == -1 &&
-        this.select.name == "" &&
-        this.select.selStartPrice == "" &&
-        this.select.selEndPrice == "" &&
-        this.selec.statusSelId == -1
+        this.select.name&&
+        this.select.teacherSelId&&
+        this.select.selStartPrice&&
+        this.select.selEndPrice&&this.selec.statusSelId
       ) {
-        this.getCourseData();
-      } else {
         this.selectCourseList();
+        } else {
+        this.getCourseData();
       }
     },
 
@@ -468,13 +470,10 @@ export default {
       }
     },
 
-    addCourse() {
+    handleAddCourse() {
       var _this = this;
-      let config = {
-        headers: {
-          token: store.state.token
-        }
-      };
+      this.addDialog.adddialogVisible = false;
+      
       let teacherLists = [];
       for (let i = 0; i < this.teachers.list.length; i++) {
         for (let j = 0; j < this.addDialog.addteacherValue.length; j++) {
@@ -483,36 +482,24 @@ export default {
           }
         }
       }
-      this.$axios
-        .post(
-          this.NET.BASE_URL + "/api/course/add",
-          {
-            name: _this.addDialog.addName,
-            bigImg: _this.addDialog.addBigUrl,
-            remark: _this.addDialog.addRemark,
-            price: _this.addDialog.addPrice,
+          var data = {
+            name: this.addDialog.addName,
+            bigImg: this.addDialog.addBigUrl,
+            remark: this.addDialog.addRemark,
+            price: this.addDialog.addPrice,
             teachers: teacherLists
-          },
-          config
-        )
-        .then(function(res) {
-          if (res.data.code == 200) {
-            _this.getCourseData();
-          } else {
-            _this.$message.error(res.data.msg);
           }
+
+        addCourse(data).then(res =>{
+            _this.getCourseData()
         })
-        .catch(function(err) {
-          _this.$message.error(err.data);
-        });
-      _this.addDialog.adddialogVisible = false;
-      _this.addDialog.addName = "";
-      _this.addDialog.addBigUrl = "";
-      _this.addDialog.addPrice = "";
-      _this.addDialog.addteacherValue = [];
+
+      this.addDialog.addName = "";
+      this.addDialog.addBigUrl = "";
+      this.addDialog.addPrice = "";
+      this.addDialog.addteacherValue = [];
     }
   },
-
   mounted() {
     this.getCourseData(), this.handleGetTeacherList();
   }
@@ -523,18 +510,15 @@ export default {
 .red {
   color: #ff0000;
 }
-
 .inputText {
   position: relative;
   display: inline-block;
 }
-
 .radiusbg {
   border-radius: 2px;
   background-color: #ffffff;
   padding: 0px 10px 10px 10px;
 }
-
 .rightview {
   display: inline-block;
 }

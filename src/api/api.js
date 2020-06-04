@@ -62,3 +62,12 @@ export function delMoreCourse(data){
         }
     )
 }
+
+export function addCourse(data){
+    return request({
+        url:'/api/course/add',
+        method:'post',
+        data
+        }
+    )
+}
