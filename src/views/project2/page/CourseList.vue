@@ -161,48 +161,85 @@
     </div>
 
     <!-- 编辑弹出框 -->
-    <el-dialog title="编辑" :visible.sync="eddDialog.editVisible" width="30%">
-      <div style="width: 70%">
-        <span>课程名：</span>
-        <el-input style="width: 70%" placeholder="请输入内容" v-model="eddDialog.edName"></el-input>
-      </div>
-      <div style="with:70%">
-        <span stype="float:right;">老师：</span>
-        <el-select
-          style="width: 70%"
-          v-model="eddDialog.edteacherValue"
-          multiple
-          collapse-tags
-          placeholder="请选择"
-          v-loadmore="loadMoreTeacherListData"
-        >
-          <el-option
-            v-for="item in teachers.list"
-            :key="item.id"
-            :label="item.name"
-            :value="item.id"
-          ></el-option>
-        </el-select>
-      </div>
-      <div style="width: 70%">
-        状态：
-        <el-select style="width: 70%" clearable v-model="eddDialog.edStatusSelId" placeholder="请选择">
-          <el-option
-            v-for="item in select.status"
-            :key="item.value"
-            :label="item.name"
-            :value="item.value"
-          ></el-option>
-        </el-select>
-      </div>
-      <div>
-        <span>价格：</span>
-        <el-input style="width: 70%" placeholder="0为免费" v-model="eddDialog.edPrice"></el-input>
-      </div>
-      <div>
-        <span>备注：</span>
-        <el-input style="width: 70%" placeholder="备注" v-model="eddDialog.edRemark"></el-input>
-      </div>
+    <el-dialog title="编辑" :visible.sync="eddDialog.editVisible" style="padding:100px" width="50%">
+      <el-row>
+        <el-col :span="4">
+          <span style="height:50px;line-height:50px">课程名：</span>
+        </el-col>
+        <el-col :span="20">
+          <el-input
+            style="height:50px;line-height:50px"
+            placeholder="请输入内容"
+            v-model="eddDialog.edName"
+          ></el-input>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="4">
+          <span style="height:50px;line-height:50px">老师：</span>
+        </el-col>
+        <el-col :span="20">
+          <el-select
+            style="height:50px;line-height:50px;width:100%"
+            v-model="eddDialog.edteacherValue"
+            multiple
+            collapse-tags
+            placeholder="请选择"
+            v-loadmore="loadMoreTeacherListData"
+          >
+            <el-option
+              v-for="item in teachers.list"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            ></el-option>
+          </el-select>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="4">
+          <span style="height:50px;line-height:50px">状态：</span>
+        </el-col>
+        <el-col :span="20">
+          <el-select
+            style="height:50px;line-height:50px;width:100%"
+            clearable
+            v-model="eddDialog.edStatusSelId"
+            placeholder="请选择"
+          >
+            <el-option
+              v-for="item in select.status"
+              :key="item.value"
+              :label="item.name"
+              :value="item.value"
+            ></el-option>
+          </el-select>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="4">
+          <span style="height:50px;line-height:50px">价格：</span>
+        </el-col>
+        <el-col :span="20">
+          <el-input
+            style="height:50px;line-height:50px"
+            placeholder="0为免费"
+            v-model="eddDialog.edPrice"
+          ></el-input>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="4">
+          <span style="height:50px;line-height:50px">备注：</span>
+        </el-col>
+        <el-col :span="20">
+          <el-input
+            style="height:50px;line-height:50px"
+            placeholder="备注"
+            v-model="eddDialog.edRemark"
+          ></el-input>
+        </el-col>
+      </el-row>
       <span slot="footer" class="dialog-footer">
         <el-button @click="eddDialog.editVisible = false">取 消</el-button>
         <el-button type="primary" @click="editCourse">确 定</el-button>
@@ -210,36 +247,73 @@
     </el-dialog>
 
     <!--   添加课程  -->
-    <el-dialog title="添加课程" :visible.sync="addDialog.adddialogVisible" width="50%">
-      <div style="width: 70%">
-        <span>课程名：</span>
-        <el-input style="width: 70%" placeholder="请输入内容" v-model="addDialog.addName"></el-input>
-      </div>
-      <div style="with:70%">
-        <span stype="float:right;">老师：</span>
-        <el-select
-          style="width: 70%"
-          multiple
-          collapse-tags
-          v-model="addDialog.addteacherValue"
-          placeholder="请选择"
-          v-loadmore="loadMoreTeacherListData"
-        >
-          <el-option v-for="item in teachers" :key="item.id" :label="item.name" :value="item.id"></el-option>
-        </el-select>
-      </div>
-      <div style="width: 70%">
-        <span>封面：</span>
-        <el-input style="width: 70%" placeholder="请输入内容" v-model="addDialog.addBigUrl"></el-input>
-      </div>
-      <div>
-        <span>价格：</span>
-        <el-input style="width: 70%" placeholder="0和不填为免费" v-model="addDialog.addPrice"></el-input>
-      </div>
-      <div>
-        <span>备注：</span>
-        <el-input style="width: 70%" placeholder="备注" v-model="addDialog.addRemark"></el-input>
-      </div>
+    <el-dialog title="添加课程" :visible.sync="addDialog.adddialogVisible" style="padding:100px" width="50%">
+      <el-row>
+        <el-col :span="4">
+          <span style="line-height:50px">课程名：</span>
+        </el-col>
+        <el-col :span="20">
+          <el-input
+            style="height:50px;line-height:50px"
+            placeholder="请输入内容"
+            v-model="addDialog.addName"
+          ></el-input>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="4">
+          <span style="line-height:50px">老师：</span>
+        </el-col>
+        <el-col :span="20">
+          <el-select
+            style="height:50px;line-height:50px;width:100%"
+            multiple
+            collapse-tags
+            v-model="addDialog.addteacherValue"
+            placeholder="请选择"
+            v-loadmore="loadMoreTeacherListData"
+          >
+            <el-option v-for="item in teachers.list" :key="item.id" :label="item.name" :value="item.id"></el-option>
+          </el-select>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="4">
+          <p style="line-height:50px">封面：</p>
+        </el-col>
+        <el-col :span="20">
+          <el-input
+            style="height:50px;line-height:50px;"
+            placeholder="请输入内容"
+            v-model="addDialog.addBigUrl"
+          ></el-input>
+        </el-col>
+      </el-row>
+
+      <el-row>
+        <el-col :span="4">
+          <p style="line-height:50px">价格：</p>
+        </el-col>
+        <el-col :span="20">
+          <el-input
+            style="height:50px;line-height:50px;"
+            placeholder="0和不填为免费"
+            v-model="addDialog.addPrice"
+          ></el-input>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="4">
+          <p style="line-height:50px">备注：</p>
+        </el-col>
+        <el-col :span="20">
+          <el-input
+            style="height:50px;line-height:50px;"
+            placeholder="备注"
+            v-model="addDialog.addRemark"
+          ></el-input>
+        </el-col>
+      </el-row>
       <span slot="footer" class="dialog-footer">
         <el-button @click="addDialog.adddialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="handleAddCourse">确 定</el-button>
@@ -312,7 +386,7 @@ export default {
         edteacherValue: [],
         edPrice: "",
         edRemark: "",
-        edStatusSelId: ""
+        edStatusSelId: null
       }
     };
   },
@@ -364,7 +438,9 @@ export default {
       if (this.eddDialog.edPrice) {
         params.price = this.eddDialog.edPrice;
       }
-      if (this.eddDialog.edStatusSelId) {
+      console.log(this.eddDialog.edStatusSelId);
+      
+      if (this.eddDialog.edStatusSelId != null) {
         params.status = this.eddDialog.edStatusSelId;
       }
       if (teacherLists.length > 0) {
@@ -376,11 +452,11 @@ export default {
       });
 
       this.eddDialog.edCourseId = null;
-      this.eddDialog.edName = "";
+      this.eddDialog.edName = null;
       this.eddDialog.edteacherValue = [];
-      this.eddDialog.edPrice = "";
-      this.eddDialog.edRemark = "";
-      this.eddDialog.edStatusSelId = "";
+      this.eddDialog.edPrice = null;
+      this.eddDialog.edRemark = null;
+      this.eddDialog.edStatusSelId = null;
     },
 
     selectCourseList() {
@@ -461,7 +537,7 @@ export default {
     handlePageCurrpageChange(val) {
       this.courseTable.pageIndex = val;
 
-      if (isSelect) {
+      if (this.isSelect) {
         this.selectCourseList();
       } else {
         this.getCourseData();
@@ -470,7 +546,7 @@ export default {
 
     handlePageSizeChange(val) {
       this.courseTable.pageSize = val;
-      if (isSelect) {
+      if (this.isSelect) {
         this.getCourseData();
       } else {
         this.selectCourseList();
@@ -494,6 +570,7 @@ export default {
         bigImg: this.addDialog.addBigUrl,
         remark: this.addDialog.addRemark,
         price: this.addDialog.addPrice,
+        status:this.addDialog.status,
         teachers: teacherLists
       };
 

@@ -74,7 +74,7 @@ export function addCourse(data){
 
 export function getLogList(query){
     return request({
-        url:'/api/logs/list',
+        url:'/api/role/lists',
         method:'get',
         params: query
         }
