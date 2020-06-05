@@ -71,3 +71,12 @@ export function addCourse(data){
         }
     )
 }
+
+export function getLogList(query){
+    return request({
+        url:'/api/logs/list',
+        method:'get',
+        params: query
+        }
+    )
+}

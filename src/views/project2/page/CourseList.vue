@@ -27,13 +27,13 @@
           价格：
           <el-input
             v-model="select.selStartPrice"
-            style="width: 20%;display:inline-block;"
+            style="width: 15%;display:inline-block;"
             placeholder
           ></el-input>
           <span>-</span>
           <el-input
             v-model="select.selEndPrice"
-            style="width: 20%;display:inline-block"
+            style="width: 15%;display:inline-block"
             placeholder
           ></el-input>
         </div>
@@ -170,10 +170,9 @@
         <span stype="float:right;">老师：</span>
         <el-select
           style="width: 70%"
+          v-model="eddDialog.edteacherValue"
           multiple
           collapse-tags
-          clearable
-          v-model="eddDialog.edteacherValue"
           placeholder="请选择"
           v-loadmore="loadMoreTeacherListData"
         >
@@ -229,10 +228,6 @@
           <el-option v-for="item in teachers" :key="item.id" :label="item.name" :value="item.id"></el-option>
         </el-select>
       </div>
-      <!-- <div style="width: 70%">
-        <span>封面：</span>
-        <el-input style="width: 70%" placeholder="请输入内容" v-model="addBigUrl"></el-input>
-      </div>-->
       <div style="width: 70%">
         <span>封面：</span>
         <el-input style="width: 70%" placeholder="请输入内容" v-model="addDialog.addBigUrl"></el-input>
@@ -281,6 +276,7 @@ export default {
         selEndPrice: "",
         teacherSelId: "",
         statusSelId: "",
+        isSelect: false, //是否使用了搜索
         status: [
           {
             value: 1,
@@ -310,7 +306,7 @@ export default {
       },
       //编辑
       eddDialog: {
-        edCourseId: -1,
+        edCourseId: null,
         editVisible: false,
         edName: "",
         edteacherValue: [],
@@ -338,6 +334,7 @@ export default {
         }
       });
     },
+
     editCourse() {
       this.eddDialog.editVisible = false;
       var teacherLists = [];
@@ -348,19 +345,46 @@ export default {
           }
         }
       }
+
       var params = {
         id: this.eddDialog.edCourseId,
-        name: this.eddDialog.edName,
-        remark: this.eddDialog.edRemark,
-        price: this.eddDialog.edPrice,
-        status: this.eddDialog.edStatusSelId,
-        teachers: _teacherLists
+        name: null,
+        remark: null,
+        price: null,
+        status: null,
+        teachers: null
       };
+
+      if (this.eddDialog.edName) {
+        params.name = this.eddDialog.edName;
+      }
+      if (this.eddDialog.edRemark) {
+        params.remark = this.eddDialog.edRemark;
+      }
+      if (this.eddDialog.edPrice) {
+        params.price = this.eddDialog.edPrice;
+      }
+      if (this.eddDialog.edStatusSelId) {
+        params.status = this.eddDialog.edStatusSelId;
+      }
+      if (teacherLists.length > 0) {
+        params.teachers = teacherLists;
+      }
+
       courseUpdate(params).then(res => {
         this.getCourseData();
       });
+
+      this.eddDialog.edCourseId = null;
+      this.eddDialog.edName = "";
+      this.eddDialog.edteacherValue = [];
+      this.eddDialog.edPrice = "";
+      this.eddDialog.edRemark = "";
+      this.eddDialog.edStatusSelId = "";
     },
+
     selectCourseList() {
+      this.select.isSelect = true;
       var data = {
         teacherId: this.select.teacherSelId,
         currentPage: this.courseTable.pageIndex,
@@ -375,12 +399,14 @@ export default {
         this.courseTable.pageTotal = res.data.totalRows;
       });
     },
+
     handleItemDelete(index, row) {
       warningDialog("确定要删除吗？").then(() => {
         //删除操作
         this.delCourse(index);
       });
     },
+
     //删除课程
     delCourse(index) {
       delCourse(this.courseTable.data[index].id).then(res => {
@@ -391,8 +417,9 @@ export default {
       this.eddDialog.editVisible = true;
       this.eddDialog.edCourseId = this.courseTable.data[index].id;
     },
-    //获取用户列表
+
     getCourseData() {
+      this.select.isSelect = false;
       var params = {
         currentPage: this.courseTable.pageIndex,
         pageSize: this.courseTable.pageSize
@@ -411,19 +438,17 @@ export default {
     delSelectCourse() {
       var idsStr = "";
       for (let i = 0; i < this.addDialog.selectItemIds.length; i++) {
-        if(i == 0){
-        idsStr = this.addDialog.selectItemIds[i].id+""
-        }else{
-          idsStr += ","+this.addDialog.selectItemIds[i].id
+        if (i == 0) {
+          idsStr = this.addDialog.selectItemIds[i].id + "";
+        } else {
+          idsStr += "," + this.addDialog.selectItemIds[i].id;
         }
       }
 
       var data = {
-        ids:idsStr
-      }
-      
-      console.log(data);
-      
+        ids: idsStr
+      };
+
       delMoreCourse(data).then(res => {
         this.getCourseData();
       });
@@ -434,36 +459,18 @@ export default {
     },
 
     handlePageCurrpageChange(val) {
-      this.courseTable.pageIndex = val
-      console.log(this.select.name);
-      console.log(this.select.teacherSelId);
-      console.log(this.select.selStartPrice);
-      console.log(this.select.selEndPrice);
-      console.log(this.select.statusSelId);
-      console.log(this.select.teacherSelId);
-      
-      if (
-        this.select.name&&
-        this.select.teacherSelId&&
-        this.select.selStartPrice&&
-        this.select.selEndPrice&&this.selec.statusSelId
-      ) {
+      this.courseTable.pageIndex = val;
+
+      if (isSelect) {
         this.selectCourseList();
-        } else {
+      } else {
         this.getCourseData();
       }
     },
 
     handlePageSizeChange(val) {
       this.courseTable.pageSize = val;
-      if (
-        this.select.name == "" &&
-        this.select.teacherSelId == -1 &&
-        this.select.name == "" &&
-        this.select.selStartPrice == "" &&
-        this.select.selEndPrice == "" &&
-        this.select.statusSelId == -1
-      ) {
+      if (isSelect) {
         this.getCourseData();
       } else {
         this.selectCourseList();
@@ -473,7 +480,7 @@ export default {
     handleAddCourse() {
       var _this = this;
       this.addDialog.adddialogVisible = false;
-      
+
       let teacherLists = [];
       for (let i = 0; i < this.teachers.list.length; i++) {
         for (let j = 0; j < this.addDialog.addteacherValue.length; j++) {
@@ -482,17 +489,17 @@ export default {
           }
         }
       }
-          var data = {
-            name: this.addDialog.addName,
-            bigImg: this.addDialog.addBigUrl,
-            remark: this.addDialog.addRemark,
-            price: this.addDialog.addPrice,
-            teachers: teacherLists
-          }
+      var data = {
+        name: this.addDialog.addName,
+        bigImg: this.addDialog.addBigUrl,
+        remark: this.addDialog.addRemark,
+        price: this.addDialog.addPrice,
+        teachers: teacherLists
+      };
 
-        addCourse(data).then(res =>{
-            _this.getCourseData()
-        })
+      addCourse(data).then(res => {
+        _this.getCourseData();
+      });
 
       this.addDialog.addName = "";
       this.addDialog.addBigUrl = "";

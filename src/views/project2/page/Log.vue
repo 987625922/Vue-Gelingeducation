@@ -1,6 +1,6 @@
 <template xmlns:>
   <div>
-    <el-table :data="logList" style="width: 100%">
+    <el-table :data="logData.list" style="width: 100%">
       <el-table-column prop="id" label="id" width="180"></el-table-column>
       <el-table-column prop="username" label="操作用户" width="180"></el-table-column>
       <el-table-column prop="requestIp" label="IP"></el-table-column>
@@ -16,12 +16,11 @@
     </el-table>
     <el-dialog
       title="详情"
-      :visible.sync="detailDialogVisible"
+      :visible.sync="detailDialog.detailDialogVisible"
       width="30%"
       height="50%"
-      :before-close="handleClose"
     >
-      <span>${{detailDialogexceptionDetail}}</span>
+      <span>${{detailDialog.detailDialogexceptionDetail}}</span>
     </el-dialog>
   </div>
 </template>
@@ -30,68 +29,43 @@
 import store from "@/store";
 
 import Vue from "vue";
-
-Vue.directive("loadmore", {
-  bind(el, binding) {
-    const SELECTWRAP_DOM = el.querySelector(
-      ".el-select-dropdown .el-select-dropdown__wrap"
-    );
-    SELECTWRAP_DOM.addEventListener("scroll", function() {
-      const CONDITION = this.scrollHeight - this.scrollTop <= this.clientHeight;
-      if (CONDITION) {
-        binding.value();
-      }
-    });
-  }
-});
+import {
+  getLogList
+} from "@/api/api";
 
 export default {
   name: "log",
   data() {
     return {
-      logList: [],
-      currentPage: 1,
-      pageSize: 10,
-      detailDialogVisible: false, //查看详情dialog
-      detailDialogexceptionDetail: "" //查看详情dialog的内容
+      logData: {
+        list: [],
+        currentPage: 1,
+        pageSize: 10
+      },
+      detailDialog: {
+        detailDialogVisible: false, //查看详情dialog
+        detailDialogexceptionDetail: "" //查看详情dialog的内容
+      }
     };
   },
   methods: {
-    getLogList() {
-      var _this = this;
-      let config = {
-        headers: {
-          token: store.state.token
-        }
-      };
-      let url =
-        "/api/logs/list?currentPage=" +
-        this.currentPage +
-        "&pageSize=" +
-        this.pageSize;
+    getData() {
+      var params = {
+          currentPage:this.logData.currentPage,
+          pageSize:this.logData.pageSize
+      }
 
-      this.$axios
-        .get(this.NET.BASE_URL + url, config)
-        .then(function(res) {
-          console.log(res);
-          if (res.data.code == 200) {
-            _this.$message.success("获取成功");
-            _this.logList = res.data.data.lists;
-          } else {
-            _this.$message(res.data.cdoe);
-          }
+      getLogList(params).then(res => {
+            this.logData.list = res.data.lists;
         })
-        .catch(function(err) {
-          _this.$message.error(err.data);
-        });
     },
     detail(data) {
-      this.detailDialogVisible = true
-      this.detailDialogexceptionDetail = data.exceptionDetail
+      this.detailDialog.detailDialogVisible = true;
+      this.detailDialog.detailDialogexceptionDetail = data.exceptionDetail;
     }
   },
-  created() {
-    this.getLogList();
+  mounted() {
+    this.getData();
   }
 };
 </script>
