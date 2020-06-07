@@ -81,7 +81,7 @@
                 <el-checkbox
                   style="display: block;margin-bottom: 10px;"
                   v-for="item in permission.data"
-                  :label="item"
+                  :label="item.id"
                   :key="item"
                 >{{item.name}}</el-checkbox>
               </el-checkbox-group>
@@ -98,7 +98,15 @@
 
 <script>
 import store from "@/store";
-import { addRole,getRoleList } from "@/api/roleApi";
+import {
+  addRole,
+  getRoleList,
+  selByName,
+  getRoleByIdForPermission,
+  delRole,
+  batchesDeletesRole
+} from "@/api/roleApi";
+import { getPermissionList } from "@/api/perMission";
 import { warningDialog } from "@/utils/dialog";
 import { timestampToTime } from "@/utils/timeUtils";
 
@@ -114,8 +122,8 @@ export default {
         selected: []
       },
       addRole: {
-        name: null,
-        note: null
+        name: "",
+        note: ""
       },
       select: {
         name: ""
@@ -134,58 +142,25 @@ export default {
       this.edit.id = -1;
       this.edit.editBoxTitle = "新增角色";
 
-      getRoleList()
-        .then(function(res) {
-            this.role.data = res.data.data;
-        })
+      getRoleList().then(res => {
+        this.role.data = res.data;
+      });
     },
     selRoleByName() {
-      var _this = this;
-      let formData = new FormData();
-      formData.append("name", this.select.name);
-      let config = {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          token: store.state.token
-        }
+      var params = {
+        name: this.select.name
       };
-      this.$axios
-        .post(this.NET.BASE_URL + "/api/role/sel_by_name", formData, config)
-        .then(function(res) {
-          if (res.data.code == 200) {
-            _this.$message.success(res.data.msg);
-            _this.data.list = res.data.data;
-            _this.select.name = "";
-          } else {
-            _this.$message.error(res.data.msg);
-          }
-        })
-        .catch(function(err) {
-          console.log("==>" + err);
-          _this.$message.error("错误");
-        });
+      selByName().then(res => {
+        this.role.data = res.data.data;
+        this.select.name = "";
+      });
     },
-    getPermissionList() {
-      var _this = this;
-      let config = {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          token: store.state.token
-        }
-      };
-      this.$axios
-        .get(this.NET.BASE_URL + "/api/permission/lists", config)
-        .then(function(res) {
-          if (res.data.code == 200) {
-            _this.$message.success(res.data.msg);
-            _this.permission.data = res.data.data;
-          } else {
-            _this.$message.error(res.data.msg);
-          }
-        })
-        .catch(function(err) {
-          _this.$message.error("错误");
-        });
+    getPermissionData() {
+      getPermissionList().then(res => {
+        this.permission.data = res.data;
+        this.addRole.name = "";
+        this.addRole.note = "";
+      });
     }, //时间转换
     toTime(data) {
       return timestampToTime(parseInt(data));
@@ -195,23 +170,21 @@ export default {
       this.moreSelect = val;
     },
     delAllSelection() {
-      warningDialog("确定要删除吗？")
-        .then(() => {
-          const length = this.moreSelect.length;
-          let str = "";
-          var select = new Array();
-          for (let i = 0; i < length; i++) {
-            str += this.moreSelect[i].userName + " ";
-            select[i] = this.moreSelect[i].id;
+      warningDialog("确定要删除吗？").then(() => {
+        var select = "";
+        for (let i = 0; i < this.moreSelect.length; i++) {
+          if (i == 0) {
+            select += this.moreSelect[i].id;
+          } else {
+            select += "," + this.moreSelect[i].id;
           }
-          this.delSelectRole(select);
-          // this.$message.error(`删除了${str}`)
-        })
-        .catch(() => {});
+        }
+        this.delSelectRole(select);
+      });
     },
     refresh() {
       this.getData();
-      this.getPermissionList();
+      this.getPermissionData();
     },
     addRoleData() {
       var _this = this;
@@ -241,101 +214,50 @@ export default {
     },
     handleDelete(index, row) {
       // 二次确认删除
-      warningDialog("确定要删除吗？")
-        .then(() => {
-          //删除操作
-          this.delRole(index);
-        })
-        .catch(() => {});
+      warningDialog("确定要删除吗？").then(() => {
+        //删除操作
+        this.handleDelRole(index);
+      });
     },
     handleEdit(index, row) {
-      var _this = this;
-      let formData = new FormData();
-      formData.append("id", this.role.data[index].id);
-      let config = {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          token: store.state.token
-        }
+      var params = {
+        id: this.role.data[index].id
       };
-      this.$axios
-        .post(
-          this.NET.BASE_URL + "/api/role/get_role_by_id_for_permission",
-          formData,
-          config
-        )
-        .then(function(res) {
-          if (res.data.code == 200) {
-            var permissionIds = new Array();
-            for (let i = 0; i < res.data.data.length; i++) {
-              permissionIds[i] = res.data.data[i].id;
-            }
-            _this.permission.selected = permissionIds;
-            _this.edit.editBoxTitle = "编辑角色";
-            _this.edit.id = _this.role.data[index].id;
-            _this.role.name = _this.data.list[index].name;
-            _this.addRole.note = _this.role.data[index].remark;
-          } else {
-            _this.$message.error(res.data.msg);
-          }
-        })
-        .catch(function(err) {
-          _this.$message.error(err.data);
-        });
+      getRoleByIdForPermission(params).then(res => {
+        let list = new Array();
+        for (let i = 0; i < res.data.length; i++) {
+          list.push(res.data[i].id);
+        }
+        this.permission.selected = list;
+        this.edit.editBoxTitle = "编辑角色";
+        this.edit.id = this.role.data[index].id;
+        this.addRole.name = this.role.data[index].name;
+        this.addRole.note = this.role.data[index].remark;
+      });
     },
-    delRole(index) {
-      var _this = this;
-      let formData = new FormData();
-      formData.append("id", this.role.data[index].id);
-      let config = {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          token: store.state.token
-        }
+    handleDelRole(index) {
+      var params = {
+        id: this.role.data[index].id
       };
-      this.$axios
-        .post(this.NET.BASE_URL + "/api/role/del_role", formData, config)
-        .then(function(res) {
-          if (res.data.code == 200) {
-            _this.$message.success("删除成功");
-            _this.getData();
-          } else {
-            _this.$message.error(res.data.msg);
-          }
-        })
-        .catch(function(err) {
-          _this.$message.error(err.data);
-        });
+
+      delRole(params).then(res => {
+        this.getData();
+      });
     },
     delSelectRole(selectIds) {
-      var _this = this;
-      let formData = new FormData();
-      formData.append("roleIds", selectIds);
-      let config = {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          token: store.state.token
-        }
+      var params = {
+        ids: selectIds
       };
-      this.$axios
-        .post(this.NET.BASE_URL + "/api/role/batches_deletes", formData, config)
+
+      batchesDeletesRole(params)
         .then(function(res) {
-          if (res.data.code == 200) {
-            _this.$message.success(res.data.msg);
-            _this.getData();
-          } else {
-            _this.$message.error(res.data.msg);
-          }
+          this.getData();
         })
-        .catch(function(err) {
-          console.log("==>" + err);
-          _this.$message.error("错误");
-        });
     }
   },
   mounted() {
     this.getData();
-    this.getPermissionList();
+    this.getPermissionData();
   }
 };
 </script>

@@ -8,22 +8,28 @@
           class="handle-del mr10"
           @click="delAllSelection"
         >批量删除</el-button>
-        <el-input v-model="query.name" placeholder="用户名" class="handle-input mr10"></el-input>
+        <el-input v-model="select.name" placeholder="用户名" class="handle-input mr10"></el-input>
         <el-button type="primary" icon="el-icon-search" @click="selectName">搜索</el-button>
-        <el-button type="primary" icon="el-icon-plus" @click="showAddUser" circle class="add"></el-button>
+        <el-button
+          type="primary"
+          icon="el-icon-plus"
+          @click="addUserData.addDialogVisible = true"
+          circle
+          class="add"
+        ></el-button>
         <el-button
           type="primary"
           icon="el-icon-refresh"
-          @click="getUserList"
+          @click="getUserData"
           circle
           class="refresh"
         ></el-button>
       </div>
       <el-table
-        :data="query.tableData"
+        :data="userTable.tableData"
         border
         class="table"
-        ref="multipleSelection"
+        ref="userTable.multipleSelection"
         header-cell-class-name="table-header"
         @selection-change="handleSelectionChange"
       >
@@ -43,8 +49,8 @@
         <el-table-column prop="role.name" label="身份" align="center"></el-table-column>
         <el-table-column label="状态" align="center">
           <template slot-scope="scope">
-            <el-tag :type="scope.row.status=='1'?'success':'danger'">
-              <div v-if="scope.row.status=='1'">有效</div>
+            <el-tag :type="scope.row.status==1?'success':'danger'">
+              <div v-if="scope.row.status==1">有效</div>
               <div v-else>禁止</div>
             </el-tag>
           </template>
@@ -60,17 +66,13 @@
         <el-table-column prop="note" label="备注"></el-table-column>
         <el-table-column label="注册时间" align="center">
           <template slot-scope="scope">
-            <div
-              v-if="scope.row.createTime !== null"
-            >{{ toTime( scope.row.createTime) }}</div>
+            <div v-if="scope.row.createTime !== null">{{ toTime( scope.row.createTime) }}</div>
             <div v-else>空</div>
           </template>
         </el-table-column>
         <el-table-column label="修改时间" align="center">
           <template slot-scope="scope">
-            <div
-              v-if="scope.row.modifyTime !== null"
-            >{{ toTime( scope.row.modifyTime) }}</div>
+            <div v-if="scope.row.modifyTime !== null">{{ toTime( scope.row.modifyTime) }}</div>
             <div v-else>空</div>
           </template>
         </el-table-column>
@@ -94,24 +96,24 @@
         <el-pagination
           background
           layout="total, prev, pager, next"
-          :current-page="query.pageIndex"
-          :page-size="query.pageSize"
-          :total="query.pageTotal"
+          :current-page="userTable.pageIndex"
+          :page-size="userTable.pageSize"
+          :total="userTable.pageTotal"
           @current-change="handlePageChange"
         ></el-pagination>
       </div>
     </div>
 
     <!-- 编辑弹出框 -->
-    <el-dialog title="编辑" :visible.sync="editVisible" width="30%">
-      <el-form ref="form" :model="form" label-width="70px">
+    <el-dialog title="编辑" :visible.sync="editUser.editDialogVisiable" width="30%">
+      <el-form ref="form" label-width="70px">
         <el-row class="editUserItem" style="margin-top: 50px">
           <el-col :span="5" class="editUserItemLeft">
             <span>身份：</span>
           </el-col>
           <el-col :span="19" style="margin-top: 5px">
-            <el-radio-group v-model="roleIndex">
-              <el-radio v-for="(item,i) in roleList" :label="item.id" :key="item.id">{{item.name}}</el-radio>
+            <el-radio-group v-model="roleEdOrAddId">
+              <el-radio v-for="item in roleList" :label="item.id" :key="item.id">{{item.name}}</el-radio>
             </el-radio-group>
           </el-col>
         </el-row>
@@ -120,24 +122,25 @@
             <span>状态：</span>
           </el-col>
           <el-col :span="12" style="margin-top: 5px">
-            <el-radio v-model="status" label="1">有效</el-radio>
-            <el-radio v-model="status" label="0">禁用</el-radio>
+            <el-radio v-model="editUser.status" label="1">有效</el-radio>
+            <el-radio v-model="editUser.status" label="0">禁用</el-radio>
           </el-col>
         </el-row>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="editVisible = false">取 消</el-button>
+        <el-button @click="editUser.editDialogVisiable = false">取 消</el-button>
         <el-button type="primary" @click="editUser">确 定</el-button>
       </span>
     </el-dialog>
+
     <!--   添加用户  -->
-    <el-dialog title="添加用户" :visible.sync="adddialogVisible" width="50%">
+    <el-dialog title="添加用户" :visible.sync="addUserData.addDialogVisible" width="50%">
       <el-row class="editUserItem">
         <el-col :span="3" class="editUserItemLeft">
           <span>账号：</span>
         </el-col>
         <el-col :span="12">
-          <el-input size="small" v-model="account" clearable></el-input>
+          <el-input size="small" v-model="accountEdOrAdd" clearable></el-input>
         </el-col>
       </el-row>
       <el-row class="editUserItem">
@@ -145,16 +148,16 @@
           <span>密码：</span>
         </el-col>
         <el-col :span="12">
-          <el-input size="small" v-model="password" clearable></el-input>
+          <el-input size="small" v-model="addUserData.password" clearable></el-input>
         </el-col>
       </el-row>
-      <el-row class="editUserItem" style="margin-top: 50px">
+      <el-row class="editUserItem">
         <el-col :span="5" class="editUserItemLeft">
           <span>身份：</span>
         </el-col>
         <el-col :span="19" style="margin-top: 5px">
-          <el-radio-group v-model="roleIndex">
-            <el-radio v-for="(item,i) in roleList" :label="item.id" :key="item.id">{{item.name}}</el-radio>
+          <el-radio-group v-model="roleEdOrAddId">
+            <el-radio v-for="item in roleList" :label="item.id" :key="item.id">{{item.name}}</el-radio>
           </el-radio-group>
         </el-col>
       </el-row>
@@ -165,7 +168,7 @@
         <el-col :span="12">
           <el-input
             size="small"
-            v-model="usernote"
+            v-model="usernoteEdOrAdd"
             type="textarea"
             :autosize="{ minRows: 2, maxRows: 4}"
             clearable
@@ -173,8 +176,8 @@
         </el-col>
       </el-row>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="adddialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="adduser">确 定</el-button>
+        <el-button @click="addUserData.addDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="HandleAdduser">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -182,173 +185,113 @@
 
 <script>
 import store from "@/store";
-
+import { addUser, getUserList, delUser } from "@/api/userApi";
 import { timestampToTime } from "@/utils/timeUtils";
+import { warningDialog } from "@/utils/dialog";
 
 export default {
   name: "userlist",
   data() {
     return {
-      query: {
-        address: "",
-        name: "",
+      userTable: {
         pageIndex: 1,
         pageTotal: 0,
         tableData: [],
-        pageSize: 5
+        pageSize: 5,
+        multipleSelection: []
+      },
+      select: {
+        name: ""
       },
       roleList: [],
-      roleIndex: 1,
-      account: "",
-      password: "",
-      usernote: "",
-      adddialogVisible: false,
-      multipleSelection: [],
-      delList: [],
-      editVisible: false,
-      form: {},
-      status: "0",
-      idx: -1
+      roleEdOrAddId: -1,
+      accountEdOrAdd: "",
+      usernoteEdOrAdd: "",
+      addUserData: {
+        password: "",
+        addDialogVisible: false
+      },
+      editUser: {
+        id: -1,
+        editDialogVisiable: false,
+        status: "0"
+      }
     };
-  },
-  created() {
-    this.getUserList();
   },
   methods: {
     //添加用户
-    adduser() {
-      var _this = this;
+    HandleAdduser() {
+      this.addUserData.addDialogVisible = false;
       var _role;
       for (let i = 0; i < this.roleList.length; i++) {
-        if ((this.roleList[i].id = this.roleIndex)) {
+        if ((this.roleList[i].id = this.roleEdOrAddId)) {
           _role = this.roleList[i];
         }
       }
-      let config = {
-        headers: {
-          token: store.state.token
-        }
+      var data = {
+        account: this.accountEdOrAdd,
+        password: this.addUserData.password,
+        note: this.usernoteEdOrAdd,
+        role: _role
       };
-      this.$axios
-        .post(
-          this.NET.BASE_URL + "/api/user/add_user",
-          {
-            account: _this.account,
-            password: _this.password,
-            note: _this.usernote,
-            role: _role
-          },
-          config
-        )
-        .then(function(res) {
-          if (res.data.code == 200) {
-            _this.account = "";
-            _this.password = "";
-            _this.usernote = "";
-            _this.roleList = [];
-            _this.getUserList();
-          } else {
-            _this.$message.error(res.data.msg);
-          }
-        })
-        .catch(function(err) {
-          _this.$message.error(err.data);
-        });
-      _this.adddialogVisible = false;
-    },
-    showAddUser() {
-      this.getAddUserRoles();
-      this.adddialogVisible = true;
+      addUser(data).then(res => {
+        this.accountEdOrAdd = "";
+        this.addUserData.password = "";
+        this.usernoteEdOrAdd = "";
+        this.roleList = [];
+        this.getUserData();
+      });
     },
     //获取用户列表
-    getUserList() {
-      var _this = this;
-      let formData = new FormData();
-      formData.append("currentPage", _this.query.pageIndex);
-      formData.append("pageSize", _this.query.pageSize);
-      let config = {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          token: store.state.token
-        }
+    getUserData() {
+      var data = {
+        currentPage: this.userTable.pageIndex,
+        pageSize: this.userTable.pageSize
       };
-      this.$axios
-        .post(this.NET.BASE_URL + "/api/user/lists", formData, config)
-        .then(function(res) {
-          if (res.data.code == 200) {
-            _this.$message.success(res.data.msg);
-            _this.query.tableData = res.data.data.lists;
-            _this.query.pageTotal = res.data.data.totalRows;
-          } else {
-            _this.$message.error(res.data.msg);
-          }
-        })
-        .catch(function(err) {
-          _this.$message.error(err.data);
-        });
+      getUserList(data).then(res => {
+        this.userTable.tableData = res.data.lists;
+        this.userTable.pageTotal = res.data.totalRows;
+      });
     },
     //删除用户
-    delUser(index) {
-      var _this = this;
-      let formData = new FormData();
-      formData.append("id", this.query.tableData[index].id);
-      let config = {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          token: store.state.token
-        }
+    handleDelUser(index) {
+      var data = {
+        id: this.userTable.tableData[index].id
       };
-      this.$axios
-        .post(this.NET.BASE_URL + "/api/user/del_user", formData, config)
-        .then(function(res) {
-          if (res.data.code == 200) {
-            _this.$message.success("删除成功");
-            this.query.pageIndex = 1;
-            _this.getUserList();
-          } else {
-            _this.$message.error(res.data.msg);
-          }
-        })
-        .catch(function(err) {
-          _this.$message.error(err.data);
-        });
+      delUser(data).then(res => {
+        this.userTable.pageIndex = 1;
+        this.getUserData();
+      });
     },
     // 删除操作
     handleDelete(index, row) {
-      // 二次确认删除
-      this.$confirm("确定要删除吗？", "提示", {
-        type: "warning"
-      })
+      warningDialog("确定要删除吗？")
         .then(() => {
           //删除操作
-          this.delUser(index);
+          this.handleDelUser(index);
         })
         .catch(() => {});
     },
     // 多选操作
     handleSelectionChange(val) {
-      this.multipleSelection = val;
+      this.userTable.multipleSelection = val;
     },
     toTime(timeStr) {
       return timestampToTime(parseInt(timeStr));
     },
     delAllSelection() {
-      this.$confirm("确定要删除吗？", "提示", {
-        type: "warning"
-      })
+      warningDialog("确定要删除吗？")
         .then(() => {
-          const length = this.multipleSelection.length;
-          let str = "";
-          this.delList = this.delList.concat(this.multipleSelection);
-          var select = new Array();
-          for (let i = 0; i < length; i++) {
-            str += this.multipleSelection[i].userName + " ";
-            select[i] = this.multipleSelection[i].id;
+          var select = "";
+          for (let i = 0; i < this.userTable.multipleSelection.length; i++) {
+            if(i == 0){
+            select += this.userTable.multipleSelection[i].id;
+            }else{
+            select += ","+this.userTable.multipleSelection[i].id;
+            }
           }
           this.delSelectUser(select);
-          // this.$message.error(`删除了${str}`)
         })
-        .catch(() => {});
     },
     //多选删除
     delSelectUser(ids) {
@@ -366,7 +309,7 @@ export default {
         .then(function(res) {
           if (res.data.code == 200) {
             _this.$message.success("删除成功");
-            _this.getUserList();
+            _this.getUserData();
           } else {
             _this.$message.error(res.data.msg);
           }
@@ -376,16 +319,16 @@ export default {
         });
     },
     selectName() {
-      this.query.pageIndex = 1;
+      this.userTable.pageIndex = 1;
       this.selbyname();
     },
     //搜索名字
     selbyname() {
       var _this = this;
       let formData = new FormData();
-      formData.append("name", this.query.name);
-      formData.append("currentPage", _this.query.pageIndex);
-      formData.append("pageSize", _this.query.pageSize);
+      formData.append("name", this.select.name);
+      formData.append("currentPage", _this.userTable.pageIndex);
+      formData.append("pageSize", _this.userTable.pageSize);
       let config = {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -397,8 +340,8 @@ export default {
         .then(function(res) {
           if (res.data.code == 200) {
             _this.$message.success(res.data.msg);
-            _this.query.tableData = res.data.data.lists;
-            _this.query.pageTotal = res.data.data.totalRows;
+            _this.userTable.tableData = res.data.data.lists;
+            _this.userTable.pageTotal = res.data.data.totalRows;
           } else {
             _this.$message.error(res.data.msg);
           }
@@ -410,15 +353,13 @@ export default {
     // 编辑操作
     handleEdit(index, row) {
       this.getRoles(index);
-      this.status = this.query.tableData[index].status.toString();
-      this.idx = index;
-      this.form = row;
-      this.editVisible = true;
+      this.editUser.status = this.userTable.tableData[index].status.toString();
+      this.editUser.id = index;
+      this.editUser.editDialogVisiable = true;
     },
     // 保存编辑
-    editUser() {
-      this.editVisible = false;
-      // this.$set(this.query.tableData, this.idx, this.form)
+    handleEditUser() {
+      this.editUser.editDialogVisiable = false;
       var _this = this;
       let config = {
         headers: {
@@ -427,8 +368,11 @@ export default {
       };
 
       let formData = new FormData();
-      formData.append("userId", _this.query.tableData[_this.idx].id);
-      formData.append("roleId", _this.roleIndex);
+      formData.append(
+        "userId",
+        _this.userTable.tableData[_this.editUser.id].id
+      );
+      formData.append("roleId", _this.roleEdOrAddId);
 
       this.$axios
         .post(this.NET.BASE_URL + "/api/user/add_roles", formData, config)
@@ -454,14 +398,14 @@ export default {
         .post(
           this.NET.BASE_URL + "/api/user/edit_info",
           {
-            id: _this.query.tableData[_this.idx].id,
+            id: _this.userTable.tableData[_this.editUser.id].id,
             status: parseInt(_this.status)
           },
           config
         )
         .then(function(res) {
           if (res.data.code == 200) {
-            _this.getUserList();
+            _this.getUserData();
           } else {
             _this.$message.error(res.data.msg);
           }
@@ -473,7 +417,6 @@ export default {
     //获取身份列表
     getRoles(index) {
       var _this = this;
-      // _this.roleIndex = _this.query.tableData[index].roleid
       let config = {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -484,7 +427,7 @@ export default {
         .get(this.NET.BASE_URL + "/api/role/lists", config)
         .then(function(res) {
           if (res.data.code == 200) {
-            _this.roleIndex = _this.query.tableData[index].role.id;
+            _this.roleEdOrAddId = _this.userTable.tableData[index].role.id;
             _this.roleList = res.data.data;
           } else {
             _this.$message.error(res.data.msg);
@@ -496,7 +439,6 @@ export default {
     },
     getAddUserRoles() {
       var _this = this;
-      // _this.roleIndex = _this.query.tableData[index].roleid
       let config = {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -509,7 +451,7 @@ export default {
           if (res.data.code == 200) {
             for (let i = 0; i < res.data.data.length; i++) {
               if (res.data.data[i].isDefault == 1) {
-                _this.roleIndex = res.data.data[i].id;
+                _this.roleEdOrAddId = res.data.data[i].id;
               }
             }
             _this.roleList = res.data.data;
@@ -523,15 +465,17 @@ export default {
     },
     // 分页导航
     handlePageChange(val) {
-      this.$set(this.query, "pageIndex", val);
-      console.log("this.query.name");
-      console.log(this.query.name);
-      if (this.query.name == "") {
-        this.getUserList();
+      this.$set(this.userTable, "pageIndex", val);
+      if (this.select.name == "") {
+        this.getUserData();
       } else {
         this.selbyname();
       }
     }
+  },
+  mounted() {
+    this.getUserData();
+    this.getAddUserRoles();
   }
 };
 </script>
