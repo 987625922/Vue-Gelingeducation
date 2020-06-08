@@ -100,6 +100,8 @@
 <script>
 import store from "@/store";
 import { timestampToTime } from "@/utils/timeUtils";
+import { getIndexData } from "@/api/api";
+import { getInfo } from "@/api/userApi";
 
 export default {
   name: "main",
@@ -115,57 +117,22 @@ export default {
   },
   mounted() {
     //vue的生命周期，每次打开都调用
-    this.getUername(),
-     this.getIndex();
+    this.getUername(), this.getIndex();
   },
   methods: {
     getUername() {
-      var _this = this;
-      this.$axios
-        .get(this.NET.BASE_URL + "/api/user/get_info", {
-          headers: {
-            token: store.state.token
-          },
-          params: {
-            id: store.state.userId
-          }
-        })
-        .then(function(res) {
-          if (res.data.code == 200) {
-            store.commit("setUserName", res.data.data.userName);
-            _this.account = res.data.data.account;
-          } else {
-            _this.$message.error(res.data.msg);
-          }
-        })
-        .catch(function(err) {
-          _this.$message.error(err.data);
-        });
+      getInfo().then(res => {
+        store.commit("setUserName", res.data.userName);
+        this.account = res.data.account;
+      });
     },
     getIndex() {
-      var _this = this;
-      this.$axios
-        .get(this.NET.BASE_URL + "/web/index", {
-          headers: {
-            token: store.state.token
-          },
-          params: {
-            id: store.state.userId
-          }
-        })
-        .then(function(res) {
-          if (res.data.code == 200) {
-            _this.lastLoginTime = res.data.data.lastLoginTime;
-            _this.allLoginMun = res.data.data.allLoginMun;
-            _this.todayLoginMun = res.data.data.todayLoginMun;
-            _this.todayLoginIpMun = res.data.data.todayLoginIpMun;
-          } else {
-            _this.$message.error(res.data.msg);
-          }
-        })
-        .catch(function(err) {
-          _this.$message.error(err.data);
-        });
+      getIndexData().then(res => {
+        this.lastLoginTime = res.data.lastLoginTime;
+        this.allLoginMun = res.data.allLoginMun;
+        this.todayLoginMun = res.data.todayLoginMun;
+        this.todayLoginIpMun = res.data.todayLoginIpMun;
+      });
     },
     toTime(timeStr) {
       return timestampToTime(parseInt(timeStr));

@@ -34,9 +34,7 @@
       </el-table-column>
       <el-table-column align="center" label="创建时间">
         <template slot-scope="scope">
-          <div
-            v-if="scope.row.createTime !== null"
-          >{{ timestampToTime( parseInt(scope.row.createTime)) }}</div>
+          <div v-if="scope.row.createTime !== null">{{ toTime(scope.row.createTime) }}</div>
           <div v-else>空</div>
         </template>
       </el-table-column>
@@ -97,7 +95,7 @@
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="addDialog.visible = false">取 消</el-button>
-        <el-button type="primary" @click="addTeacherDialogEnter()">确 定</el-button>
+        <el-button type="primary" @click="handleAddTeacher()">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -106,7 +104,9 @@
 <script>
 import store from "@/store";
 import Vue from "vue";
-import { getTeacherList } from "@/api/api";
+import { getTeacherList, deleteTeacher, addTeacher } from "@/api/teacher";
+import { timestampToTime } from "@/utils/timeUtils";
+import { warningDialog } from "@/utils/dialog";
 
 export default {
   name: "Teacher",
@@ -135,94 +135,43 @@ export default {
       getTeacherList(params).then(res => {
         this.teacherList.data = res.data.lists;
         this.teacherList.pageTotal = res.data.totalRows;
-        this.teacherList.currentPage = res.data.pageNum;
       });
     }, //时间转换
-    timestampToTime(row, column) {
-      var date = new Date(row);
-      var Y = date.getFullYear() + "-";
-      var M =
-        (date.getMonth() + 1 < 10
-          ? "0" + (date.getMonth() + 1)
-          : date.getMonth() + 1) + "-";
-      var D = date.getDate() + " ";
-      var h = date.getHours() + ":";
-      var m = date.getMinutes() + ":";
-      var s = date.getSeconds();
-      return Y + M + D + h + m + s;
+    toTime(row) {
+      return timestampToTime(parseInt(row));
     },
     // 分页导航
     handlePageChange(val) {
-      this.$set(this.teacherList, "currentPage", val);
+      this.teacherList.currentPage = val;
       this.getListData();
     },
     // 删除操作
     handleDelete(index, row) {
-      // 二次确认删除
-      this.$confirm("确定要删除吗？", "提示", {
-        type: "warning"
-      })
-        .then(() => {
-          //删除操作
-          this.delTeacherById(index);
-        })
-        .catch(() => {});
+      warningDialog("确定要删除吗？").then(() => {
+        this.delTeacherById(index);
+      });
     },
     delTeacherById(index) {
-      var _this = this;
-      let config = {
-        headers: {
-          token: store.state.token
-        }
+      var data = {
+        id: this.teacherList.data[index].id
       };
-      let url = "/api/teacher/delete?id=" + _this.teacherList.data[index].id;
-      this.$axios
-        .get(this.NET.BASE_URL + url, config)
-        .then(function(res) {
-          console.log(res);
-          if (res.data.code == 200) {
-            _this.getListData();
-          } else {
-            _this.$message(res.data.cdoe);
-          }
-        })
-        .catch(function(err) {
-          _this.$message.error(err.data);
-        });
+      deleteTeacher(data).then(res => {
+        this.getListData();
+      });
     },
-    addTeacherDialogEnter() {
+    handleAddTeacher() {
       this.addDialog.visible = false;
-      this.addTeacher();
-    },
-    addTeacher() {
-      var _this = this;
-      let config = {
-        headers: {
-          token: store.state.token
-        }
-      };
-      let url = "/api/teacher/add";
       var body = {
-        name: _this.addDialog.name,
-        bigImg: _this.addDialog.img,
-        remark: _this.addDialog.note
+        name: this.addDialog.name,
+        bigImg: this.addDialog.img,
+        remark: this.addDialog.note
       };
-      this.$axios
-        .post(this.NET.BASE_URL + url, body, config)
-        .then(function(res) {
-          console.log(res);
-          if (res.data.code == 200) {
-            _this.getListData();
-          } else {
-            _this.$message(res.data.cdoe);
-          }
-        })
-        .catch(function(err) {
-          _this.$message.error(err.data);
-        });
-      _this.addDialog.name = "";
-      _this.addDialog.img = "";
-      _this.addDialog.note = "";
+      addTeacher(body).then(res => {
+        this.getListData();
+      });
+      this.addDialog.name = "";
+      this.addDialog.img = "";
+      this.addDialog.note = "";
     }
   },
   created() {

@@ -53,3 +53,20 @@ export function editUser(data){
         }
     )
 }
+
+export function getInfo(){
+    return request({
+        url:'/api/user/get_info',
+        method:'get'
+        }
+    )
+}
+
+export function updatePassword(data){
+    return request({
+        url:'/api/user/update_password',
+        method:'post',
+        data
+        }
+    )
+}

@@ -14,12 +14,7 @@
         </template>
       </el-table-column>
     </el-table>
-    <el-dialog
-      title="详情"
-      :visible.sync="detailDialog.detailDialogVisible"
-      width="30%"
-      height="50%"
-    >
+    <el-dialog title="详情" :visible.sync="detailDialog.detailDialogVisible" width="30%" height="50%">
       <span>${{detailDialog.detailDialogexceptionDetail}}</span>
     </el-dialog>
   </div>
@@ -29,9 +24,7 @@
 import store from "@/store";
 
 import Vue from "vue";
-import {
-  getLogList
-} from "@/api/api";
+import { getLogList } from "@/api/api";
 
 export default {
   name: "log",
@@ -51,13 +44,12 @@ export default {
   methods: {
     getData() {
       var params = {
-          currentPage:this.logData.currentPage,
-          pageSize:this.logData.pageSize
-      }
-
+        currentPage: this.logData.currentPage,
+        pageSize: this.logData.pageSize
+      };
       getLogList(params).then(res => {
-            this.logData.list = res.data.lists;
-        })
+        this.logData.list = res.data.lists;
+      });
     },
     detail(data) {
       this.detailDialog.detailDialogVisible = true;

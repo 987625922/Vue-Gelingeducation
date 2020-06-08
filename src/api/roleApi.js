@@ -61,3 +61,12 @@ export function getRoleByUserId(query){
         }
     )
 }
+
+export function updateRole(data){
+    return request({
+        url:'/api/role/update',
+        method:'post',
+        data
+        }
+    )
+}

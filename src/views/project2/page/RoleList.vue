@@ -104,7 +104,8 @@ import {
   selByName,
   getRoleByIdForPermission,
   delRole,
-  batchesDeletesRole
+  batchesDeletesRole,
+  updateRole
 } from "@/api/roleApi";
 import { getPermissionList } from "@/api/perMission";
 import { warningDialog } from "@/utils/dialog";
@@ -141,7 +142,6 @@ export default {
     getData() {
       this.edit.id = -1;
       this.edit.editBoxTitle = "新增角色";
-
       getRoleList().then(res => {
         this.role.data = res.data;
       });
@@ -186,8 +186,34 @@ export default {
       this.getData();
       this.getPermissionData();
     },
+    addOrUpdataClick() {
+      if (this.edit.id == -1) {
+      } else {
+        this.addRoleData();
+      }
+    },
+    handleUpdateRole() {
+      var data = {
+        id:this.edit.id,
+        name: null,
+        remark: null,
+        permissions: null
+      };
+      if (this.addRole.name) {
+        data.name = name;
+      }
+      if (this.addRole.note) {
+        data.remark = this.addRole.note;
+      }
+      if (this.permission.selected) {
+        data.permissions = this.permission.selected;
+      }
+      updateRole(data).then(res => {
+        this.getData();
+        this.clearEditData();
+      });
+    },
     addRoleData() {
-      var _this = this;
       var data = {
         name: null,
         remark: null,
@@ -239,7 +265,6 @@ export default {
       var params = {
         id: this.role.data[index].id
       };
-
       delRole(params).then(res => {
         this.getData();
       });
@@ -248,11 +273,9 @@ export default {
       var params = {
         ids: selectIds
       };
-
-      batchesDeletesRole(params)
-        .then(function(res) {
-          this.getData();
-        })
+      batchesDeletesRole(params).then(function(res) {
+        this.getData();
+      });
     }
   },
   mounted() {

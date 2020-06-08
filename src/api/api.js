@@ -9,15 +9,6 @@ export function login(data){
     )
 }
 
-export function getTeacherList(query){
-    return request({
-        url:'/api/teacher/lists',
-        method:'get',
-        params: query
-        }
-    )
-}
-
 export function courseUpdate(data){
     return request({
         url:'/api/course/update',
@@ -74,9 +65,17 @@ export function addCourse(data){
 
 export function getLogList(query){
     return request({
-        url:'/api/role/lists',
+        url:'/api/logs/list',
         method:'get',
         params: query
+        }
+    )
+}
+
+export function getIndexData(query){
+    return request({
+        url:'/web/index',
+        method:'get'
         }
     )
 }
