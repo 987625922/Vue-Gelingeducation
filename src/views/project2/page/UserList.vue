@@ -113,7 +113,8 @@
           </el-col>
           <el-col :span="19" style="margin-top: 5px">
             <el-radio-group v-model="roleEdOrAddId">
-              <el-radio v-for="item in roleList" :label="item.id" :key="item.id">{{item.name}}</el-radio>
+              <el-radio v-for="item in roleList" :label="item.id"
+               :key="item.id">{{item.name}}</el-radio>
             </el-radio-group>
           </el-col>
         </el-row>
@@ -129,7 +130,7 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="editUser.editDialogVisiable = false">取 消</el-button>
-        <el-button type="primary" @click="editUser">确 定</el-button>
+        <el-button type="primary" @click="handleEditUser()">确 定</el-button>
       </span>
     </el-dialog>
 
@@ -185,7 +186,15 @@
 
 <script>
 import store from "@/store";
-import { addUser, getUserList, delUser } from "@/api/userApi";
+import {
+  addUser,
+  getUserList,
+  delUser,
+  delMoreUser,
+  selByName,
+  editUser
+} from "@/api/userApi";
+import { getRoleByUserId,getRoleList } from "@/api/roleApi";
 import { timestampToTime } from "@/utils/timeUtils";
 import { warningDialog } from "@/utils/dialog";
 
@@ -214,7 +223,7 @@ export default {
       editUser: {
         id: -1,
         editDialogVisiable: false,
-        status: "0"
+        status: '0'
       }
     };
   },
@@ -224,7 +233,7 @@ export default {
       this.addUserData.addDialogVisible = false;
       var _role;
       for (let i = 0; i < this.roleList.length; i++) {
-        if ((this.roleList[i].id = this.roleEdOrAddId)) {
+        if (this.roleList[i].id == this.roleEdOrAddId) {
           _role = this.roleList[i];
         }
       }
@@ -238,7 +247,7 @@ export default {
         this.accountEdOrAdd = "";
         this.addUserData.password = "";
         this.usernoteEdOrAdd = "";
-        this.roleList = [];
+        this.roleEdOrAddId = this.roleList[0].id;
         this.getUserData();
       });
     },
@@ -280,43 +289,26 @@ export default {
       return timestampToTime(parseInt(timeStr));
     },
     delAllSelection() {
-      warningDialog("确定要删除吗？")
-        .then(() => {
-          var select = "";
-          for (let i = 0; i < this.userTable.multipleSelection.length; i++) {
-            if(i == 0){
+      warningDialog("确定要删除吗？").then(() => {
+        var select = "";
+        for (let i = 0; i < this.userTable.multipleSelection.length; i++) {
+          if (i == 0) {
             select += this.userTable.multipleSelection[i].id;
-            }else{
-            select += ","+this.userTable.multipleSelection[i].id;
-            }
+          } else {
+            select += "," + this.userTable.multipleSelection[i].id;
           }
-          this.delSelectUser(select);
-        })
+        }
+        this.delSelectUser(select);
+      });
     },
     //多选删除
-    delSelectUser(ids) {
-      var _this = this;
-      let formData = new FormData();
-      formData.append("ids", ids);
-      let config = {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          token: store.state.token
-        }
+    delSelectUser(_ids) {
+      var data = {
+        ids: _ids
       };
-      this.$axios
-        .post(this.NET.BASE_URL + "/api/user/batches_deletes", formData, config)
-        .then(function(res) {
-          if (res.data.code == 200) {
-            _this.$message.success("删除成功");
-            _this.getUserData();
-          } else {
-            _this.$message.error(res.data.msg);
-          }
-        })
-        .catch(function(err) {
-          _this.$message.error(err.data);
-        });
+      delMoreUser(data).then(res => {
+        this.getUserData();
+      });
     },
     selectName() {
       this.userTable.pageIndex = 1;
@@ -324,144 +316,60 @@ export default {
     },
     //搜索名字
     selbyname() {
-      var _this = this;
-      let formData = new FormData();
-      formData.append("name", this.select.name);
-      formData.append("currentPage", _this.userTable.pageIndex);
-      formData.append("pageSize", _this.userTable.pageSize);
-      let config = {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          token: store.state.token
-        }
+      var data = {
+        name: encodeURI(this.select.name),
+        currentPage: this.userTable.pageIndex,
+        pageSize: this.userTable.pageSize
       };
-      this.$axios
-        .post(this.NET.BASE_URL + "/api/user/sel_by_name", formData, config)
-        .then(function(res) {
-          if (res.data.code == 200) {
-            _this.$message.success(res.data.msg);
-            _this.userTable.tableData = res.data.data.lists;
-            _this.userTable.pageTotal = res.data.data.totalRows;
-          } else {
-            _this.$message.error(res.data.msg);
-          }
-        })
-        .catch(function(err) {
-          _this.$message.error(err.data);
-        });
+      selByName(data).then(res => {
+        this.userTable.tableData = res.data.lists;
+        this.userTable.pageTotal = res.data.totalRows;
+      });
     },
     // 编辑操作
     handleEdit(index, row) {
-      this.getRoles(index);
+      this.getUserRole(this.userTable.tableData[index].id);      
       this.editUser.status = this.userTable.tableData[index].status.toString();
-      this.editUser.id = index;
+      this.editUser.id = this.userTable.tableData[index].id;
       this.editUser.editDialogVisiable = true;
     },
     // 保存编辑
     handleEditUser() {
       this.editUser.editDialogVisiable = false;
-      var _this = this;
-      let config = {
-        headers: {
-          token: store.state.token
-        }
+      var _role = {
+        id:this.roleEdOrAddId
+      }
+      var data = {
+        id: this.editUser.id,
+        role: _role,
+        status: this.editUser.status
       };
-
-      let formData = new FormData();
-      formData.append(
-        "userId",
-        _this.userTable.tableData[_this.editUser.id].id
-      );
-      formData.append("roleId", _this.roleEdOrAddId);
-
-      this.$axios
-        .post(this.NET.BASE_URL + "/api/user/add_roles", formData, config)
-        .then(function(res) {
-          if (res.data.code == 200) {
-            _this.editStatus();
-          } else {
-            _this.$message.error(res.data.msg);
-          }
-        })
-        .catch(function(err) {
-          _this.$message.error(err.data);
-        });
-    },
-    editStatus() {
-      var _this = this;
-      let config = {
-        headers: {
-          token: store.state.token
-        }
-      };
-      this.$axios
-        .post(
-          this.NET.BASE_URL + "/api/user/edit_info",
-          {
-            id: _this.userTable.tableData[_this.editUser.id].id,
-            status: parseInt(_this.status)
-          },
-          config
-        )
-        .then(function(res) {
-          if (res.data.code == 200) {
-            _this.getUserData();
-          } else {
-            _this.$message.error(res.data.msg);
-          }
-        })
-        .catch(function(err) {
-          _this.$message.error(err.data);
-        });
+      editUser(data).then(res => {
+        this.getUserData();
+      });
     },
     //获取身份列表
-    getRoles(index) {
-      var _this = this;
-      let config = {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          token: store.state.token
-        }
+    getUserRole(_userId) {
+      var data = {
+        userId: _userId
       };
-      this.$axios
-        .get(this.NET.BASE_URL + "/api/role/lists", config)
-        .then(function(res) {
-          if (res.data.code == 200) {
-            _this.roleEdOrAddId = _this.userTable.tableData[index].role.id;
-            _this.roleList = res.data.data;
-          } else {
-            _this.$message.error(res.data.msg);
-          }
-        })
-        .catch(function(err) {
-          _this.$message.error(err.data);
-        });
+      getRoleByUserId(data).then(res => {
+        this.roleEdOrAddId = res.data.id;
+      });
     },
     getAddUserRoles() {
-      var _this = this;
-      let config = {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          token: store.state.token
-        }
-      };
-      this.$axios
-        .get(this.NET.BASE_URL + "/api/role/lists", config)
-        .then(function(res) {
-          if (res.data.code == 200) {
-            for (let i = 0; i < res.data.data.length; i++) {
-              if (res.data.data[i].isDefault == 1) {
-                _this.roleEdOrAddId = res.data.data[i].id;
+        getRoleList()
+        .then(res => {
+            for (let i = 0; i < res.data.length; i++) {
+              if (res.data[i].isDefault == 1) {
+                this.roleEdOrAddId = res.data[i].id;
               }
             }
-            _this.roleList = res.data.data;
-          } else {
-            _this.$message.error(res.data.msg);
-          }
+            if(this.roleEdOrAddId == -1){
+                this.roleEdOrAddId = res.data[0].id;
+            }
+            this.roleList = res.data;
         })
-        .catch(function(err) {
-          _this.$message.error(err.data);
-        });
     },
     // 分页导航
     handlePageChange(val) {

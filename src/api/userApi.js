@@ -26,3 +26,30 @@ export function delUser(query){
         }
     )
 }
+
+export function delMoreUser(query){
+    return request({
+        url:'/api/user/batches_deletes',
+        method:'get',
+        params: query
+        }
+    )
+}
+
+export function selByName(query){
+    return request({
+        url:'/api/user/sel_by_name',
+        method:'get',
+        params: query
+        }
+    )
+}
+
+export function editUser(data){
+    return request({
+        url:'/api/user/edit_info',
+        method:'post',
+        data
+        }
+    )
+}

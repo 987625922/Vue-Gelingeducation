@@ -52,3 +52,12 @@ export function batchesDeletesRole(query){
         }
     )
 }
+
+export function getRoleByUserId(query){
+    return request({
+        url:'/api/role/get_role_by_user_id',
+        method:'get',
+        params: query
+        }
+    )
+}
