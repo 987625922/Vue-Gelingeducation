@@ -37,7 +37,7 @@
         <el-table-column prop="id" label="ID" width="55" align="center"></el-table-column>
         <el-table-column prop="account" label="账号"></el-table-column>
         <el-table-column label="用户名" prop="userName"></el-table-column>
-        <el-table-column label="头像(查看大图)" align="center">
+        <el-table-column label="头像" align="center">
           <template slot-scope="scope">
             <el-image
               class="table-td-thumb"
@@ -279,7 +279,6 @@ export default {
           //删除操作
           this.handleDelUser(index);
         })
-        .catch(() => {});
     },
     // 多选操作
     handleSelectionChange(val) {
