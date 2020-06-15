@@ -326,7 +326,6 @@
 import store from "@/store";
 import { warningDialog } from "@/utils/dialog";
 import {
-  getTeacherList,
   courseUpdate,
   selectCourse,
   delCourse,
@@ -334,6 +333,9 @@ import {
   delMoreCourse,
   addCourse
 } from "@/api/api";
+import {
+  getTeacherList,
+} from "@/api/teacher"
 export default {
   name: "course",
   data() {
