@@ -15,12 +15,14 @@ const service = axios.create({
 service.interceptors.request.use(
   config => {
     if (config.method === 'get') {
-      config.headers.token = getToken()
+      config.headers = {
+        'X-Access-Token': getToken()
+      };
     }else if (config.method === 'post') {
       config.headers = {
         'Accept':'application/json',
         'Content-Type': 'application/json',
-        'token': getToken()
+        'X-Access-Token': getToken()
       };
     }
     return config;

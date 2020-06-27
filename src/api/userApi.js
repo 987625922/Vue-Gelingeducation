@@ -29,7 +29,7 @@ export function delUser(query){
 
 export function delMoreUser(query){
     return request({
-        url:'/api/user/batches_deletes',
+        url:'/api/user/batches_delete',
         method:'get',
         params: query
         }
