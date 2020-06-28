@@ -98,7 +98,7 @@
       <el-table-column type="selection" width="55" align="center"></el-table-column>
       <el-table-column prop="id" label="编号" width="85" align="center"></el-table-column>
       <el-table-column prop="name" label="课程名" align="center"></el-table-column>
-      <el-table-column label="绑定老师" align="center" width="250">
+      <el-table-column label="老师" align="center" width="250">
         <template slot-scope="scope">
           <div v-for="item in scope.row.teachers" v-bind:key="item">
             <span v-if="scope.row.teachers.length > 1">{{item.name}}</span>
@@ -410,7 +410,6 @@ export default {
         }
       });
     },
-
     editCourse() {
       this.eddDialog.editVisible = false;
       var teacherLists = [];
@@ -556,7 +555,6 @@ export default {
     },
 
     handleAddCourse() {
-      var _this = this;
       this.addDialog.adddialogVisible = false;
 
       let teacherLists = [];
@@ -577,7 +575,7 @@ export default {
       };
 
       addCourse(data).then(res => {
-        _this.getCourseData();
+        this.getCourseData();
       });
 
       this.addDialog.addName = "";
