@@ -1,12 +1,19 @@
 <template>
   <div>
     <div class="handle-box">
-      <el-button
-        type="primary"
-        icon="el-icon-delete"
-        class="handle-del mr10"
-        @click="delAllSelection"
-      >批量删除</el-button>
+      <div class="t-sort">
+        <el-button
+          type="primary"
+          icon="el-icon-delete"
+          class="handle-del mr10 t-sort-item"
+          @click="delAllSelection"
+        >批量删除</el-button>
+        <div class="t-sort-item">
+          <span>课程名：</span>
+          <el-input style="width: 70%" placeholder="请输入内容" prefix-icon="el-icon-search" clearable></el-input>
+        </div>
+      </div>
+
       <el-button
         type="primary"
         icon="el-icon-plus"
@@ -280,7 +287,7 @@ export default {
         pageSize: 10
       },
       edit: {
-        id:-1,
+        id: -1,
         dialogVisiable: false,
         vidoeName: "",
         bigImg: "",
@@ -399,7 +406,7 @@ export default {
       });
     },
     handleItemEdit(row) {
-      this.edit.id = row.id
+      this.edit.id = row.id;
       this.edit.vidoeName = row.name;
       this.edit.bigImg = row.bigImg;
       this.edit.vidoeUrl = row.videoUrl;
@@ -420,15 +427,15 @@ export default {
       }
 
       var params = {
-        id:this.edit.id,
-        name:this.edit.vidoeName,
-        bigImg:this.edit.bigImg,
-        videoUrl:this.edit.videoUrl,
-        remark:this.edit.remark,
+        id: this.edit.id,
+        name: this.edit.vidoeName,
+        bigImg: this.edit.bigImg,
+        videoUrl: this.edit.videoUrl,
+        remark: this.edit.remark,
         teacher: _teacher
-      }
+      };
       updateData(params).then(res => {
-          this.getVideoData()
+        this.getVideoData();
       });
     }
   },
@@ -440,7 +447,7 @@ export default {
 
 <style scoped>
 .handle-box {
-  margin-bottom: 20px;
+  /* margin-bottom: 20px; */
 }
 .add {
   position: fixed;
@@ -451,5 +458,13 @@ export default {
   position: fixed;
   /*align-self: flex-end;*/
   right: 30px;
+}
+.t-sort{
+  display: block;
+  float: left;
+  margin-left: 30px;
+}
+.t-sort-item{
+  display: block;
 }
 </style>
