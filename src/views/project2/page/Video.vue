@@ -1,12 +1,20 @@
 <template>
   <div>
     <div class="handle-box">
-      <el-button
-        type="primary"
-        icon="el-icon-delete"
-        class="handle-del mr10"
-        @click="delAllSelection"
-      >批量删除</el-button>
+      <div>
+        <el-button
+          type="primary"
+          icon="el-icon-delete"
+          class="handle-del mr10"
+          style="float:left"
+          @click="delAllSelection"
+        >批量删除</el-button>
+        <div style="float:left">
+          <el-input style="width:70%" placeholder="用户名" class="handle-input mr10"></el-input>
+          <el-button style="width:30%" type="primary" icon="el-icon-search" >搜索</el-button>
+        </div>
+      </div>
+
       <el-button
         type="primary"
         icon="el-icon-plus"
@@ -280,7 +288,7 @@ export default {
         pageSize: 10
       },
       edit: {
-        id:-1,
+        id: -1,
         dialogVisiable: false,
         vidoeName: "",
         bigImg: "",
@@ -399,7 +407,7 @@ export default {
       });
     },
     handleItemEdit(row) {
-      this.edit.id = row.id
+      this.edit.id = row.id;
       this.edit.vidoeName = row.name;
       this.edit.bigImg = row.bigImg;
       this.edit.vidoeUrl = row.videoUrl;
@@ -420,15 +428,15 @@ export default {
       }
 
       var params = {
-        id:this.edit.id,
-        name:this.edit.vidoeName,
-        bigImg:this.edit.bigImg,
-        videoUrl:this.edit.videoUrl,
-        remark:this.edit.remark,
+        id: this.edit.id,
+        name: this.edit.vidoeName,
+        bigImg: this.edit.bigImg,
+        videoUrl: this.edit.videoUrl,
+        remark: this.edit.remark,
         teacher: _teacher
-      }
+      };
       updateData(params).then(res => {
-          this.getVideoData()
+        this.getVideoData();
       });
     }
   },
