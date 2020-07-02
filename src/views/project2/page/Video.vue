@@ -10,11 +10,44 @@
           @click="delAllSelection"
         >批量删除</el-button>
         <div style="float:left">
-          <el-input style="width:70%" placeholder="用户名" class="handle-input mr10"></el-input>
-          <el-button style="width:30%" type="primary" icon="el-icon-search" >搜索</el-button>
+          <el-input placeholder="用户名" v-model="select.name" class="handle-input mr10"></el-input>
+        </div>
+        <div style="float:left">
+          <span stype="float:right;">老师：</span>
+          <el-select
+            v-model="select.teacherId"
+            placeholder="请选择"
+            　v-loadmore="loadMoreTeacherListData"
+          >
+            <el-option
+              v-for="item in teachers.data"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            ></el-option>
+          </el-select>
+        </div>
+        <div style="float:left">
+          <span stype="float:right;">课程：</span>
+          <el-select
+            multiple
+            v-model="select.coursesIds"
+            placeholder="请选择"
+            　v-loadmore="loadMoreCourseListData"
+          >
+            <el-option
+              v-for="item in courses.data"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            ></el-option>
+          </el-select>
+        </div>
+        <div style="float:left">
+          <el-button type="primary" @click="selectVideoCriteria" 
+          icon="el-icon-search">搜索</el-button>
         </div>
       </div>
-
       <el-button
         type="primary"
         icon="el-icon-plus"
@@ -256,8 +289,10 @@ import {
   addData,
   delOne,
   delMore,
-  updateData
+  updateData,
+  searchByCriteria
 } from "@/api/video";
+import { getCourseList } from "@/api/api";
 import { timestampToTime } from "@/utils/timeUtils";
 import { getTeacherList } from "@/api/teacher";
 import { warningDialog } from "@/utils/dialog";
@@ -296,6 +331,18 @@ export default {
         videoUrl: "",
         // 视频的老师id
         selTeacherId: -1
+      },
+      courses: {
+        data: [],
+        currentPage: 1,
+        pageSize: 10
+      },
+      select: {
+        teacherId: null,
+        coursesIds: [],
+        currentPage: 1,
+        pageSize: 10,
+        name: ""
       }
     };
   },
@@ -307,8 +354,20 @@ export default {
         pageSize: this.video.pageSize
       };
       getVideoList(data).then(res => {
-        this.video.pageTotal = res.data.totalRows;
-        this.video.data = res.data.lists;
+        this.courses.data = res.data.lists;
+      });
+    },
+    getCourseList() {
+      var data = {
+        currentPage: this.courses.currentPage,
+        pageSize: this.courses.pageSize
+      };
+      getCourseList(data).then(res => {
+        if (res.data.currentPage == 1) {
+          this.courses.data = res.data.lists;
+        } else {
+          this.courses.data = this.courses.data.concat(res.data.lists);
+        }
       });
     },
     // 转换时间
@@ -320,6 +379,11 @@ export default {
       this.teachers.currentPage++;
       this.handleGetTeacherList();
     },
+    // 教师lists的下拉刷新
+    loadMoreCourseListData() {
+      this.courses.currentPage++;
+      this.getCourseList();
+    },
     // 获取教师list
     handleGetTeacherList() {
       var params = {
@@ -328,7 +392,6 @@ export default {
       };
       getTeacherList(params).then(res => {
         if (res.data.currentPage == 1) {
-          this.add.selTeacherId = res.data.lists[0].id;
           this.teachers.data = res.data.lists;
         } else {
           this.teachers.data = this.teachers.data.concat(res.data.lists);
@@ -339,6 +402,7 @@ export default {
     refreshData() {
       this.getVideoData();
       this.handleGetTeacherList();
+      this.getCourseList();
     },
     // 添加视频
     handleAddVideo() {
@@ -419,14 +483,12 @@ export default {
     },
     handleEditVideo() {
       this.edit.dialogVisiable = false;
-
       let _teacher;
       for (let i = 0; i < this.teachers.data.length; i++) {
         if (this.teachers.data[i].id == this.edit.selTeacherId) {
           _teacher = this.teachers.data[i];
         }
       }
-
       var params = {
         id: this.edit.id,
         name: this.edit.vidoeName,
@@ -438,6 +500,27 @@ export default {
       updateData(params).then(res => {
         this.getVideoData();
       });
+    },
+    selectVideoCriteria() {
+      var data = {
+        currentPage: this.select.currentPage,
+        pageSize: this.select.pageSize,
+        teacherId: this.select.teacherId,
+        coursesIds: null
+      };
+      var coursesIdstr;
+      for (let i = 0; i < this.select.coursesIds.length; i++) {
+        if (i == 0) {
+          coursesIds += this.select.coursesIds[i];
+        } else {
+          coursesIds += "," + this.select.coursesIds[i];
+        }
+      }
+      console.log(data);
+      
+      // getVideoList(data).then(res => {
+      //   this.courses.data = res.data.lists;
+      // });
     }
   },
   mounted() {

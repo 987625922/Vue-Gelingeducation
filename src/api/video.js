@@ -44,3 +44,12 @@ export function updateData(data){
         }
     )
 }
+
+export function searchByCriteria(query){
+    return request({
+        url:'/api/video/search_by_criteria',
+        method:'get',
+        params: query
+        }
+    )
+}
