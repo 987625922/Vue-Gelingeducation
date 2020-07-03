@@ -1,8 +1,25 @@
 <template>
   <div>
     <el-row>
-      <el-col :span="24">
-        <div class="grid-content bg-purple-dark" style="text-align:right">
+      <el-col :span="18">
+        <el-row>
+          <el-col :span="5">
+            <el-input
+              v-model="search.name"
+              class="input-style"
+              placeholder="搜索的教师名"
+              prefix-icon="el-icon-search"
+              clearable
+            ></el-input>
+          </el-col>
+          <el-col :span="5" style="margin-left:10px;">
+            <el-button type="primary" @click="searchTeacher" icon="el-icon-search">搜索</el-button>
+          </el-col>
+        </el-row>
+      </el-col>
+      <el-col :span="6">
+        <div style="float:right;">
+          <el-button type="primary" icon="el-icon-delete" @click="delAllSelection">批量删除</el-button>
           <el-button
             type="primary"
             icon="el-icon-plus"
@@ -21,6 +38,7 @@
       </el-col>
     </el-row>
     <el-table :data="teacherList.data" style="width: 100%;margin-top:10px">
+      <el-table-column type="selection" width="55" align="center"></el-table-column>
       <el-table-column prop="id" label="id" width="90" align="center"></el-table-column>
       <el-table-column prop="name" label="用户名" width="180" align="center"></el-table-column>
       <el-table-column label="头像(查看大图)" align="center">
@@ -104,7 +122,12 @@
 <script>
 import store from "@/store";
 import Vue from "vue";
-import { getTeacherList, deleteTeacher, addTeacher } from "@/api/teacher";
+import {
+  searchTeacher,
+  getTeacherList,
+  deleteTeacher,
+  addTeacher
+} from "@/api/teacher";
 import { timestampToTime } from "@/utils/timeUtils";
 import { warningDialog } from "@/utils/dialog";
 
@@ -123,6 +146,9 @@ export default {
         name: "",
         img: "",
         note: ""
+      },
+      search: {
+        name: ""
       }
     };
   },
@@ -172,6 +198,22 @@ export default {
       this.addDialog.name = "";
       this.addDialog.img = "";
       this.addDialog.note = "";
+    },
+    //搜索教师
+    searchTeacher() {
+      var data = {
+        name: this.search.name,
+        currentPage: this.teacherList.currentPage,
+        pageSize: this.teacherList.pageSize
+      };
+      searchTeacher(data).then(res => {
+        if (res.data.lists && res.data.totalRows > 0) {
+          this.teacherList.currentPage = 1;
+          this.searchTeacher();
+        } else {
+          this.teacherList.data = res.data.lists;
+        }
+      });
     }
   },
   created() {
@@ -183,5 +225,10 @@ export default {
 <style scoped>
 .red {
   color: #ff0000;
+}
+.input-title {
+  font-size: 15px;
+  line-height: 40px;
+  text-align: right;
 }
 </style>

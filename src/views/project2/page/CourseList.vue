@@ -247,7 +247,12 @@
     </el-dialog>
 
     <!--   添加课程  -->
-    <el-dialog title="添加课程" :visible.sync="addDialog.adddialogVisible" style="padding:100px" width="50%">
+    <el-dialog
+      title="添加课程"
+      :visible.sync="addDialog.adddialogVisible"
+      style="padding:100px"
+      width="50%"
+    >
       <el-row>
         <el-col :span="4">
           <span style="line-height:50px">课程名：</span>
@@ -273,7 +278,12 @@
             placeholder="请选择"
             v-loadmore="loadMoreTeacherListData"
           >
-            <el-option v-for="item in teachers.list" :key="item.id" :label="item.name" :value="item.id"></el-option>
+            <el-option
+              v-for="item in teachers.list"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            ></el-option>
           </el-select>
         </el-col>
       </el-row>
@@ -333,9 +343,7 @@ import {
   delMoreCourse,
   addCourse
 } from "@/api/api";
-import {
-  getTeacherList,
-} from "@/api/teacher"
+import { getTeacherList } from "@/api/teacher";
 export default {
   name: "course",
   data() {
@@ -440,7 +448,7 @@ export default {
         params.price = this.eddDialog.edPrice;
       }
       console.log(this.eddDialog.edStatusSelId);
-      
+
       if (this.eddDialog.edStatusSelId != null) {
         params.status = this.eddDialog.edStatusSelId;
       }
@@ -570,7 +578,7 @@ export default {
         bigImg: this.addDialog.addBigUrl,
         remark: this.addDialog.addRemark,
         price: this.addDialog.addPrice,
-        status:this.addDialog.status,
+        status: this.addDialog.status,
         teachers: teacherLists
       };
 

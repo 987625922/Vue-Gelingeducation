@@ -20,7 +20,7 @@ export function courseUpdate(data){
 
 export function selectCourse(data){
     return request({
-        url:'/api/course/sel_by_name_or_status_price_teacher',
+        url:'/api/course/searchCriteria',
         method:'get',
         params: data
         }

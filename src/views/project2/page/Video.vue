@@ -1,104 +1,133 @@
-<template>
-  <div>
-    <div class="handle-box">
-<<<<<<< HEAD
-      <div class="t-sort">
+﻿<template>
+  <div class="handle-box">
+    <div class="handle-line">
+      <div class="t-left">
         <el-button
+          style="width: 15%"
           type="primary"
           icon="el-icon-delete"
-          class="handle-del mr10 t-sort-item"
           @click="delAllSelection"
         >批量删除</el-button>
-        <div class="t-sort-item">
-          <span>课程名：</span>
-          <el-input style="width: 70%" placeholder="请输入内容" prefix-icon="el-icon-search" clearable></el-input>
-=======
-      <div>
+        <span style="margin-left:10px">课程名：</span>
+        <el-input
+          style="width: 18%"
+          v-model="select.name"
+          placeholder="搜索的视频名称"
+          prefix-icon="el-icon-search"
+          clearable
+        ></el-input>
+        <span style="margin-left:10px">老师：</span>
+        <el-select
+          style="width: 13%"
+          v-model="select.teacherId"
+          placeholder="搜索的老师"
+          v-loadmore="loadMoreTeacherListData"
+        >
+          <el-option
+            style="width:100%"
+            v-for="item in teachers.data"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"
+          ></el-option>
+        </el-select>
+        <span style="margin-left:10px">课程：</span>
+        <el-select
+          style="width: 13%"
+          multiple
+          v-model="select.coursesIds"
+          placeholder="搜索的课程"
+          v-loadmore="loadMoreCourseListData">
+          <el-option
+            v-for="item in courses.data"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"
+          ></el-option>
+        </el-select>
         <el-button
           type="primary"
-          icon="el-icon-delete"
-          class="handle-del mr10"
-          style="float:left"
-          @click="delAllSelection"
-        >批量删除</el-button>
-        <div style="float:left">
-          <el-input style="width:70%" placeholder="用户名" class="handle-input mr10"></el-input>
-          <el-button style="width:30%" type="primary" icon="el-icon-search" >搜索</el-button>
->>>>>>> 92a6c5c51726501c40109992d2ed820244843990
-        </div>
+          @click="selectVideoCriteria"
+          style="margin-left:10px;width: 10%"
+          icon="el-icon-search"
+        >搜索</el-button>
       </div>
-
-      <el-button
-        type="primary"
-        icon="el-icon-plus"
-        @click="add.dialogVisiable = true"
-        circle
-        class="add"
-      ></el-button>
-      <el-button
-        type="primary"
-        icon="el-icon-refresh"
-        @click="refreshData()"
-        circle
-        class="refresh"
-      ></el-button>
+      <div class="t-right">
+        <el-button
+          type="primary"
+          icon="el-icon-plus"
+          @click="add.dialogVisiable = true"
+          circle
+          class="add"
+        ></el-button>
+        <el-button
+          type="primary"
+          icon="el-icon-refresh"
+          @click="refreshData()"
+          circle
+          class="refresh"
+        ></el-button>
+      </div>
     </div>
-    <el-table :data="video.data" style="width: 100%" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center"></el-table-column>
-      <el-table-column prop="id" label="id" width="180"></el-table-column>
-      <el-table-column prop="name" label="视频名称" width="180"></el-table-column>
-      <el-table-column label="封面" align="center">
-        <template slot-scope="scope">
-          <el-image
-            class="table-td-thumb"
-            :src="scope.row.bigImg"
-            :preview-src-list="[scope.row.coverImg]"
-          ></el-image>
-        </template>
-      </el-table-column>
-      <el-table-column label="老师" align="center" width="250">
-        <template slot-scope="scope">
-          <div v-for="item in scope.row.teachers" v-bind:key="item">
-            <span v-if="scope.row.teachers.length > 1">{{item.name}}</span>
-            <span v-else>{{item.name}}</span>
-          </div>
-        </template>
-      </el-table-column>
-      <el-table-column prop="videoUrl" label="链接"></el-table-column>
-      <el-table-column prop="remark" label="备注"></el-table-column>
-      <el-table-column label="创建时间" align="center">
-        <template slot-scope="scope">
-          <div v-if="scope.row.createTime !== null">{{ toTime( scope.row.createTime) }}</div>
-          <div v-else>空</div>
-        </template>
-      </el-table-column>
-      <el-table-column label="修改时间" align="center">
-        <template slot-scope="scope">
-          <div v-if="scope.row.lastUpdateTime !== null">{{ toTime( scope.row.lastUpdateTime) }}</div>
-          <div v-else>空</div>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" align="center" fixed="right" width="220">
-        <template slot-scope="scope">
-          <el-button type="text" icon="el-icon-edit" @click="handleItemEdit(scope.row)">编辑</el-button>
-          <el-button
-            type="text"
-            icon="el-icon-delete"
-            class="red"
-            @click="handleDelete(scope.row)"
-          >删除</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-    <div class="pagination">
-      <el-pagination
-        background
-        layout="total, prev, pager, next"
-        :current-page="video.currentPage"
-        :page-size="video.pageSize"
-        :total="video.pageTotal"
-        @current-change="handlePageChange"
-      ></el-pagination>
+
+    <div class="table-content">
+      <el-table :data="video.data" @selection-change="handleSelectionChange">
+        <el-table-column type="selection" width="55" align="center"></el-table-column>
+        <el-table-column prop="id" label="id" width="180"></el-table-column>
+        <el-table-column prop="name" label="视频名称" width="180"></el-table-column>
+        <el-table-column label="封面" align="center">
+          <template slot-scope="scope">
+            <el-image
+              class="table-td-thumb"
+              :src="scope.row.bigImg"
+              :preview-src-list="[scope.row.coverImg]"
+            ></el-image>
+          </template>
+        </el-table-column>
+        <el-table-column label="老师" align="center" width="250">
+          <template slot-scope="scope">
+            <div v-for="item in scope.row.teachers" v-bind:key="item">
+              <span v-if="scope.row.teachers.length > 1">{{item.name}}</span>
+              <span v-else>{{item.name}}</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="videoUrl" label="链接"></el-table-column>
+        <el-table-column prop="remark" label="备注"></el-table-column>
+        <el-table-column label="创建时间" align="center">
+          <template slot-scope="scope">
+            <div v-if="scope.row.createTime !== null">{{ toTime( scope.row.createTime) }}</div>
+            <div v-else>空</div>
+          </template>
+        </el-table-column>
+        <el-table-column label="修改时间" align="center">
+          <template slot-scope="scope">
+            <div v-if="scope.row.lastUpdateTime !== null">{{ toTime( scope.row.lastUpdateTime) }}</div>
+            <div v-else>空</div>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" align="center" fixed="right" width="220">
+          <template slot-scope="scope">
+            <el-button type="text" icon="el-icon-edit" @click="handleItemEdit(scope.row)">编辑</el-button>
+            <el-button
+              type="text"
+              icon="el-icon-delete"
+              class="red"
+              @click="handleDelete(scope.row)"
+            >删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <div class="pagination">
+        <el-pagination
+          background
+          layout="total, prev, pager, next"
+          :current-page="video.currentPage"
+          :page-size="video.pageSize"
+          :total="video.pageTotal"
+          @current-change="handlePageChange"
+        ></el-pagination>
+      </div>
     </div>
     <!-- 添加新视频的dialog -->
     <div>
@@ -269,8 +298,10 @@ import {
   addData,
   delOne,
   delMore,
-  updateData
+  updateData,
+  searchByCriteria
 } from "@/api/video";
+import { getCourseList } from "@/api/api";
 import { timestampToTime } from "@/utils/timeUtils";
 import { getTeacherList } from "@/api/teacher";
 import { warningDialog } from "@/utils/dialog";
@@ -309,6 +340,18 @@ export default {
         videoUrl: "",
         // 视频的老师id
         selTeacherId: -1
+      },
+      courses: {
+        data: [],
+        currentPage: 1,
+        pageSize: 10
+      },
+      select: {
+        teacherId: null,
+        coursesIds: [],
+        currentPage: 1,
+        pageSize: 10,
+        name: ""
       }
     };
   },
@@ -320,8 +363,20 @@ export default {
         pageSize: this.video.pageSize
       };
       getVideoList(data).then(res => {
-        this.video.pageTotal = res.data.totalRows;
-        this.video.data = res.data.lists;
+        this.courses.data = res.data.lists;
+      });
+    },
+    getCourseList() {
+      var data = {
+        currentPage: this.courses.currentPage,
+        pageSize: this.courses.pageSize
+      };
+      getCourseList(data).then(res => {
+        if (res.data.currentPage == 1) {
+          this.courses.data = res.data.lists;
+        } else {
+          this.courses.data = this.courses.data.concat(res.data.lists);
+        }
       });
     },
     // 转换时间
@@ -333,6 +388,11 @@ export default {
       this.teachers.currentPage++;
       this.handleGetTeacherList();
     },
+    // 教师lists的下拉刷新
+    loadMoreCourseListData() {
+      this.courses.currentPage++;
+      this.getCourseList();
+    },
     // 获取教师list
     handleGetTeacherList() {
       var params = {
@@ -341,7 +401,6 @@ export default {
       };
       getTeacherList(params).then(res => {
         if (res.data.currentPage == 1) {
-          this.add.selTeacherId = res.data.lists[0].id;
           this.teachers.data = res.data.lists;
         } else {
           this.teachers.data = this.teachers.data.concat(res.data.lists);
@@ -352,6 +411,7 @@ export default {
     refreshData() {
       this.getVideoData();
       this.handleGetTeacherList();
+      this.getCourseList();
     },
     // 添加视频
     handleAddVideo() {
@@ -432,14 +492,12 @@ export default {
     },
     handleEditVideo() {
       this.edit.dialogVisiable = false;
-
       let _teacher;
       for (let i = 0; i < this.teachers.data.length; i++) {
         if (this.teachers.data[i].id == this.edit.selTeacherId) {
           _teacher = this.teachers.data[i];
         }
       }
-
       var params = {
         id: this.edit.id,
         name: this.edit.vidoeName,
@@ -451,6 +509,25 @@ export default {
       updateData(params).then(res => {
         this.getVideoData();
       });
+    },
+    selectVideoCriteria() {
+      var data = {
+        currentPage: this.select.currentPage,
+        pageSize: this.select.pageSize,
+        teacherId: this.select.teacherId,
+        coursesIds: null
+      };
+      var coursesIdstr;
+      for (let i = 0; i < this.select.coursesIds.length; i++) {
+        if (i == 0) {
+          data.coursesIds += this.select.coursesIds[i];
+        } else {
+          data.coursesIds += "," + this.select.coursesIds[i];
+        }
+      }
+      searchByCriteria(data).then(res => {
+        this.video.data = res.data.lists;
+      });
     }
   },
   mounted() {
@@ -461,24 +538,32 @@ export default {
 
 <style scoped>
 .handle-box {
-  /* margin-bottom: 20px; */
+}
+.handle-line {
+  margin-bottom: 20px;
 }
 .add {
-  position: fixed;
-  /*align-self: flex-end;*/
   right: 80px;
 }
 .refresh {
-  position: fixed;
-  /*align-self: flex-end;*/
   right: 30px;
 }
-.t-sort{
-  display: block;
-  float: left;
-  margin-left: 30px;
+.t-left {
+  display: inline-block;
+  width: 90%;
 }
-.t-sort-item{
+.t-left-item {
   display: block;
+}
+.t-right {
+  display: inline-block;
+  width: 10%;
+}
+.t-right-item {
+  display: block;
+}
+.table-content {
+  display: inline-block;
+  width: 100%;
 }
 </style>
