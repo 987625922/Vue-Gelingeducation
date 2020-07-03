@@ -1,6 +1,7 @@
 <template>
   <div>
     <div class="handle-box">
+<<<<<<< HEAD
       <div class="t-sort">
         <el-button
           type="primary"
@@ -11,6 +12,19 @@
         <div class="t-sort-item">
           <span>课程名：</span>
           <el-input style="width: 70%" placeholder="请输入内容" prefix-icon="el-icon-search" clearable></el-input>
+=======
+      <div>
+        <el-button
+          type="primary"
+          icon="el-icon-delete"
+          class="handle-del mr10"
+          style="float:left"
+          @click="delAllSelection"
+        >批量删除</el-button>
+        <div style="float:left">
+          <el-input style="width:70%" placeholder="用户名" class="handle-input mr10"></el-input>
+          <el-button style="width:30%" type="primary" icon="el-icon-search" >搜索</el-button>
+>>>>>>> 92a6c5c51726501c40109992d2ed820244843990
         </div>
       </div>
 
