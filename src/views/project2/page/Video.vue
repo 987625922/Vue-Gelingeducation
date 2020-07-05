@@ -37,7 +37,8 @@
           multiple
           v-model="select.coursesIds"
           placeholder="搜索的课程"
-          v-loadmore="loadMoreCourseListData">
+          v-loadmore="loadMoreCourseListData"
+        >
           <el-option
             v-for="item in courses.data"
             :key="item.id"
@@ -63,7 +64,7 @@
         <el-button
           type="primary"
           icon="el-icon-refresh"
-          @click="refreshData()"
+          @click="refreshData"
           circle
           class="refresh"
         ></el-button>
@@ -84,14 +85,12 @@
             ></el-image>
           </template>
         </el-table-column>
-        <el-table-column label="老师" align="center" width="250">
+        <!-- <el-table-column label="老师" align="center" width="250">
           <template slot-scope="scope">
-            <div v-for="item in scope.row.teachers" v-bind:key="item">
-              <span v-if="scope.row.teachers.length > 1">{{item.name}}</span>
-              <span v-else>{{item.name}}</span>
-            </div>
+              <span v-if="scope.row.teacher.length > 1">{{scope.row.teacher.name}}</span>
+              <span v-else>空</span>
           </template>
-        </el-table-column>
+        </el-table-column>-->
         <el-table-column prop="videoUrl" label="链接"></el-table-column>
         <el-table-column prop="remark" label="备注"></el-table-column>
         <el-table-column label="创建时间" align="center">
@@ -190,6 +189,28 @@
               </el-select>
             </el-col>
           </el-row>
+          <el-row>
+            <el-col :span="4">
+              <span style="line-height:50px">课程：</span>
+            </el-col>
+            <el-col :span="20">
+              <el-select
+                style="height:50px;line-height:50px;width:100%"
+                collapse-tags
+                multiple
+                v-model="add.coursesIds"
+                placeholder="请选择"
+                v-loadmore="loadMoreTeacherListData"
+              >
+                <el-option
+                  v-for="item in courses.data"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id"
+                ></el-option>
+              </el-select>
+            </el-col>
+          </el-row>
           <el-row class="editUserItem" style="margin-top: 50px">
             <el-col :span="5" class="editUserItemLeft">
               <span>视频备注：</span>
@@ -270,6 +291,28 @@
               </el-select>
             </el-col>
           </el-row>
+          <el-row>
+            <el-col :span="4">
+              <span style="line-height:50px">课程：</span>
+            </el-col>
+            <el-col :span="20">
+              <el-select
+                style="height:50px;line-height:50px;width:100%"
+                collapse-tags
+                v-model="add.coursesIds"
+                placeholder="请选择"
+                multiple
+                v-loadmore="loadMoreTeacherListData"
+              >
+                <el-option
+                  v-for="item in courses.data"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id"
+                ></el-option>
+              </el-select>
+            </el-col>
+          </el-row>
           <el-row class="editUserItem" style="margin-top: 50px">
             <el-col :span="5" class="editUserItemLeft">
               <span>视频备注：</span>
@@ -324,7 +367,8 @@ export default {
         remark: "",
         videoUrl: "",
         // 添加视频选择的老师id
-        selTeacherId: -1
+        selTeacherId: "",
+        coursesIds: []
       },
       teachers: {
         data: [],
@@ -363,7 +407,7 @@ export default {
         pageSize: this.video.pageSize
       };
       getVideoList(data).then(res => {
-        this.courses.data = res.data.lists;
+        this.video.data = res.data.lists;
       });
     },
     getCourseList() {
@@ -422,12 +466,21 @@ export default {
           teacherLists = this.teachers.data[i];
         }
       }
+      let courseList = [];
+      for (let i = 0; i < this.courses.data.length; i++) {
+        for (let j = 0; j < this.add.coursesIds.length; j++) {
+          if(this.courses.data[i].id == this.add.coursesIds[j]){
+              courseList.push(this.courses.data[i])
+          }
+        }
+      }
       var data = {
         name: this.add.vidoeName,
         bigImg: this.add.bigImg,
         remark: this.add.remark,
         videoUrl: this.add.videoUrl,
-        teacher: teacherLists
+        teacher: teacherLists,
+        courses: courseList
       };
       addData(data).then(res => {
         this.refreshData();
@@ -498,13 +551,22 @@ export default {
           _teacher = this.teachers.data[i];
         }
       }
+      let courseList = [];
+      for (let i = 0; i < this.courses.data.length; i++) {
+        for (let j = 0; j < this.add.coursesIds.length; j++) {
+          if(this.courses.data[i].id == this.add.coursesIds[j]){
+              courseList.push(this.courses.data[i])
+          }
+        }
+      }
       var params = {
         id: this.edit.id,
         name: this.edit.vidoeName,
         bigImg: this.edit.bigImg,
         videoUrl: this.edit.videoUrl,
         remark: this.edit.remark,
-        teacher: _teacher
+        teacher: _teacher,
+        courses: courseList
       };
       updateData(params).then(res => {
         this.getVideoData();
@@ -515,17 +577,20 @@ export default {
         currentPage: this.select.currentPage,
         pageSize: this.select.pageSize,
         teacherId: this.select.teacherId,
-        coursesIds: null
+        courseIds: null,
+        name:null
       };
-      var coursesIdstr;
       for (let i = 0; i < this.select.coursesIds.length; i++) {
         if (i == 0) {
-          data.coursesIds += this.select.coursesIds[i];
+          data.courseIds += this.select.coursesIds[i];
         } else {
-          data.coursesIds += "," + this.select.coursesIds[i];
+          data.courseIds += "," + this.select.coursesIds[i];
         }
       }
-      searchByCriteria(data).then(res => {
+      if(this.select.name){
+        data.name = encodeURIComponent(this.select.name)
+      }
+       searchByCriteria(data).then(res => {
         this.video.data = res.data.lists;
       });
     }

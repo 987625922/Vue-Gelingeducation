@@ -202,7 +202,7 @@ export default {
     //搜索教师
     searchTeacher() {
       var data = {
-        name: this.search.name,
+        name: encodeURIComponent(this.search.name),
         currentPage: this.teacherList.currentPage,
         pageSize: this.teacherList.pageSize
       };
