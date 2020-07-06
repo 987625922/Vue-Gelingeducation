@@ -447,8 +447,6 @@ export default {
       if (this.eddDialog.edPrice) {
         params.price = this.eddDialog.edPrice;
       }
-      console.log(this.eddDialog.edStatusSelId);
-
       if (this.eddDialog.edStatusSelId != null) {
         params.status = this.eddDialog.edStatusSelId;
       }
