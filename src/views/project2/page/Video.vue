@@ -1,5 +1,5 @@
 ﻿<template>
-  <div class="handle-box">
+  <div class="handle-box container">
     <div class="handle-line">
       <div class="t-left">
         <el-button

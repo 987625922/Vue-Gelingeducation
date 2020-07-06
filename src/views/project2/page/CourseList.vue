@@ -1,6 +1,6 @@
 <template xmlns:>
-  <div>
-    <el-row style="background-color:#ffffff;padding:10px;">
+  <div class="container">
+    <el-row>
       <el-col :span="18">
         <div class="inputText">
           <span>课程名：</span>
@@ -72,7 +72,7 @@
         <div class="inputText">
           <span stype="float:right;">老师：</span>
           <el-select
-            style="width: 70%"
+            style="width: 80%"
             clearable
             　　　　　　v-model="select.teacherSelId"
             　　　　　　placeholder="请选择"
@@ -610,6 +610,7 @@ export default {
   border-radius: 2px;
   background-color: #ffffff;
   padding: 0px 10px 10px 10px;
+  margin-top: 10px;
 }
 .rightview {
   display: inline-block;

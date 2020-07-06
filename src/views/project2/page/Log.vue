@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="container">
     <div class="handle-box">
       <el-button
         type="primary"
@@ -7,7 +7,8 @@
         class="handle-del mr10"
         @click="delAllSelection"
       >批量删除</el-button>
-      <el-button type="primary" icon="el-icon-refresh" @click="getData" circle class="refresh"></el-button>
+      <el-button type="primary" icon="el-icon-refresh"
+       @click="getData" circle class="refresh"></el-button>
     </div>
     <el-table :data="logData.list" style="width: 100%" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center"></el-table-column>
@@ -189,7 +190,6 @@ export default {
 }
 .refresh {
   position: fixed;
-  /*align-self: flex-end;*/
-  right: 30px;
+  right: 60px;
 }
 </style>

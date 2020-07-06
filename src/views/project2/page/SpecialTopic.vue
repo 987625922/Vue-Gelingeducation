@@ -1,24 +1,34 @@
 <template>
-  <el-table :data="subject.data" style="width: 100%">
-    <el-table-column prop="id" label="id" width="180"></el-table-column>
-    <el-table-column prop="name" label="视频名称" width="180"></el-table-column>
-    <el-table-column label="封面" align="center">
-      <template slot-scope="scope">
-        <el-image
-          class="table-td-thumb"
-          :src="scope.row.bigImg"
-          :preview-src-list="[scope.row.coverImg]"
-        ></el-image>
-      </template>
-    </el-table-column>
-    <el-table-column prop="videoUrl" label="链接"></el-table-column>
-    <el-table-column label="创建时间" align="center">
-      <template slot-scope="scope">
-        <div v-if="scope.row.createTime !== null">{{ toTime( scope.row.createTime) }}</div>
-        <div v-else>空</div>
-      </template>
-    </el-table-column>
-  </el-table>
+  <div class="container">
+    <div class="hander"></div>
+    <div class="content">
+      <el-table border :data="subject.data">
+        <el-table-column type="selection" width="55" align="center"></el-table-column>
+        <el-table-column prop="id" label="id" width="180"></el-table-column>
+        <el-table-column prop="name" label="专题名称" width="180"></el-table-column>
+        <el-table-column prop="price" label="专题售价" width="180"></el-table-column>
+        <el-table-column prop="introction" label="专题简介" width="180"></el-table-column>
+        <el-table-column label="专题封面" align="center">
+          <template slot-scope="scope">
+            <el-image
+              class="table-td-thumb"
+              :src="scope.row.bigImg"
+              :preview-src-list="[scope.row.coverImg]"
+            ></el-image>
+          </template>
+        </el-table-column>
+        <el-table-column prop="remark" label="专题备注" width="180"></el-table-column>
+        <el-table-column label="创建时间" align="center">
+          <template slot-scope="scope">
+            <div v-if="scope.row.createTime !== null">{{ toTime( scope.row.createTime) }}</div>
+            <div v-else>空</div>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+    <div class="addDialog"></div>
+    <div class="editDialog"></div>
+  </div>
 </template>
 
 <script>
@@ -59,4 +69,7 @@ export default {
 </script>
 
 <style scoped>
+.content{
+  padding: 0 0;
+}
 </style>

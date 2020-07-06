@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="container">
     <el-row>
       <el-col :span="13" style="margin-right: 20px">
         <div>
@@ -24,8 +24,6 @@
           <el-table
             :data="role.data"
             border
-            height="550px"
-            class="table"
             style="width: 100%"
             @selection-change="handleSelectionChange"
           >
