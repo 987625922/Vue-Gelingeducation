@@ -77,7 +77,7 @@
         </el-table-column>
         <el-table-column label="操作" align="center" fixed="right" width="150">
           <template slot-scope="scope">
-            <el-button type="text" icon="el-icon-edit" @click="handleItemDataEdit(scope.row)">编辑</el-button>
+            <el-button type="text" icon="el-icon-edit" @click="showEditDialog(scope.row)">编辑</el-button>
             <el-button
               type="text"
               icon="el-icon-delete"
@@ -188,6 +188,7 @@ import {
   searchCriteria
 } from "@/api/subject";
 import { getCourseList } from "@/api/api";
+import { getCourseListBySubjectId } from "@/api/courseApi";
 import { timestampToTime } from "@/utils/timeUtils";
 import { warningDialog } from "@/utils/dialog";
 
@@ -290,8 +291,27 @@ export default {
         this.getSubjectData();
       });
     },
+    showEditDialog(row) {
+      var params = {
+        subjectId: row.id
+      };
+      this.dataEdit.courseIds = [];
+      getCourseListBySubjectId(params).then(res => {
+        for (let i = 0; i < res.data.length; i++) {
+          this.dataEdit.courseIds.push(res.data[i].id);
+          console.log(this.dataEdit.courseIds);
+        }
+        this.dataEdit.id = row.id;
+        this.dataEdit.name = row.name;
+        this.dataEdit.price = row.price;
+        this.dataEdit.introduction = row.introduction;
+        this.dataEdit.remark = row.remark;
+        this.dataEdit.bingImg = row.bingImg;
+        this.dataEdit.dialogVisiable = true;
+      });
+    },
     //修改专题
-    handleDataEdit() {      
+    handleDataEdit() {
       var params = {
         id: this.dataEdit.id,
         name: this.dataEdit.name,
@@ -321,16 +341,6 @@ export default {
       delSubject(params).then(res => {
         this.getSubjectData();
       });
-    },
-    //编辑专题
-    handleItemDataEdit(row) {
-      this.dataEdit.id = row.id;
-      this.dataEdit.name = row.name;
-      this.dataEdit.price = row.price;
-      this.dataEdit.introduction = row.introduction;
-      this.dataEdit.remark = row.remark;
-      this.dataEdit.bingImg = row.bingImg;
-      this.dataEdit.dialogVisiable = true;      
     },
     //刷新
     refresh() {
