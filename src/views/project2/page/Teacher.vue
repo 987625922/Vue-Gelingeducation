@@ -138,7 +138,7 @@ export default {
       teacherList: {
         data: [],
         currentPage: 1,
-        pageSize: 10,
+        pageSize: 5,
         pageTotal: 0
       },
       addDialog: {

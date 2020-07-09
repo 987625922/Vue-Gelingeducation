@@ -350,7 +350,7 @@ export default {
     return {
       courseTable: {
         pageIndex: 1,
-        pageSize: 10,
+        pageSize: 5,
         pageTotal: 0,
         data: []
       },
@@ -472,11 +472,15 @@ export default {
         teacherId: this.select.teacherSelId,
         currentPage: this.courseTable.pageIndex,
         pageSize: this.courseTable.pageSize,
-        name: this.select.name,
+        name: null,
         startPrice: this.select.selStartPrice,
         endPrice: this.select.selEndPrice,
         status: this.select.statusSelId
       };
+      
+      if(this.select.name){
+        data.name = encodeURIComponent(this.select.name)
+      }
       selectCourse(data).then(res => {
         this.courseTable.data = res.data.lists;
         this.courseTable.pageTotal = res.data.totalRows;
@@ -591,7 +595,8 @@ export default {
     }
   },
   mounted() {
-    this.getCourseData(), this.handleGetTeacherList();
+    this.getCourseData()
+    this.handleGetTeacherList()
   }
 };
 </script>
