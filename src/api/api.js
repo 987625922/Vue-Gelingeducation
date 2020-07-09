@@ -47,7 +47,7 @@ export function getCourseList(query){
 
 export function delMoreCourse(data){
     return request({
-        url:'/api/course/batches_deletes',
+        url:'/api/course/batches_delete',
         method:'get',
         params: data
         }

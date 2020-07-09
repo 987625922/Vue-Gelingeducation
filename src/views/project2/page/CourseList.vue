@@ -176,19 +176,19 @@
       </el-row>
       <el-row>
         <el-col :span="4">
-          <span style="height:50px;line-height:50px">老师：</span>
+          <span style="line-height:50px">视频：</span>
         </el-col>
         <el-col :span="20">
           <el-select
             style="height:50px;line-height:50px;width:100%"
-            v-model="eddDialog.edteacherValue"
-            multiple
             collapse-tags
+            v-model="eddDialog.videoIds"
             placeholder="请选择"
-            v-loadmore="loadMoreTeacherListData"
+            multiple
+            v-loadmore="loadMoreVideosListData"
           >
             <el-option
-              v-for="item in teachers.list"
+              v-for="item in videos.list"
               :key="item.id"
               :label="item.name"
               :value="item.id"
@@ -267,28 +267,6 @@
       </el-row>
       <el-row>
         <el-col :span="4">
-          <span style="line-height:50px">老师：</span>
-        </el-col>
-        <el-col :span="20">
-          <el-select
-            style="height:50px;line-height:50px;width:100%"
-            multiple
-            collapse-tags
-            v-model="addDialog.addteacherValue"
-            placeholder="请选择"
-            v-loadmore="loadMoreTeacherListData"
-          >
-            <el-option
-              v-for="item in teachers.list"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id"
-            ></el-option>
-          </el-select>
-        </el-col>
-      </el-row>
-      <el-row>
-        <el-col :span="4">
           <p style="line-height:50px">封面：</p>
         </el-col>
         <el-col :span="20">
@@ -344,6 +322,7 @@ import {
   addCourse
 } from "@/api/api";
 import { getTeacherList } from "@/api/teacher";
+import { getVideoList } from "@/api/video";
 export default {
   name: "course",
   data() {
@@ -377,11 +356,15 @@ export default {
         currentPage: 1,
         pageSize: 10
       },
+      videos: {
+        list: [],
+        currentPage: 1,
+        pageSize: 10
+      },
       addDialog: {
         adddialogVisible: false,
         // 添加课程
         addName: "",
-        addteacherValue: [],
         addteacherId: "",
         addBigUrl: "",
         addPrice: "",
@@ -393,10 +376,10 @@ export default {
         edCourseId: null,
         editVisible: false,
         edName: "",
-        edteacherValue: [],
         edPrice: "",
         edRemark: "",
-        edStatusSelId: null
+        edStatusSelId: null,
+        videoIds: []
       }
     };
   },
@@ -418,26 +401,38 @@ export default {
         }
       });
     },
+    getVideoData() {
+      var params = {
+        currentPage: this.videos.currentPage,
+        pageSize: this.videos.pageSize
+      };
+      getVideoList(params).then(res => {
+        this.videos.list = res.data.lists;
+      });
+    },
+    loadMoreVideosListData() {
+      this.videos.currentPage++;
+      this.getVideoData();
+    },
     editCourse() {
       this.eddDialog.editVisible = false;
-      var teacherLists = [];
-      for (let i = 0; i < this.teachers.list.length; i++) {
-        for (let j = 0; j < this.eddDialog.edteacherValue.length; j++) {
-          if (this.teachers.list[i].id == this.eddDialog.edteacherValue[j]) {
-            teacherLists.push(this.teachers.list[i]);
-          }
-        }
-      }
-
       var params = {
         id: this.eddDialog.edCourseId,
         name: null,
         remark: null,
         price: null,
         status: null,
-        teachers: null
+        teachers: null,
+        videos: []
       };
 
+      for (let i = 0; i < this.eddDialog.videoIds.length; i++) {
+        for (let j = 0; j < this.videos.list.length; j++) {
+          if (this.eddDialog.videoIds[i] == this.videos.list[j].id) {
+            params.videos.push(this.videos.list[j]);
+          }
+        }
+      }
       if (this.eddDialog.edName) {
         params.name = this.eddDialog.edName;
       }
@@ -450,17 +445,12 @@ export default {
       if (this.eddDialog.edStatusSelId != null) {
         params.status = this.eddDialog.edStatusSelId;
       }
-      if (teacherLists.length > 0) {
-        params.teachers = teacherLists;
-      }
-
       courseUpdate(params).then(res => {
         this.getCourseData();
       });
 
       this.eddDialog.edCourseId = null;
       this.eddDialog.edName = null;
-      this.eddDialog.edteacherValue = [];
       this.eddDialog.edPrice = null;
       this.eddDialog.edRemark = null;
       this.eddDialog.edStatusSelId = null;
@@ -477,9 +467,9 @@ export default {
         endPrice: this.select.selEndPrice,
         status: this.select.statusSelId
       };
-      
-      if(this.select.name){
-        data.name = encodeURIComponent(this.select.name)
+
+      if (this.select.name) {
+        data.name = encodeURIComponent(this.select.name);
       }
       selectCourse(data).then(res => {
         this.courseTable.data = res.data.lists;
@@ -503,6 +493,17 @@ export default {
     handleItemEdit(index, row) {
       this.eddDialog.editVisible = true;
       this.eddDialog.edCourseId = this.courseTable.data[index].id;
+      this.eddDialog.edName = row.name;
+      this.eddDialog.edPrice = row.price;
+      this.eddDialog.edRemark = row.edRemark;
+      this.eddDialog.edStatusSelId = row.status;
+      this.eddDialog.videoIds = [];
+      for (let i = 0; i < row.videos.length; i++) {
+        console.log(row.videos[i].id);
+
+        this.eddDialog.videoIds.push(row.videos[i]);
+      }
+      console.log(this.eddDialog.videoIds);
     },
 
     getCourseData() {
@@ -567,21 +568,12 @@ export default {
     handleAddCourse() {
       this.addDialog.adddialogVisible = false;
 
-      let teacherLists = [];
-      for (let i = 0; i < this.teachers.list.length; i++) {
-        for (let j = 0; j < this.addDialog.addteacherValue.length; j++) {
-          if (this.teachers.list[i].id == this.addDialog.addteacherValue[j]) {
-            teacherLists.push(this.teachers.list[i]);
-          }
-        }
-      }
       var data = {
         name: this.addDialog.addName,
         bigImg: this.addDialog.addBigUrl,
         remark: this.addDialog.addRemark,
         price: this.addDialog.addPrice,
-        status: this.addDialog.status,
-        teachers: teacherLists
+        status: this.addDialog.status
       };
 
       addCourse(data).then(res => {
@@ -591,12 +583,12 @@ export default {
       this.addDialog.addName = "";
       this.addDialog.addBigUrl = "";
       this.addDialog.addPrice = "";
-      this.addDialog.addteacherValue = [];
     }
   },
   mounted() {
-    this.getCourseData()
-    this.handleGetTeacherList()
+    this.getCourseData();
+    this.handleGetTeacherList();
+    this.getVideoData();
   }
 };
 </script>
