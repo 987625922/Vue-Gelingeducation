@@ -3,7 +3,7 @@
     <div class="handle-line">
       <div class="t-left">
         <el-button
-          style="width: 15%"
+          style="width: 10%"
           type="primary"
           icon="el-icon-delete"
           @click="delAllSelection"
@@ -131,205 +131,113 @@
     <!-- 添加新视频的dialog -->
     <div>
       <el-dialog title="添加" :visible.sync="add.dialogVisiable" width="30%">
-        <el-form ref="form" label-width="70px">
-          <el-row class="editUserItem" style="margin-top: 50px">
-            <el-col :span="5" class="editUserItemLeft">
-              <span>视频名称：</span>
-            </el-col>
-            <el-col :span="19">
-              <el-input
-                style="height:50px;line-height:50px"
-                placeholder="请输入内容"
-                v-model="add.vidoeName"
-              ></el-input>
-            </el-col>
-          </el-row>
-          <el-row class="editUserItem" style="margin-top: 50px">
-            <el-col :span="5" class="editUserItemLeft">
-              <span>视频封面：</span>
-            </el-col>
-            <el-col :span="19">
-              <el-input
-                style="height:50px;line-height:50px"
-                placeholder="请输入内容"
-                v-model="add.bigImg"
-              ></el-input>
-            </el-col>
-          </el-row>
-          <el-row class="editUserItem" style="margin-top: 50px">
-            <el-col :span="5" class="editUserItemLeft">
-              <span>视频链接：</span>
-            </el-col>
-            <el-col :span="19">
-              <el-input
-                style="height:50px;line-height:50px"
-                placeholder="请输入内容"
-                v-model="add.videoUrl"
-              ></el-input>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="4">
-              <span style="line-height:50px">老师：</span>
-            </el-col>
-            <el-col :span="20">
-              <el-select
-                style="height:50px;line-height:50px;width:100%"
-                collapse-tags
-                v-model="add.selTeacherId"
-                placeholder="请选择"
-                v-loadmore="loadMoreTeacherListData"
-              >
-                <el-option
-                  v-for="item in teachers.data"
-                  :key="item.id"
-                  :label="item.name"
-                  :value="item.id"
-                ></el-option>
-              </el-select>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="4">
-              <span style="line-height:50px">课程：</span>
-            </el-col>
-            <el-col :span="20">
-              <el-select
-                style="height:50px;line-height:50px;width:100%"
-                collapse-tags
-                multiple
-                v-model="add.coursesIds"
-                placeholder="请选择"
-                v-loadmore="loadMoreTeacherListData"
-              >
-                <el-option
-                  v-for="item in courses.data"
-                  :key="item.id"
-                  :label="item.name"
-                  :value="item.id"
-                ></el-option>
-              </el-select>
-            </el-col>
-          </el-row>
-          <el-row class="editUserItem" style="margin-top: 50px">
-            <el-col :span="5" class="editUserItemLeft">
-              <span>视频备注：</span>
-            </el-col>
-            <el-col :span="19">
-              <el-input
-                style="height:50px;line-height:50px"
-                placeholder="请输入内容"
-                v-model="add.remark"
-              ></el-input>
-            </el-col>
-          </el-row>
+        <el-form ref="form" label-width="100px">
+          <el-form-item label="视频名称：">
+            <el-input placeholder="请输入内容" v-model="add.vidoeName"></el-input>
+          </el-form-item>
+          <el-form-item label="视频封面：">
+            <el-input placeholder="请输入内容" v-model="add.bigImg"></el-input>
+          </el-form-item>
+          <el-form-item label="视频链接：">
+            <el-input placeholder="请输入内容" v-model="add.videoUrl"></el-input>
+          </el-form-item>
+          <el-form-item label="老师：">
+            <el-select
+              collapse-tags
+              v-model="add.selTeacherId"
+              placeholder="请选择"
+              v-loadmore="loadMoreTeacherListData"
+            >
+              <el-option
+                v-for="item in teachers.data"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="课程：">
+            <el-select
+              collapse-tags
+              multiple
+              v-model="add.coursesIds"
+              placeholder="请选择"
+              v-loadmore="loadMoreTeacherListData"
+            >
+              <el-option
+                v-for="item in courses.data"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="视频备注：">
+            <el-input placeholder="请输入内容" v-model="add.remark"></el-input>
+          </el-form-item>
+          <el-form-item>
+            <el-button @click="add.dialogVisiable = false">取 消</el-button>
+            <el-button type="primary" @click="handleAddVideo">确 定</el-button>
+          </el-form-item>
         </el-form>
-        <span slot="footer" class="dialog-footer">
-          <el-button @click="add.dialogVisiable = false">取 消</el-button>
-          <el-button type="primary" @click="handleAddVideo">确 定</el-button>
-        </span>
       </el-dialog>
     </div>
     <!-- 编辑视频的dialog -->
     <div>
-      <el-dialog title="编辑" :visible.sync="edit.dialogVisiable" width="30%">
-        <el-form ref="form" label-width="70px">
-          <el-row class="editUserItem" style="margin-top: 50px">
-            <el-col :span="5" class="editUserItemLeft">
-              <span>视频名称：</span>
-            </el-col>
-            <el-col :span="19">
-              <el-input
-                style="height:50px;line-height:50px"
-                placeholder="请输入内容"
-                v-model="edit.vidoeName"
-              ></el-input>
-            </el-col>
-          </el-row>
-          <el-row class="editUserItem" style="margin-top: 50px">
-            <el-col :span="5" class="editUserItemLeft">
-              <span>视频封面：</span>
-            </el-col>
-            <el-col :span="19">
-              <el-input
-                style="height:50px;line-height:50px"
-                placeholder="请输入内容"
-                v-model="edit.bigImg"
-              ></el-input>
-            </el-col>
-          </el-row>
-          <el-row class="editUserItem" style="margin-top: 50px">
-            <el-col :span="5" class="editUserItemLeft">
-              <span>视频链接：</span>
-            </el-col>
-            <el-col :span="19">
-              <el-input
-                style="height:50px;line-height:50px"
-                placeholder="请输入内容"
-                v-model="edit.videoUrl"
-              ></el-input>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="4">
-              <span style="line-height:50px">老师：</span>
-            </el-col>
-            <el-col :span="20">
-              <el-select
-                style="height:50px;line-height:50px;width:100%"
-                collapse-tags
-                v-model="edit.selTeacherId"
-                placeholder="请选择"
-                v-loadmore="loadMoreTeacherListData"
-              >
-                <el-option
-                  v-for="item in teachers.data"
-                  :key="item.id"
-                  :label="item.name"
-                  :value="item.id"
-                ></el-option>
-              </el-select>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="4">
-              <span style="line-height:50px">课程：</span>
-            </el-col>
-            <el-col :span="20">
-              <el-select
-                style="height:50px;line-height:50px;width:100%"
-                collapse-tags
-                v-model="add.coursesIds"
-                placeholder="请选择"
-                multiple
-                v-loadmore="loadMoreTeacherListData"
-              >
-                <el-option
-                  v-for="item in courses.data"
-                  :key="item.id"
-                  :label="item.name"
-                  :value="item.id"
-                ></el-option>
-              </el-select>
-            </el-col>
-          </el-row>
-          <el-row class="editUserItem" style="margin-top: 50px">
-            <el-col :span="5" class="editUserItemLeft">
-              <span>视频备注：</span>
-            </el-col>
-            <el-col :span="19">
-              <el-input
-                style="height:50px;line-height:50px"
-                placeholder="请输入内容"
-                v-model="edit.remark"
-              ></el-input>
-            </el-col>
-          </el-row>
+      <el-dialog title="编辑" :visible.sync="edit.dialogVisiable" width="50%">
+        <el-form ref="form" label-width="100px">
+          <el-form-item label="视频名称：">
+            <el-input placeholder="请输入内容" v-model="edit.vidoeName"></el-input>
+          </el-form-item>
+          <el-form-item label="视频封面：">
+            <el-input placeholder="请输入内容" v-model="edit.bigImg"></el-input>
+          </el-form-item>
+          <el-form-item label="视频链接：">
+            <el-input placeholder="请输入内容" v-model="edit.videoUrl"></el-input>
+          </el-form-item>
+          <el-form-item label="老师：">
+            <el-select
+              collapse-tags
+              v-model="edit.selTeacherId"
+              placeholder="请选择"
+              v-loadmore="loadMoreTeacherListData"
+            >
+              <el-option
+                v-for="item in teachers.data"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="课程：">
+            <el-select
+              collapse-tags
+              v-model="edit.coursesIds"
+              placeholder="请选择"
+              multiple
+              v-loadmore="loadMoreTeacherListData"
+            >
+              <el-option
+                v-for="item in courses.data"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="视频备注：">
+            <el-input
+              style="height:50px;line-height:50px"
+              placeholder="请输入内容"
+              v-model="edit.remark"
+            ></el-input>
+          </el-form-item>
+          <el-form-item>
+            <el-button @click="edit.dialogVisiable = false">取 消</el-button>
+            <el-button type="primary" @click="handleEditVideo">确 定</el-button>
+          </el-form-item>
         </el-form>
-        <span slot="footer" class="dialog-footer">
-          <el-button @click="edit.dialogVisiable = false">取 消</el-button>
-          <el-button type="primary" @click="handleEditVideo">确 定</el-button>
-        </span>
       </el-dialog>
     </div>
   </div>
@@ -344,7 +252,7 @@ import {
   updateData,
   searchByCriteria
 } from "@/api/video";
-import { getCourseList } from "@/api/api";
+import { getCourseList, getCourseListByVideoId } from "@/api/courseApi";
 import { timestampToTime } from "@/utils/timeUtils";
 import { getTeacherList } from "@/api/teacher";
 import { warningDialog } from "@/utils/dialog";
@@ -356,7 +264,7 @@ export default {
       video: {
         data: [],
         currentPage: 1,
-        pageSize: 10,
+        pageSize: 5,
         pageTotal: 0,
         multipleSelection: []
       },
@@ -383,7 +291,8 @@ export default {
         remark: "",
         videoUrl: "",
         // 视频的老师id
-        selTeacherId: -1
+        selTeacherId: "",
+        coursesIds: []
       },
       courses: {
         data: [],
@@ -408,6 +317,7 @@ export default {
       };
       getVideoList(data).then(res => {
         this.video.data = res.data.lists;
+        this.video.pageTotal = res.data.totalRows;
       });
     },
     getCourseList() {
@@ -459,6 +369,7 @@ export default {
     },
     // 添加视频
     handleAddVideo() {
+      console.log(this.courses.data);
       this.add.dialogVisiable = false;
       let teacherLists;
       for (let i = 0; i < this.teachers.data.length; i++) {
@@ -469,8 +380,9 @@ export default {
       let courseList = [];
       for (let i = 0; i < this.courses.data.length; i++) {
         for (let j = 0; j < this.add.coursesIds.length; j++) {
-          if(this.courses.data[i].id == this.add.coursesIds[j]){
-              courseList.push(this.courses.data[i])
+          if (this.courses.data[i].id == this.add.coursesIds[j]) {
+            this.courses.data[i].videos = [];
+            courseList.push(this.courses.data[i]);
           }
         }
       }
@@ -485,6 +397,12 @@ export default {
       addData(data).then(res => {
         this.refreshData();
       });
+      this.add.vidoeName = "";
+      this.add.bigImg = "";
+      this.add.remark = "";
+      this.add.videoUrl = "";
+      this.add.coursesIds = [];
+      this.add.selTeacherId = "";
     },
     // 分页导航
     handlePageChange(pageIndex) {
@@ -540,8 +458,18 @@ export default {
       this.edit.remark = row.remark;
       if (row.teacher) {
         this.edit.selTeacherId = row.teacher.id;
+      } else {
+        this.edit.selTeacherId = "";
       }
-      this.edit.dialogVisiable = true;
+      var params = {
+        videoId: row.id
+      };
+      getCourseListByVideoId(params).then(res => {
+        for (let i = 0; i < res.data.length; i++) {
+          this.edit.coursesIds.push(res.data[i]);
+        }
+        this.edit.dialogVisiable = true;
+      });
     },
     handleEditVideo() {
       this.edit.dialogVisiable = false;
@@ -554,8 +482,8 @@ export default {
       let courseList = [];
       for (let i = 0; i < this.courses.data.length; i++) {
         for (let j = 0; j < this.add.coursesIds.length; j++) {
-          if(this.courses.data[i].id == this.add.coursesIds[j]){
-              courseList.push(this.courses.data[i])
+          if (this.courses.data[i].id == this.add.coursesIds[j]) {
+            courseList.push(this.courses.data[i]);
           }
         }
       }
@@ -578,7 +506,7 @@ export default {
         pageSize: this.select.pageSize,
         teacherId: this.select.teacherId,
         courseIds: null,
-        name:null
+        name: null
       };
       for (let i = 0; i < this.select.coursesIds.length; i++) {
         if (i == 0) {
@@ -587,10 +515,10 @@ export default {
           data.courseIds += "," + this.select.coursesIds[i];
         }
       }
-      if(this.select.name){
-        data.name = encodeURIComponent(this.select.name)
+      if (this.select.name) {
+        data.name = encodeURIComponent(this.select.name);
       }
-       searchByCriteria(data).then(res => {
+      searchByCriteria(data).then(res => {
         this.video.data = res.data.lists;
       });
     }
@@ -630,5 +558,8 @@ export default {
 .table-content {
   display: inline-block;
   width: 100%;
+}
+.red {
+  color: #ff0000;
 }
 </style>

@@ -98,10 +98,10 @@
       <el-table-column type="selection" width="55" align="center"></el-table-column>
       <el-table-column prop="id" label="编号" width="85" align="center"></el-table-column>
       <el-table-column prop="name" label="课程名" align="center"></el-table-column>
-      <el-table-column label="老师" align="center" width="250">
+      <el-table-column label="视频" align="center" width="250">
         <template slot-scope="scope">
-          <div v-for="item in scope.row.teachers" v-bind:key="item">
-            <span v-if="scope.row.teachers.length > 1">{{item.name}}</span>
+          <div v-for="item in scope.row.videos" v-bind:key="item">
+            <span v-if="scope.row.videos.length > 1">{{item.name}}</span>
             <span v-else>{{item.name}}</span>
           </div>
         </template>
@@ -292,6 +292,28 @@
       </el-row>
       <el-row>
         <el-col :span="4">
+          <span style="line-height:50px">视频：</span>
+        </el-col>
+        <el-col :span="20">
+          <el-select
+            style="height:50px;line-height:50px;width:100%"
+            collapse-tags
+            v-model="addDialog.videoIds"
+            placeholder="请选择"
+            multiple
+            v-loadmore="loadMoreVideosListData"
+          >
+            <el-option
+              v-for="item in videos.list"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            ></el-option>
+          </el-select>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="4">
           <p style="line-height:50px">备注：</p>
         </el-col>
         <el-col :span="20">
@@ -320,7 +342,7 @@ import {
   getCourseList,
   delMoreCourse,
   addCourse
-} from "@/api/api";
+} from "@/api/courseApi";
 import { getTeacherList } from "@/api/teacher";
 import { getVideoList } from "@/api/video";
 export default {
@@ -369,7 +391,8 @@ export default {
         addBigUrl: "",
         addPrice: "",
         addRemark: "",
-        selectItemIds: []
+        selectItemIds: [],
+        videoIds: []
       },
       //编辑
       eddDialog: {
@@ -407,7 +430,11 @@ export default {
         pageSize: this.videos.pageSize
       };
       getVideoList(params).then(res => {
+        if (res.data.currentPage == 1) {
         this.videos.list = res.data.lists;
+        }else{
+        this.videos.list = this.videos.list.concat(res.data.lists);
+        }
       });
     },
     loadMoreVideosListData() {
@@ -467,7 +494,13 @@ export default {
         endPrice: this.select.selEndPrice,
         status: this.select.statusSelId
       };
-
+      if (this.select.selEndPrice < this.select.selStartPrice) {
+         this.$message({
+          message: '开始价格不能大于结束价格',
+          type: 'warning'
+        });
+        return;
+      }
       if (this.select.name) {
         data.name = encodeURIComponent(this.select.name);
       }
@@ -573,8 +606,17 @@ export default {
         bigImg: this.addDialog.addBigUrl,
         remark: this.addDialog.addRemark,
         price: this.addDialog.addPrice,
-        status: this.addDialog.status
+        status: this.addDialog.status,
+        videos: []
       };
+
+      for (let i = 0; i < this.addDialog.videoIds.length; i++) {
+        for (let j = 0; j < this.videos.list.length; j++) {
+          if (this.addDialog.videoIds[i] == this.videos.list[j].id) {
+            data.videos.push(this.videos.list[j]);
+          }
+        }
+      }
 
       addCourse(data).then(res => {
         this.getCourseData();
@@ -583,6 +625,7 @@ export default {
       this.addDialog.addName = "";
       this.addDialog.addBigUrl = "";
       this.addDialog.addPrice = "";
+      this.addDialog.videoIds = [];
     }
   },
   mounted() {
