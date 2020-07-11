@@ -37,7 +37,7 @@
         </div>
       </el-col>
     </el-row>
-    <el-table :data="teacherList.data" style="width: 100%;margin-top:10px">
+    <el-table :data="teacherList.data"  @selection-change="handleSelectionChange" style="width: 100%;margin-top:10px">
       <el-table-column type="selection" width="55" align="center"></el-table-column>
       <el-table-column prop="id" label="id" width="90" align="center"></el-table-column>
       <el-table-column prop="name" label="用户名" width="180" align="center"></el-table-column>
@@ -60,7 +60,7 @@
       <el-table-column prop="remark" width="180" label="备注"></el-table-column>
       <el-table-column label="操作" width="180" align="center" fixed="right">
         <template slot-scope="scope">
-          <el-button type="text" icon="el-icon-edit" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+          <el-button type="text" icon="el-icon-edit" @click="handleEdit(scope.row)">编辑</el-button>
           <el-button
             type="text"
             icon="el-icon-delete"
@@ -80,42 +80,44 @@
         @current-change="handlePageChange"
       ></el-pagination>
     </div>
-    <el-dialog title="提示" :visible.sync="addDialog.visible" width="30%">
-      <div>
-        <el-row>
-          <el-col :span="3">
-            <span>教师姓名：</span>
-          </el-col>
-          <el-col :span="21">
+    <div>
+      <el-dialog title="提示" :visible.sync="addDialog.visible" width="50%">
+        <el-form ref="form" label-width="100px">
+          <el-form-item label="教师姓名：">
             <el-input v-model="addDialog.name" placeholder="请输入内容"></el-input>
-          </el-col>
-        </el-row>
-      </div>
-      <div>
-        <el-row>
-          <el-col :span="3">
-            <span>教师头像：</span>
-          </el-col>
-          <el-col :span="21">
+          </el-form-item>
+          <el-form-item label="教师头像：">
             <el-input v-model="addDialog.img" placeholder="请输入内容"></el-input>
-          </el-col>
-        </el-row>
-      </div>
-      <div>
-        <el-row>
-          <el-col :span="3">
-            <span>备注：</span>
-          </el-col>
-          <el-col :span="21">
+          </el-form-item>
+          <el-form-item label="备注：">
             <el-input v-model="addDialog.note" placeholder="请输入内容"></el-input>
-          </el-col>
-        </el-row>
-      </div>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="addDialog.visible = false">取 消</el-button>
-        <el-button type="primary" @click="handleAddTeacher()">确 定</el-button>
-      </span>
-    </el-dialog>
+          </el-form-item>
+          <el-form-item>
+            <el-button @click="addDialog.visible = false">取 消</el-button>
+            <el-button type="primary" @click="handleAddTeacher()">确 定</el-button>
+          </el-form-item>
+        </el-form>
+      </el-dialog>
+    </div>
+    <div>
+      <el-dialog title="提示" :visible.sync="editDialog.visible" width="50%">
+        <el-form ref="form" label-width="100px">
+          <el-form-item label="教师姓名：">
+            <el-input v-model="editDialog.name" placeholder="请输入内容"></el-input>
+          </el-form-item>
+          <el-form-item label="教师头像：">
+            <el-input v-model="editDialog.img" placeholder="请输入内容"></el-input>
+          </el-form-item>
+          <el-form-item label="备注：">
+            <el-input v-model="editDialog.note" placeholder="请输入内容"></el-input>
+          </el-form-item>
+          <el-form-item>
+            <el-button @click="editDialog.visible = false">取 消</el-button>
+            <el-button type="primary" @click="handleEditTeacher">确 定</el-button>
+          </el-form-item>
+        </el-form>
+      </el-dialog>
+    </div>
   </div>
 </template>
 
@@ -126,7 +128,9 @@ import {
   searchTeacher,
   getTeacherList,
   deleteTeacher,
-  addTeacher
+  addTeacher,
+  updateTeacher,
+  delMore
 } from "@/api/teacher";
 import { timestampToTime } from "@/utils/timeUtils";
 import { warningDialog } from "@/utils/dialog";
@@ -139,9 +143,17 @@ export default {
         data: [],
         currentPage: 1,
         pageSize: 5,
-        pageTotal: 0
+        pageTotal: 0,
+        multipleSelection:""
       },
       addDialog: {
+        visible: false,
+        name: "",
+        img: "",
+        note: ""
+      },
+      editDialog: {
+        id:"",
         visible: false,
         name: "",
         img: "",
@@ -199,6 +211,53 @@ export default {
       this.addDialog.img = "";
       this.addDialog.note = "";
     },
+    //显示编辑dialog
+    handleEdit(row) {
+      this.editDialog.id = row.id;
+      this.editDialog.name = row.name;
+      this.editDialog.img = row.img;
+      this.editDialog.note = row.note;
+      this.editDialog.visible = true;
+    },
+    //编辑
+    handleEditTeacher() {
+      var params = {
+        id:this.editDialog.id,
+        name: this.editDialog.name,
+        img: this.editDialog.img,
+        note: this.editDialog.note
+      };
+      updateTeacher(params).then(res => {
+        this.getListData()
+        this.editDialog.visible = false
+      });
+    },
+    //删除选择
+    delAllSelection(){
+         warningDialog("确定要删除吗？").then(() => {
+        var select = "";
+        for (let i = 0; i < this.teacherList.multipleSelection.length; i++) {
+          if (i == 0) {
+            select += this.teacherList.multipleSelection[i].id;
+          } else {
+            select += "," + this.teacherList.multipleSelection[i].id;
+          }
+        }
+        this.HandledelMore(select);
+      });
+    },
+    HandledelMore(select) {
+      var params = {
+        ids: select
+      };
+      delMore(params).then(res => {
+          this.getListData()
+      });
+    },
+    // 多选操作
+    handleSelectionChange(sels) {
+      this.teacherList.multipleSelection = sels;
+    },
     //搜索教师
     searchTeacher() {
       var data = {
@@ -207,12 +266,7 @@ export default {
         pageSize: this.teacherList.pageSize
       };
       searchTeacher(data).then(res => {
-        if (res.data.lists && res.data.totalRows > 0) {
-          this.teacherList.currentPage = 1;
-          this.searchTeacher();
-        } else {
-          this.teacherList.data = res.data.lists;
-        }
+        this.teacherList.data = res.data.lists;
       });
     }
   },

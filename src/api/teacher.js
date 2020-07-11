@@ -36,3 +36,21 @@ export function searchTeacher(query) {
     }
     )
 }
+
+export function updateTeacher(data) {
+    return request({
+        url: '/api/teacher/update',
+        method: 'post',
+        data
+    }
+    )
+}
+
+export function delMore(query){
+    return request({
+        url: '/api/teacher/batches_delete',
+        method: 'get',
+        params: query
+    }
+    )
+}

@@ -320,6 +320,7 @@ export default {
         this.video.pageTotal = res.data.totalRows;
       });
     },
+    //获取课程列表
     getCourseList() {
       var data = {
         currentPage: this.courses.currentPage,
@@ -450,6 +451,7 @@ export default {
         this.getVideoData();
       });
     },
+    //点击item的编辑
     handleItemEdit(row) {
       this.edit.id = row.id;
       this.edit.vidoeName = row.name;
@@ -464,6 +466,7 @@ export default {
       var params = {
         videoId: row.id
       };
+      this.edit.coursesIds = []
       getCourseListByVideoId(params).then(res => {
         for (let i = 0; i < res.data.length; i++) {
           this.edit.coursesIds.push(res.data[i]);
@@ -471,6 +474,7 @@ export default {
         this.edit.dialogVisiable = true;
       });
     },
+    //保存编辑的video
     handleEditVideo() {
       this.edit.dialogVisiable = false;
       let _teacher;
@@ -481,12 +485,13 @@ export default {
       }
       let courseList = [];
       for (let i = 0; i < this.courses.data.length; i++) {
-        for (let j = 0; j < this.add.coursesIds.length; j++) {
-          if (this.courses.data[i].id == this.add.coursesIds[j]) {
+        for (let j = 0; j < this.edit.coursesIds.length; j++) {
+          if (this.courses.data[i].id == this.edit.coursesIds[j]) {
             courseList.push(this.courses.data[i]);
           }
         }
       }
+      
       var params = {
         id: this.edit.id,
         name: this.edit.vidoeName,
