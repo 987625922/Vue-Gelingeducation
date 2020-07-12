@@ -56,7 +56,12 @@
           <div v-else>空</div>
         </template>
       </el-table-column>
-      <el-table-column prop="modifyTime" label="修改时间" width="180"></el-table-column>
+      <el-table-column prop="modifyTime" label="修改时间" width="180">
+         <template slot-scope="scope">
+          <div v-if="scope.row.modifyTime !== null">{{ toTime(scope.row.modifyTime) }}</div>
+          <div v-else>空</div>
+        </template>
+      </el-table-column>
       <el-table-column prop="remark" width="180" label="备注"></el-table-column>
       <el-table-column label="操作" width="180" align="center" fixed="right">
         <template slot-scope="scope">
@@ -215,8 +220,8 @@ export default {
     handleEdit(row) {
       this.editDialog.id = row.id;
       this.editDialog.name = row.name;
-      this.editDialog.img = row.img;
-      this.editDialog.note = row.note;
+      this.editDialog.img = row.bigImg;
+      this.editDialog.note = row.remark;
       this.editDialog.visible = true;
     },
     //编辑
@@ -224,8 +229,8 @@ export default {
       var params = {
         id:this.editDialog.id,
         name: this.editDialog.name,
-        img: this.editDialog.img,
-        note: this.editDialog.note
+        bigImg: this.editDialog.img,
+        remark: this.editDialog.note
       };
       updateTeacher(params).then(res => {
         this.getListData()

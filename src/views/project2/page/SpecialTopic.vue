@@ -187,8 +187,7 @@ import {
   delSubject,
   searchCriteria
 } from "@/api/subject";
-import { getCourseList } from "@/api/api";
-import { getCourseListBySubjectId } from "@/api/courseApi";
+import { getCourseListBySubjectId,getCourseList } from "@/api/courseApi";
 import { timestampToTime } from "@/utils/timeUtils";
 import { warningDialog } from "@/utils/dialog";
 
