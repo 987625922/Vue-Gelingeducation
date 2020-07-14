@@ -47,7 +47,7 @@ export function selByName(query){
 
 export function editUser(data){
     return request({
-        url:'/api/user/edit_info',
+        url:'/api/user/update',
         method:'post',
         data
         }

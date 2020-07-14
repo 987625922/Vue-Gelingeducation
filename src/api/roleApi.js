@@ -19,7 +19,7 @@ export function getRoleList(){
 
 export function selByName(query){
     return request({
-        url:'/api/role/sel_by_name',
+        url:'/api/role/find_by_name',
         method:'get',
         params: query
         }
@@ -28,7 +28,7 @@ export function selByName(query){
 
 export function getRoleByIdForPermission(query){
     return request({
-        url:'/api/role/get_role_by_id_for_permission',
+        url:'/api/role/find_permission_by_role_id',
         method:'get',
         params: query
         }
@@ -37,7 +37,7 @@ export function getRoleByIdForPermission(query){
 
 export function delRole(query){
     return request({
-        url:'/api/role/del_role',
+        url:'/api/role/delete',
         method:'get',
         params: query
         }
@@ -55,7 +55,7 @@ export function batchesDeletesRole(query){
 
 export function getRoleByUserId(query){
     return request({
-        url:'/api/role/get_role_by_user_id',
+        url:'/api/role/find_by_user_id',
         method:'get',
         params: query
         }

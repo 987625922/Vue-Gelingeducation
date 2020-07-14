@@ -87,7 +87,7 @@
           </div>
         </div>
         <div class="footer">
-          <el-button type="primary" class="saveRole" @click="addRoleData()">保存</el-button>
+          <el-button type="primary" class="saveRole" @click="addOrUpdate()">保存</el-button>
         </div>
       </el-col>
     </el-row>
@@ -148,9 +148,9 @@ export default {
       var params = {
         name: this.select.name
       };
-      selByName().then(res => {
-        this.role.data = res.data.data;
+      selByName(params).then(res => {
         this.select.name = "";
+        this.role.data = res.data;
       });
     },
     getPermissionData() {
@@ -192,13 +192,13 @@ export default {
     },
     handleUpdateRole() {
       var data = {
-        id:this.edit.id,
+        id: this.edit.id,
         name: null,
         remark: null,
         permissions: null
       };
       if (this.addRole.name) {
-        data.name = name;
+        data.name = this.addRole.name;
       }
       if (this.addRole.note) {
         data.remark = this.addRole.note;
@@ -211,25 +211,29 @@ export default {
         this.clearEditData();
       });
     },
-    addRoleData() {
-      var data = {
-        name: null,
-        remark: null,
-        permissions: null
-      };
-      if (this.addRole.name) {
-        data.name = name;
+    addOrUpdate() {
+      if (this.edit.editBoxTitle == "编辑角色") {
+        this.handleUpdateRole();
+      } else {
+        var data = {
+          name: null,
+          remark: null,
+          permissions: null
+        };
+        if (this.addRole.name) {
+          data.name = name;
+        }
+        if (this.addRole.note) {
+          data.remark = this.addRole.note;
+        }
+        if (this.permission.selected) {
+          data.permissions = this.permission.selected;
+        }
+        addRole(data).then(res => {
+          this.getData();
+          this.clearEditData();
+        });
       }
-      if (this.addRole.note) {
-        data.remark = this.addRole.note;
-      }
-      if (this.permission.selected) {
-        data.permissions = this.permission.selected;
-      }
-      addRole(data).then(res => {
-        this.getData();
-        this.clearEditData();
-      });
     },
     clearEditData() {
       this.addRole.name = null;

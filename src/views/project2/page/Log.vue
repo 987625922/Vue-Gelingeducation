@@ -85,7 +85,7 @@ export default {
       logData: {
         list: [],
         currentPage: 1,
-        pageSize: 10,
+        pageSize: 5,
         pageTotal: 0,
         multipleSelection: 0 //多选
       },

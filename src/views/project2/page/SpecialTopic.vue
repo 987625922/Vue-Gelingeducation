@@ -52,13 +52,12 @@
         ></el-button>
       </div>
     </div>
-    <div class="content">
-      <el-table :data="subject.data" @selection-change="handleSelectionChange">
+      <el-table :data="subject.data" @selection-change="handleSelectionChange" style="width: 100%;margin-top:10px">
         <el-table-column type="selection" width="55" align="center"></el-table-column>
-        <el-table-column prop="id" align="center" label="id" width="50"></el-table-column>
-        <el-table-column prop="name" label="专题名称" align="center" width="150"></el-table-column>
-        <el-table-column prop="price" label="专题售价" align="center" width="100"></el-table-column>
-        <el-table-column prop="introduction" label="专题简介" align="center" width="180"></el-table-column>
+        <el-table-column prop="id" align="center" label="id" width="150"></el-table-column>
+        <el-table-column prop="name" label="专题名称" align="center" width="180"></el-table-column>
+        <el-table-column prop="price" label="专题售价" align="center" width="180"></el-table-column>
+        <el-table-column prop="introduction" label="专题简介" align="center" width="380"></el-table-column>
         <el-table-column label="专题封面" align="center" width="180">
           <template slot-scope="scope">
             <el-image
@@ -68,14 +67,14 @@
             ></el-image>
           </template>
         </el-table-column>
-        <el-table-column prop="remark" label="专题备注" align="center" width="180"></el-table-column>
+        <el-table-column prop="remark" label="专题备注" align="center" width="580"></el-table-column>
         <el-table-column label="创建时间" align="center" width="180">
           <template slot-scope="scope">
             <div v-if="scope.row.createTime !== null">{{ toTime( scope.row.createTime) }}</div>
             <div v-else>空</div>
           </template>
         </el-table-column>
-        <el-table-column label="操作" align="center" fixed="right" width="150">
+        <el-table-column label="操作" align="center" fixed="right" width="180">
           <template slot-scope="scope">
             <el-button type="text" icon="el-icon-edit" @click="showEditDialog(scope.row)">编辑</el-button>
             <el-button
@@ -97,7 +96,6 @@
           @current-change="handlePageCurrpageChange"
         ></el-pagination>
       </div>
-    </div>
     <!-- ================================  -->
     <div class="addDialog">
       <el-dialog title="添加专题" :visible.sync="dataAdd.dialogVisiable" width="50%">

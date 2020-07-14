@@ -7,26 +7,18 @@
       </h2>
     </div>
     <el-form ref="loginForm" :model="form" :rules="rules" label-width="60px" class="login-box">
-      <h3 class="login-title">欢迎登录</h3>
-      <el-row>
-        <el-col :span="5" style="color: #ffffff;height: 40px;line-height: 40px;">账号：</el-col>
-        <el-col :span="19">
-          <el-input type="text" placeholder="请输入账号" v-model="form.username" />
-        </el-col>
-      </el-row>
-      <el-row style="margin-top: 20px;">
-        <el-col :span="5" style="color: #ffffff;height: 40px;line-height: 40px;">密码：</el-col>
-        <el-col :span="19">
-          <el-input type="password" placeholder="请输入密码" v-model="form.password" />
-        </el-col>
-      </el-row>
-      <el-row style="height: 20px;margin-top: 20px">
-        <!-- <el-radio v-model="radio" label="1" style="color: #ffffff;">记住我</el-radio> -->
-        <el-col :span="5" style="color: #ffffff;height: 40px;line-height: 40px;"></el-col>
-        <el-col :span="19">
-          <el-button class="register-btn" type="primary" v-on:click="handleLogin()">登录</el-button>
-        </el-col>
-      </el-row>
+      <el-form-item>
+        <h3 class="login-title">欢迎登录</h3>
+      </el-form-item>
+      <el-form-item label="账号：">
+        <el-input type="text" placeholder="请输入账号" v-model="form.username" />
+      </el-form-item>
+      <el-form-item label="密码：">
+        <el-input type="password" placeholder="请输入密码" v-model="form.password" />
+      </el-form-item>
+      <el-form-item>
+        <el-button class="register-btn" type="primary" v-on:click="handleLogin()">登录</el-button>
+      </el-form-item>
     </el-form>
   </div>
 </template>
@@ -74,8 +66,7 @@ export default {
 
 <style scoped>
 .login-box {
-  width: 300px;
-  height: 220px;
+  width: 20%;
   margin: 150px auto;
   padding: 35px 55px 35px 35px;
   border-radius: 5px;
@@ -102,6 +93,7 @@ export default {
   color: #fff;
   font-size: 36px;
   line-height: 40px;
+  margin-top: 8%;
   display: flex;
   justify-content: center;
 }
