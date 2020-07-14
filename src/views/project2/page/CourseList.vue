@@ -49,7 +49,7 @@
         <el-button
           type="primary"
           icon="el-icon-refresh"
-          @click="getCourseData"
+          @click="refresh"
           circle
           class="rightview"
         ></el-button>
@@ -431,9 +431,9 @@ export default {
       };
       getVideoList(params).then(res => {
         if (res.data.currentPage == 1) {
-        this.videos.list = res.data.lists;
-        }else{
-        this.videos.list = this.videos.list.concat(res.data.lists);
+          this.videos.list = res.data.lists;
+        } else {
+          this.videos.list = this.videos.list.concat(res.data.lists);
         }
       });
     },
@@ -460,6 +460,8 @@ export default {
           }
         }
       }
+      console.log(params.videos);
+      
       if (this.eddDialog.edName) {
         params.name = this.eddDialog.edName;
       }
@@ -482,7 +484,6 @@ export default {
       this.eddDialog.edRemark = null;
       this.eddDialog.edStatusSelId = null;
     },
-
     selectCourseList() {
       this.select.isSelect = true;
       var data = {
@@ -495,9 +496,9 @@ export default {
         status: this.select.statusSelId
       };
       if (this.select.selEndPrice < this.select.selStartPrice) {
-         this.$message({
-          message: '开始价格不能大于结束价格',
-          type: 'warning'
+        this.$message({
+          message: "开始价格不能大于结束价格",
+          type: "warning"
         });
         return;
       }
@@ -523,6 +524,7 @@ export default {
         this.getCourseData();
       });
     },
+    // 点击item编辑
     handleItemEdit(index, row) {
       this.eddDialog.editVisible = true;
       this.eddDialog.edCourseId = this.courseTable.data[index].id;
@@ -532,13 +534,9 @@ export default {
       this.eddDialog.edStatusSelId = row.status;
       this.eddDialog.videoIds = [];
       for (let i = 0; i < row.videos.length; i++) {
-        console.log(row.videos[i].id);
-
         this.eddDialog.videoIds.push(row.videos[i]);
       }
-      console.log(this.eddDialog.videoIds);
     },
-
     getCourseData() {
       this.select.isSelect = false;
       var params = {
@@ -626,12 +624,15 @@ export default {
       this.addDialog.addBigUrl = "";
       this.addDialog.addPrice = "";
       this.addDialog.videoIds = [];
+    },
+    refresh() {
+      this.getCourseData();
+      this.handleGetTeacherList();
+      this.getVideoData();
     }
   },
   mounted() {
-    this.getCourseData();
-    this.handleGetTeacherList();
-    this.getVideoData();
+    this.refresh();
   }
 };
 </script>

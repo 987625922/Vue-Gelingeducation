@@ -53,7 +53,7 @@
       </div>
     </div>
     <div class="content">
-      <el-table border :data="subject.data" @selection-change="handleSelectionChange">
+      <el-table :data="subject.data" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center"></el-table-column>
         <el-table-column prop="id" align="center" label="id" width="50"></el-table-column>
         <el-table-column prop="name" label="专题名称" align="center" width="150"></el-table-column>
