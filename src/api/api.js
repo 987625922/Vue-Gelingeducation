@@ -3,8 +3,8 @@ import request from "@/utils/request";
 export function login(data){
     return request({
         url:'/web/login',
-        method:'post',
-        data
+        method:'get',
+        params:data
         }
     )
 }

@@ -204,6 +204,9 @@ export default {
         data.remark = this.addRole.note;
       }
       if (this.permission.selected) {
+        for (let i = 0; i < permission.data.length; i++) {
+          // for(let j = 0;j < )
+        }
         data.permissions = this.permission.selected;
       }
       updateRole(data).then(res => {

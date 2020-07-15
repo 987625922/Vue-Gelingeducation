@@ -17,11 +17,12 @@
         <el-input type="password" placeholder="请输入密码" v-model="form.password" />
       </el-form-item>
       <el-form-item style="color:red;" label="验证码：">
-        <el-input style="width:45%" type="password" placeholder="请输入验证码" v-model="form.code" />
+        <el-input type="text" style="width:45%" placeholder="请输入验证码" v-model="form.code" />
         <img
-          style="width:45%;margin-left:10%;vertical-align: middle;"
+          style="width:45%;margin-left:10%;vertical-align: middle;height:50px;"
           :src="form.url"
           :fit="contain"
+          v-on:click="getCode()"
         />
       </el-form-item>
       <el-form-item>
@@ -45,7 +46,8 @@ export default {
         password: "",
         againPassword: "",
         url: "",
-        code: ""
+        code: "",
+        key: ""
       },
       // 表单验证，需要在 el-form-item 元素中增加 prop 属性
       rules: {
@@ -61,7 +63,8 @@ export default {
       var params = {
         account: this.form.username,
         password: this.form.password,
-        code: this.form.code
+        verifyCode: this.form.code,
+        key: this.form.key
       };
       login(params).then(res => {
         this.$message.success("登录成功");
@@ -73,28 +76,10 @@ export default {
     },
     //获取验证码
     getCode() {
-      // var params = {}
-      // getCaptcha(params).then(res =>{
-      //   this.form.url = 'data:image/png;base64,' + btoa(new Uint8Array(res.data).reduce((data, byte) => data + String.fromCharCode(byte), ''));
-      //   console.log(this.form.url);
-      // })
-      var _this = this;
-      var url = "http://localhost:8081/web/captcha";
-      this.$axios
-        .get(url, { responseType: "arraybuffer" })
-        .then(function(data) {
-          _this.form.url =
-            "data:image/png;base64," +
-            btoa(
-              new Uint8Array(data.data).reduce(
-                (data, byte) => data + String.fromCharCode(byte),
-                ""
-              )
-            );
-        })
-        .catch(function(err) {
-          console.log(err);
-        });
+      getCaptcha().then(res => {
+        this.form.url = res.data.imageBase64;
+        this.form.key = res.data.key;
+      });
     }
   },
   mounted() {
