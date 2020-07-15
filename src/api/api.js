@@ -16,3 +16,11 @@ export function getIndexData(query){
         }
     )
 }
+
+export function getCaptcha(query){
+    return request({
+        url:'/web/captcha',
+        method:'get'
+        }
+    )
+}
