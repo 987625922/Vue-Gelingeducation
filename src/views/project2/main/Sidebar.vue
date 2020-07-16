@@ -13,7 +13,7 @@
         <template v-if="item.subs">
           <el-submenu :index="item.index" :key="item.index">
             <template slot="title">
-              <i :class="item.icon"></i>
+              <i :class="item.icon" class="grid-con-icon"></i>
               <span slot="title">{{item.title }}</span>
             </template>
             <template v-for="subItem in item.subs">
@@ -41,7 +41,7 @@
         </template>
         <template v-else>
           <el-menu-item :index="item.index" :key="item.index">
-            <i :class="item.icon"></i>
+            <i :class="item.icon" class="grid-con-icon"></i>
             <span slot="title">{{ item.title }}</span>
           </el-menu-item>
         </template>
@@ -97,7 +97,7 @@
                 title: '身份管理'
               }]
           }, {
-            icon: 'icon web wiyonghuguanli',
+            icon: 'icon web wixitongrizhi',
             index: '3',
             title: '  系统管理',
             subs: [
@@ -151,4 +151,10 @@
   .sidebar > ul {
     height: 100%;
   }
+  .grid-con-icon {
+  font-size: 25px;
+  text-align: center;
+  line-height: 25px;
+  color: #fff;
+}
 </style>

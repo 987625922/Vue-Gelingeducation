@@ -10,15 +10,13 @@
               <div>{{role}}</div>
             </div>
           </div>
-          <div class="user-info-list">
-            账号：
-            <span>{{account}}</span>
-          </div>
-          <div class="user-info-list">
-            上次登录时间：
-            <span v-if="lastLoginTime">{{ toTime(lastLoginTime) }}</span>
-            <span v-else>空</span>
-          </div>
+          <el-form label-width="200px" label-position="left">
+            <el-form-item style="height:10px" label="账号：">{{account}}</el-form-item>
+            <el-form-item style="height:10px" label="上次登录时间：">
+              <span v-if="lastLoginTime">{{ toTime(lastLoginTime) }}</span>
+              <span v-else>空</span>
+            </el-form-item>
+          </el-form>
         </el-card>
       </el-col>
       <el-col :span="16">
@@ -61,10 +59,10 @@
           <el-col :span="8">
             <el-card shadow="hover" :body-style="{padding: '0px'}">
               <div class="grid-content grid-con-1">
-                <i class="el-icon-lx-people grid-con-icon"></i>
+                <i class="icon web wiUI_icon_zhuantitu grid-con-icon"></i>
                 <div class="grid-cont-right">
-                  <div class="grid-num">1234</div>
-                  <div>用户访问量</div>
+                  <div class="grid-num">{{subjectNum}}</div>
+                  <div>专题数量</div>
                 </div>
               </div>
             </el-card>
@@ -72,10 +70,10 @@
           <el-col :span="8">
             <el-card shadow="hover" :body-style="{padding: '0px'}">
               <div class="grid-content grid-con-2">
-                <i class="el-icon-lx-notice grid-con-icon"></i>
+                <i class="icon web wikecheng- grid-con-icon"></i>
                 <div class="grid-cont-right">
-                  <div class="grid-num">321</div>
-                  <div>系统消息</div>
+                  <div class="grid-num">{{courseNum}}</div>
+                  <div>课程数量</div>
                 </div>
               </div>
             </el-card>
@@ -83,9 +81,9 @@
           <el-col :span="8">
             <el-card shadow="hover" :body-style="{padding: '0px'}">
               <div class="grid-content grid-con-3">
-                <i class="el-icon-lx-goods grid-con-icon"></i>
+                <i class="icon web wiai-video grid-con-icon"></i>
                 <div class="grid-cont-right">
-                  <div class="grid-num">5000</div>
+                  <div class="grid-num">{{videosNum}}</div>
                   <div>视频数量</div>
                 </div>
               </div>
@@ -112,7 +110,10 @@ export default {
       role: "",
       allLoginMun: "",
       todayLoginMun: "",
-      todayLoginIpMun: ""
+      todayLoginIpMun: "",
+      subjectNum: 0,
+      courseNum: 0,
+      videosNum: 0
     };
   },
   mounted() {
@@ -124,14 +125,17 @@ export default {
       getInfo().then(res => {
         store.commit("setUserName", res.data.userName);
         this.account = res.data.account;
+        this.lastLoginTime = res.data.loginLog.lastLoginTime;
       });
     },
     getIndex() {
       getIndexData().then(res => {
-        this.lastLoginTime = res.data.lastLoginTime;
-        this.allLoginMun = res.data.allLoginMun;
-        this.todayLoginMun = res.data.todayLoginMun;
-        this.todayLoginIpMun = res.data.todayLoginIpMun;
+        this.allLoginMun = res.data.allLoginNum;
+        this.todayLoginMun = res.data.todayLoginNum;
+        this.todayLoginIpMun = res.data.todayLoginIpNum;
+        this.subjectNum = res.data.subjectNum;
+        this.courseNum = res.data.courseNum;
+        this.videosNum = res.data.videosNum;
       });
     },
     toTime(timeStr) {

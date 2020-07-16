@@ -36,7 +36,6 @@
 import store from "@/store";
 import { getToken, setToken, removeToken } from "@/utils/auth";
 import { login, getCaptcha } from "@/api/api";
-
 export default {
   name: "Login",
   data() {
@@ -108,13 +107,11 @@ export default {
   color: #fff;
   font-size: 25px;
 }
-
 .register-btn {
   width: 100%;
   margin: 0 auto;
   background-color: #2061f6;
 }
-
 .logoText {
   color: #fff;
   font-size: 36px;
@@ -122,11 +119,9 @@ export default {
   display: flex;
   justify-content: center;
 }
-
 .logoText span {
   margin-left: 30px;
 }
-
 #bg {
   width: 100%;
   height: 100vh; /* 重点一 */
