@@ -7,8 +7,7 @@
         class="handle-del mr10"
         @click="delAllSelection"
       >批量删除</el-button>
-      <el-button type="primary" icon="el-icon-refresh"
-       @click="getData" circle class="refresh"></el-button>
+      <el-button type="primary" icon="el-icon-refresh" @click="getData" circle class="refresh"></el-button>
     </div>
     <el-table :data="logData.list" style="width: 100%" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center"></el-table-column>
@@ -32,11 +31,11 @@
       <el-table-column prop="description" label="描述"></el-table-column>
       <el-table-column prop="browser" label="浏览器"></el-table-column>
       <el-table-column label="创建日期" align="left">
-              <template slot-scope="scope">
-                <div v-if="scope.row.createTime !== null">{{ toTime(scope.row.createDate) }}</div>
-                <div v-else>空</div>
-              </template>
-            </el-table-column>
+        <template slot-scope="scope">
+          <div v-if="scope.row.createTime !== null">{{ toTime(scope.row.createDate) }}</div>
+          <div v-else>空</div>
+        </template>
+      </el-table-column>
       <el-table-column fixed="right" label="操作" width="180">
         <template slot-scope="scope">
           <el-button @click="detail(scope.row)" type="text" size="small">查看详情</el-button>
@@ -80,7 +79,7 @@
 import store from "@/store";
 
 import Vue from "vue";
-import { getLogList, delOneLog, delMore,solve,recurrent } from "@/api/log";
+import { getLogList, delOneLog, delMore, solve, recurrent } from "@/api/log";
 import { warningDialog } from "@/utils/dialog";
 
 export default {
@@ -164,8 +163,8 @@ export default {
     //标志为解决
     handleSolve(data) {
       var params = {
-        id:data.id
-      }
+        id: data.id
+      };
       solve(params).then(res => {
         this.getData();
       });
@@ -173,8 +172,8 @@ export default {
     //标志为解决
     handleNoSolve(data) {
       var params = {
-        id:data.id
-      }
+        id: data.id
+      };
       recurrent(params).then(res => {
         this.getData();
       });
