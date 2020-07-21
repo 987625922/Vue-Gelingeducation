@@ -31,7 +31,12 @@
       </el-table-column>
       <el-table-column prop="description" label="描述"></el-table-column>
       <el-table-column prop="browser" label="浏览器"></el-table-column>
-      <el-table-column prop="createTime" label="创建日期"></el-table-column>
+      <el-table-column label="创建日期" align="left">
+              <template slot-scope="scope">
+                <div v-if="scope.row.createTime !== null">{{ toTime(scope.row.createDate) }}</div>
+                <div v-else>空</div>
+              </template>
+            </el-table-column>
       <el-table-column fixed="right" label="操作" width="180">
         <template slot-scope="scope">
           <el-button @click="detail(scope.row)" type="text" size="small">查看详情</el-button>
